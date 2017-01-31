@@ -1,0 +1,92 @@
+add_definitions(-std=gnu99)
+
+include_directories(
+    ${GLIB2_INCLUDE_DIRS}
+    ${GTK2_INCLUDE_DIRS}
+    ${OPENGL_INCLUDE_DIR}
+    ${LCMTYPES_INCLUDE_DIRS}
+)
+
+# Create a shared library libquad-renderers.so with a single source file
+add_library(er-renderers SHARED
+    er_gl_utils.c
+    viewer_aux_data.c
+    tile_set.c
+    renderer_annotation.c
+    renderer_waypoint.c
+    renderer_rrtstar.c
+    renderer_occupancy_map.c
+    renderer_grid.c
+    renderer_localize.c
+    renderer_log_annotation.c
+    renderer_navigator_plan.c
+    renderer_tracks.c
+    renderer_wavefront_model.c
+    renderer_quad_model.c
+    renderer_simobs.c
+    renderer_gridmap.c
+    renderer_person_model.c
+    #renderer_verify_check_gridmap.c
+    renderer_host_status.c
+    renderer_sensor_status.c
+    renderer_robot_status.c
+    renderer_pcl_points.c
+    renderer_generic_object.c
+    renderer_arm_command_sender.c
+    robot-arm-sensor-renderer.c
+    #drawing_utility.c
+    renderer_robot_commands.c
+    renderer_manual_calib.c
+    #renderer_vision_lcmgl.c
+    renderer_topological_graph.c
+    renderer_place_classification.c)
+
+target_link_libraries (er-renderers
+    ${GTK2_LDFLAGS}
+    ${OPENGL_LIBRARIES}
+    ${GLUT_LIBRARIES}
+    ${LCMTYPES_LIBS})
+    
+    
+set(REQUIRED_LIBRARIES
+    lcm
+    bot2-core
+    bot2-vis
+    bot2-param-client 
+    bot2-frames
+    er-common
+    check_gridmap
+    lcmtypes_bot2-procman
+    lcmtypes_er-lcmtypes
+    lcmtypes_rrtstar_dub
+    lcmtypes_arm-command
+    lcmtypes_dynamixel
+    map3d_interface
+    opencv
+<<<<<<< .mine
+    arm-ik
+=======
+    jpeg-utils
+    bot2-lcmgl-renderer
+    lcmtypes_bot2-lcmgl
+>>>>>>> .r1974
+    )
+
+pods_use_pkg_config_packages(er-renderers ${REQUIRED_LIBRARIES})
+
+# make the header public
+# install it to include/quad-renderers
+pods_install_headers(er_renderers.h er_gl_utils.h viewer_aux_data.h DESTINATION er_renderers)
+
+# make the library public
+pods_install_libraries(er-renderers)
+
+# create a pkg-config file for the library, to make it easier for other
+# software to use.
+pods_install_pkg_config_file(er-renderers
+    CFLAGS
+    LIBS -ler-renderers 
+    REQUIRES ${REQUIRED_LIBRARIES}
+    VERSION 0.0.1)
+
+pods_use_pkg_config_packages(er-renderers lcm bot2-core bot2-vis lcmtypes_er-lcmtypes er-path-util)
