@@ -43,7 +43,7 @@ typedef struct _RendererWheelchair {
     BotParam * param;
     BotFrames * frames;
 
-    BotWavefrontModel *wheelchair_model;
+    BotWavefrontModel *husky_model;
     BotViewer *viewer;
     BotGtkParamWidget *pw;
 
@@ -57,7 +57,7 @@ typedef struct _RendererWheelchair {
 
     int display_lists_ready;
     int display_detail;
-    GLuint wheelchair_dl;
+    GLuint husky_dl;
 } RendererWheelchair;
 
 
@@ -90,7 +90,7 @@ draw_wavefront_model (RendererWheelchair * self)
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glShadeModel (GL_SMOOTH);
     glEnable (GL_LIGHTING);
-    glCallList (self->wheelchair_dl);
+    glCallList (self->husky_dl);
 }
 
 static void 
@@ -126,12 +126,12 @@ on_find_button(GtkWidget *button, RendererWheelchair *self)
 }
 
 static void 
-wheelchair_free(BotRenderer *super)
+husky_free(BotRenderer *super)
 {
     RendererWheelchair *self = (RendererWheelchair*) super->user;
 
-    if (self->wheelchair_model)
-        bot_wavefront_model_destroy(self->wheelchair_model);
+    if (self->husky_model)
+        bot_wavefront_model_destroy(self->husky_model);
     free(self);
 }
 
@@ -210,7 +210,7 @@ draw_footprint (RendererWheelchair *self)
 
 
 static void 
-wheelchair_draw(BotViewer *viewer, BotRenderer *super)
+husky_draw(BotViewer *viewer, BotRenderer *super)
 {
     RendererWheelchair *self = (RendererWheelchair*) super->user;
 
@@ -218,8 +218,8 @@ wheelchair_draw(BotViewer *viewer, BotRenderer *super)
         return;
     
     int bling = bot_gtk_param_widget_get_bool(self->pw, PARAM_BLING);
-    if (bling && self->wheelchair_model && !self->display_lists_ready) {
-        self->wheelchair_dl = compile_display_list(self, self->wheelchair_model);
+    if (bling && self->husky_model && !self->display_lists_ready) {
+        self->husky_dl = compile_display_list(self, self->husky_model);
         self->display_lists_ready = 1;
     }
 
@@ -337,7 +337,7 @@ on_save_preferences(BotViewer *viewer, GKeyFile *keyfile, void *user_data)
 }
 
 void 
-add_wheelchair_model_renderer_to_viewer(BotViewer *viewer, int render_priority, 
+add_husky_model_renderer_to_viewer(BotViewer *viewer, int render_priority, 
                                         BotParam * param, BotFrames * frames)
 {
     RendererWheelchair *self = (RendererWheelchair*) calloc(1, sizeof(RendererWheelchair));
@@ -346,8 +346,8 @@ add_wheelchair_model_renderer_to_viewer(BotViewer *viewer, int render_priority,
     BotRenderer *renderer = &self->renderer;
     self->lcm = bot_lcm_get_global (NULL);
 
-    renderer->draw = wheelchair_draw;
-    renderer->destroy = wheelchair_free;
+    renderer->draw = husky_draw;
+    renderer->destroy = husky_free;
 
     renderer->widget = gtk_vbox_new(FALSE, 0);
     renderer->name = (char *) RENDERER_NAME;
@@ -376,17 +376,17 @@ add_wheelchair_model_renderer_to_viewer(BotViewer *viewer, int render_priority,
 
     char *model_name;
     char model_full_path[256];
-    self->model_param_prefix = "models.wheelchair";
+    self->model_param_prefix = "models.husky";
     char param_key[1024];
     snprintf(param_key, sizeof(param_key), "%s.wavefront_model", self->model_param_prefix);
   
     int footprint_only = 0;
     if (bot_param_get_str(self->param, param_key, &model_name) == 0) {
         snprintf(model_full_path, sizeof(model_full_path), "%s/%s", models_dir, model_name);
-        self->wheelchair_model = bot_wavefront_model_create(model_full_path);
+        self->husky_model = bot_wavefront_model_create(model_full_path);
         double minv[3];
         double maxv[3];
-        bot_wavefront_model_get_extrema(self->wheelchair_model, minv, maxv);
+        bot_wavefront_model_get_extrema(self->husky_model, minv, maxv);
 
         double span_x = maxv[0] - minv[0];
         double span_y = maxv[1] - minv[1];

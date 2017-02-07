@@ -389,7 +389,7 @@ int main(int argc, char *argv[])
     if (!(param = bot_param_get_global(lcm, 0))) {
         fprintf(stderr,"No server found : Reading from file\n");
         char config_path[2048];
-        sprintf(config_path, "%s/wheelchair.cfg", getConfigPath());
+        sprintf(config_path, "%s/husky.cfg", getConfigPath());
         param = bot_param_new_from_file(config_path);
 
         if(!param){
@@ -442,7 +442,7 @@ int main(int argc, char *argv[])
     quad_waypoint_add_renderer_to_viewer(viewer, 1, lcm);
     localize_add_renderer_to_viewer(viewer, 1, lcm);
     //log_annotation_add_renderer_to_viewer(viewer, 1, lcm, param);
-    add_wheelchair_model_renderer_to_viewer(viewer, 1, param, frames);
+    add_husky_model_renderer_to_viewer(viewer, 1, param, frames);
     //verify_check_gridmap_add_renderer_to_viewer(viewer, 1, lcm);
     //navigator_plan_renderer_to_viewer(viewer, 1, lcm);
     //setup_renderer_place_classification(viewer, 1, lcm, param);
