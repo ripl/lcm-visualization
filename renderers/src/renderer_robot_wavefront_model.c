@@ -20,7 +20,7 @@
 #include <lcmtypes/hr_lcmtypes.h>
 #include <lcmtypes/bot_core_pose_t.h>
 
-#define RENDERER_NAME "Wheelchair"
+#define RENDERER_NAME "Husky"
 
 #define PARAM_BLING "Bling"
 #define PARAM_SHOW_SHADOW "Shadow"
@@ -35,7 +35,7 @@
 #define TO_DEG(x) ((x)*180.0/M_PI)
 
 
-typedef struct _RendererWheelchair {
+typedef struct _RendererHusky {
     BotRenderer renderer;
     BotEventHandler ehandler;
 
@@ -58,14 +58,14 @@ typedef struct _RendererWheelchair {
     int display_lists_ready;
     int display_detail;
     GLuint husky_dl;
-} RendererWheelchair;
+} RendererHusky;
 
 
 static void
 on_bot_pose (const lcm_recv_buf_t *buf, const char *channel,
              const bot_core_pose_t *msg, void *user) {
     
-    RendererWheelchair *self = (RendererWheelchair *)user;
+    RendererHusky *self = (RendererHusky *)user;
     if (self->bot_pose_last)
         bot_core_pose_t_destroy (self->bot_pose_last);
     self->bot_pose_last = bot_core_pose_t_copy (msg);
@@ -75,7 +75,7 @@ static void
 on_raw_odometry_msg (const lcm_recv_buf_t *buf, const char *channel,
                      const erlcm_raw_odometry_msg_t *msg, void *user) {
 
-    RendererWheelchair *self = (RendererWheelchair *) user;
+    RendererHusky *self = (RendererHusky *) user;
 
     if (self->raw_odometry_msg_last)
         erlcm_raw_odometry_msg_t_destroy (self->raw_odometry_msg_last);
@@ -83,7 +83,7 @@ on_raw_odometry_msg (const lcm_recv_buf_t *buf, const char *channel,
 }
 
 static void
-draw_wavefront_model (RendererWheelchair * self)
+draw_wavefront_model (RendererHusky * self)
 {
     glEnable (GL_BLEND);
     glEnable (GL_RESCALE_NORMAL);
@@ -97,13 +97,13 @@ static void
 frames_update_handler(BotFrames *bot_frames, const char *frame, const char * relative_to, int64_t utime,
                                   void *user)
 {
-    RendererWheelchair *self = (RendererWheelchair *) user;
+    RendererHusky *self = (RendererHusky *) user;
     if (strcmp(frame, "body") == 0)
         bot_viewer_request_redraw(self->viewer);
 }
 
 static void 
-on_find_button(GtkWidget *button, RendererWheelchair *self)
+on_find_button(GtkWidget *button, RendererHusky *self)
 {
     BotViewHandler *vhandler = self->viewer->view_handler;
 
@@ -128,7 +128,7 @@ on_find_button(GtkWidget *button, RendererWheelchair *self)
 static void 
 husky_free(BotRenderer *super)
 {
-    RendererWheelchair *self = (RendererWheelchair*) super->user;
+    RendererHusky *self = (RendererHusky*) super->user;
 
     if (self->husky_model)
         bot_wavefront_model_destroy(self->husky_model);
@@ -136,7 +136,7 @@ husky_free(BotRenderer *super)
 }
 
 static GLuint
-compile_display_list (RendererWheelchair * self, BotWavefrontModel * model)
+compile_display_list (RendererHusky * self, BotWavefrontModel * model)
 {
     GLuint dl = glGenLists (1);
     glNewList (dl, GL_COMPILE);
@@ -175,7 +175,7 @@ compile_display_list (RendererWheelchair * self, BotWavefrontModel * model)
 }
 
 static void
-draw_footprint (RendererWheelchair *self)
+draw_footprint (RendererHusky *self)
 { 
     glPushAttrib (GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable (GL_DEPTH_TEST);
@@ -212,7 +212,7 @@ draw_footprint (RendererWheelchair *self)
 static void 
 husky_draw(BotViewer *viewer, BotRenderer *super)
 {
-    RendererWheelchair *self = (RendererWheelchair*) super->user;
+    RendererHusky *self = (RendererHusky*) super->user;
 
     if (!bot_frames_have_trans(self->frames, "body", self->draw_frame))
         return;
@@ -305,7 +305,7 @@ mouse_press (BotViewer *viewer, BotEventHandler *ehandler,
              const double ray_start[3], const double ray_dir[3], 
              const GdkEventButton *event)
 {
-    RendererWheelchair *self = (RendererWheelchair*) ehandler->user;
+    RendererHusky *self = (RendererHusky*) ehandler->user;
 
     if (event->type == GDK_2BUTTON_PRESS) {
         self->display_detail = (self->display_detail + 1) % NUM_DETAILS;
@@ -318,21 +318,21 @@ mouse_press (BotViewer *viewer, BotEventHandler *ehandler,
 static void 
 on_param_widget_changed(BotGtkParamWidget *pw, const char *name, void *user)
 {
-    RendererWheelchair *self = (RendererWheelchair*) user;
+    RendererHusky *self = (RendererHusky*) user;
     bot_viewer_request_redraw(self->viewer);
 }
 
 static void 
 on_load_preferences(BotViewer *viewer, GKeyFile *keyfile, void *user_data)
 {
-    RendererWheelchair *self = (RendererWheelchair *) user_data;
+    RendererHusky *self = (RendererHusky *) user_data;
     bot_gtk_param_widget_load_from_key_file(self->pw, keyfile, RENDERER_NAME);
 }
 
 static void 
 on_save_preferences(BotViewer *viewer, GKeyFile *keyfile, void *user_data)
 {
-    RendererWheelchair *self = (RendererWheelchair *) user_data;
+    RendererHusky *self = (RendererHusky *) user_data;
     bot_gtk_param_widget_save_to_key_file(self->pw, keyfile, RENDERER_NAME);
 }
 
@@ -340,7 +340,7 @@ void
 add_husky_model_renderer_to_viewer(BotViewer *viewer, int render_priority, 
                                         BotParam * param, BotFrames * frames)
 {
-    RendererWheelchair *self = (RendererWheelchair*) calloc(1, sizeof(RendererWheelchair));
+    RendererHusky *self = (RendererHusky*) calloc(1, sizeof(RendererHusky));
 
     self->viewer = viewer;
     BotRenderer *renderer = &self->renderer;
@@ -401,7 +401,7 @@ add_husky_model_renderer_to_viewer(BotViewer *viewer, int render_priority,
     }
     else {
         footprint_only = 1;
-        fprintf(stderr, "Wheelchair model name not found under param %s, drawing footprint only\n", param_key);
+        fprintf(stderr, "Husky model name not found under param %s, drawing footprint only\n", param_key);
     }
 
     

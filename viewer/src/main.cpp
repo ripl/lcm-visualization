@@ -337,7 +337,7 @@ static void
 usage (int argc, char ** argv)
 {
     fprintf (stderr, "Usage: %s [OPTIONS]\n"
-             "Envoy visualization tool...\n"
+             "Husky visualization tool...\n"
              "\n"
              "Options:\n"
              "-p, --port <port> Set log port. 53261 is default. if 0 then no log port\n"
@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
     bot_glib_mainloop_attach_lcm (lcm);
 
 
-    BotViewer *viewer = bot_viewer_new("Envoy Viewer");
+    BotViewer *viewer = bot_viewer_new("Husky Viewer");
 
 
     //die cleanly for control-c etc :-)
