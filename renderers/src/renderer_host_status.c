@@ -17,7 +17,7 @@
 #include <bot_vis/gl_util.h>
 
 #include <lcmtypes/erlcm_host_status_t.h>
-#include <lcmtypes/bot_procman_info_t.h>
+#include <lcmtypes/bot_procman_info2_t.h>
 #include <hr_common/clock_skew_estimator.h>
 
 #define ERR(fmt, ...) do {                                  \
@@ -29,7 +29,7 @@ typedef struct
 {
     char *id;
     erlcm_host_status_t * host_status;
-    bot_procman_info_t * pmd_info;
+    bot_procman_info2_t * pmd_info;
 } HS;
 
 static void hs_destroy(HS *hs)
@@ -38,7 +38,7 @@ static void hs_destroy(HS *hs)
     if(hs->host_status)
         erlcm_host_status_t_destroy(hs->host_status);
     if(hs->pmd_info)
-        bot_procman_info_t_destroy(hs->pmd_info);
+        bot_procman_info2_t_destroy(hs->pmd_info);
     free(hs);
 }
 
@@ -65,7 +65,7 @@ typedef struct
 
     lcm_t *lcm;
     erlcm_host_status_t_subscription_t *sub;
-    bot_procman_info_t_subscription_t *pm_sub;
+    bot_procman_info2_t_subscription_t *pm_sub;
 
     // key: char*  val: HS*
     GHashTable *hosts;
@@ -100,13 +100,13 @@ on_host_status(const lcm_recv_buf_t *rbuf,
 
 static void
 on_procman_info_data(const lcm_recv_buf_t *rbuf,
-                     const char *channel, const bot_procman_info_t *msg, void *user)
+                     const char *channel, const bot_procman_info2_t *msg, void *user)
 {
     RendererHostStatus *self = (RendererHostStatus*) user;
     HS * hs = get_hs(self, msg->host);
     if(hs->pmd_info)
-        bot_procman_info_t_destroy(hs->pmd_info);
-    hs->pmd_info = bot_procman_info_t_copy(msg);
+        bot_procman_info2_t_destroy(hs->pmd_info);
+    hs->pmd_info = bot_procman_info2_t_copy(msg);
     
     clock_skew_estimator_add_measurement (self->skew, msg->host,
                                           rbuf->recv_utime, msg->utime);
@@ -202,7 +202,6 @@ _draw(BotViewer *viewer, BotRenderer *r)
 
         gboolean have_skew = clock_skew_estimator_get_skew (self->skew, hs->id,
                                                             &skew_int);
-
         if (strcmp(hs->id, self->ref_clock_name) == 0)
             skew_ms = 0;
         else {
@@ -365,13 +364,13 @@ BotRenderer *renderer_host_status_new(BotViewer *viewer)
                                         NULL, (GDestroyNotify) hs_destroy);
 
     // setup clock skew estimator using mwalter-agile as reference
-    self->ref_clock_name = strdup("mwalter-agile");
+    self->ref_clock_name = strdup("laptop.husky");
     self->skew = clock_skew_estimator_new (self->ref_clock_name);
 
     self->lcm = bot_lcm_get_global (NULL);
     self->sub = erlcm_host_status_t_subscribe(self->lcm, "HOST_STATUS", on_host_status, self);
 
-    self->pm_sub = bot_procman_info_t_subscribe(self->lcm, "PMD_INFO", on_procman_info_data, self);
+    self->pm_sub = bot_procman_info2_t_subscribe(self->lcm, "PMD_INFO2", on_procman_info_data, self);
 
     //we should subscribe to sensor status also 
 
