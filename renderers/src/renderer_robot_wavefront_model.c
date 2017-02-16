@@ -252,10 +252,13 @@ husky_draw(BotViewer *viewer, BotRenderer *super)
         char buf[256];
         switch (self->display_detail) {
         case DETAIL_SPEED: {
+            if (self->raw_odometry_msg_last) {
             sprintf(buf, "tv: %.2f m/s\nrv: %.2f deg/s", self->raw_odometry_msg_last->tv,
                     self->raw_odometry_msg_last->rv * 180/M_PI);
             //sqrt(SQ(self->bot_pose_last->vel[0]) + SQ(self->bot_pose_last->vel[1]) + 
             //            SQ(self->bot_pose_last->vel[2])));
+            } else
+                sprintf (buf, "No odom");
             break;
         }
         case DETAIL_RPY:
