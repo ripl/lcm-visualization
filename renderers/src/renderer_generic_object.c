@@ -504,7 +504,7 @@ get_wavefront_model(char *object_name, renderer_generic_object_t *self){
         
     }
     else {
-        fprintf(stderr, "object model name not found under param %s, drawing with boxy-wheelchair\n", param_key);
+        fprintf(stderr, "object model name not found under param %s, drawing with boxy-robot\n", param_key);
         return get_triad(1.0, 1.0, 1.0);
     }
 }

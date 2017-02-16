@@ -447,7 +447,7 @@ void add_person_model_renderer_to_viewer(BotViewer *viewer, int render_priority,
 
     }
     else {
-        fprintf(stderr, "person model name not found under param %s, drawing with boxy-wheelchair\n", param_key);
+        fprintf(stderr, "person model name not found under param %s, drawing with boxy-robot\n", param_key);
     }
 
 
