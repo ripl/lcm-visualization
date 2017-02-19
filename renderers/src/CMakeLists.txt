@@ -17,7 +17,7 @@ add_library(hr-renderers SHARED
     renderer_occupancy_map.c
     renderer_grid.c
     renderer_localize.c
-    #renderer_navigator_plan.c
+    renderer_navigator_plan.c
     renderer_tracks.c
     renderer_robot_wavefront_model.c
     renderer_quad_model.c

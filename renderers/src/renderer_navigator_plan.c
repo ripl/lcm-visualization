@@ -30,6 +30,7 @@
 #include <bot_core/bot_core.h>
 #include <bot_vis/texture.h>
 #include <lcmtypes/hr_lcmtypes.h>
+#include <lcmtypes/navigator.h>
 #include <hr_lcmtypes/lcm_channel_names.h>
 
 #define RENDERER_NAME "Navigator Plan"
@@ -792,12 +793,12 @@ static void navigator_plan_renderer_draw(BotViewer *viewer, BotRenderer *super)
   
 }
 
-void publish_mission_control(lcm_t *lc,int type){//erlcm_mission_control_type_t type){
-    erlcm_mission_control_msg_t msg;
-    msg.utime = bot_timestamp_now();
-    msg.type = type;
-    erlcm_mission_control_msg_t_publish(lc, MISSION_CONTROL_CHANNEL, &msg);
-}
+/* void publish_mission_control(lcm_t *lc,int type){//erlcm_mission_control_type_t type){ */
+/*     erlcm_mission_control_msg_t msg; */
+/*     msg.utime = bot_timestamp_now(); */
+/*     msg.type = type; */
+/*     erlcm_mission_control_msg_t_publish(lc, MISSION_CONTROL_CHANNEL, &msg); */
+/* } */
 
 static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, void *user)
 {
@@ -822,7 +823,8 @@ static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, voi
     else if(!strcmp(name, START_ROBOT)){
         activate_nav(self,2);
         //start navigator to issue commands to the robot
-        publish_mission_control(self->lc, ERLCM_MISSION_CONTROL_MSG_T_NAVIGATOR_GO);
+        // NOBODY SUBSCRIBES TO THIS MESSAGE
+        //publish_mission_control(self->lc, ERLCM_MISSION_CONTROL_MSG_T_NAVIGATOR_GO);
         //publish speech command go message
         erlcm_speech_cmd_t msg;
         msg.cmd_type = "FOLLOWER";
@@ -834,7 +836,8 @@ static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, voi
     }
     else if(!strcmp(name, STOP_ROBOT)) {
         activate_nav(self,3);//pause the navigator
-        publish_mission_control(self->lc, ERLCM_MISSION_CONTROL_MSG_T_NAVIGATOR_PAUSE);
+        // NOBODY SUBSCRIBES TO THIS MESSAGE
+        //publish_mission_control(self->lc, ERLCM_MISSION_CONTROL_MSG_T_NAVIGATOR_PAUSE);
         erlcm_speech_cmd_t msg;
         msg.cmd_type = "FOLLOWER";
         msg.cmd_property = "STOP";
@@ -846,6 +849,7 @@ static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, voi
         activate_nav(self,4);
         //self->param_place_addition = 1;
         //pause the navigator
+        // NOBODY_SUBSCRIBES_TO_THIS MESSAGE
         //publish_mission_control(self->lc, CARMEN3D_MISSION_NAVIGATOR_PAUSE);
         fprintf(stderr,"Adding New Place : %d\n", self->param_add_loc);
         
