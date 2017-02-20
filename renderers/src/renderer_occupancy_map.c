@@ -195,6 +195,7 @@ static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channe
   
 
     for(int i=0; i< self->no_floors; i++){
+
         if(self->multi_map[i].map !=NULL){
             free(self->multi_map[i].map);
         }
@@ -207,11 +208,22 @@ static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channe
         self->no_floors = staticmsg->no_floors;
         self->multi_map = (erlcm_map_t *) realloc(self->multi_map, 
                                                   self->no_floors * sizeof(erlcm_map_t));
-    
+   
+        // Update the gtk widget to respect the new floors
+        if (staticmsg->no_floors > 0)
+            bot_gtk_param_widget_clear_enum (self->pw, PARAM_FLOOR_NO);
+
+        char name[26];
+        for (int i=0; i < staticmsg->no_floors; i++) {
+            sprintf (name, "%d", staticmsg->maps[i].floor_no);
+
+            bot_gtk_param_widget_modify_enum (self->pw, PARAM_FLOOR_NO, name, staticmsg->maps[i].floor_no);
+        }
+        bot_gtk_param_widget_set_enum (self->pw, PARAM_FLOOR_NO, staticmsg->current_floor_ind);
     }  
     self->floor_map = (int *) realloc( self->floor_map, self->no_floors *sizeof(int));
 
-    for(int m=0; m< self->no_floors; m++){
+    for(int m=0; m < self->no_floors; m++){
         carmen3d_map_uncompress_lcm_map(&self->multi_map[m], &staticmsg->maps[m].gridmap);
         self->floor_map[m] = staticmsg->maps[m].floor_no;
     
@@ -281,60 +293,60 @@ static void upload_map_texture(RendererOccupancyMap *self)
     int draw_all_floors = 0;
 
     switch (self->param_map_mode) {
-    case GMAPPER_MAP:
-        self->draw_map = &self->map;
-        break;
-    case MULTI_FLOOR:
-        for(int m=0; m< self->no_floors; m++){
-            //fprintf(stderr,"Ind : %d => Floor No : %d\n", m , self->floor_map[m]); 
-            if(self->floor_map[m] != (self->param_current_floor)){
-                continue;
+        case GMAPPER_MAP:
+            self->draw_map = &self->map;
+            break;
+        case MULTI_FLOOR:
+            for(int m=0; m< self->no_floors; m++){
+                //fprintf(stderr,"Ind : %d => Floor No : %d\n", m , self->floor_map[m]); 
+                if(self->floor_map[m] != (self->param_current_floor)){
+                    continue;
+                }
+                else{      
+                    fprintf(stderr,"Drawing Floor : %d Ind : %d\n", self->param_current_floor, m);
+                    //fprintf(stderr,"Drawing Floor : %d\n", m);    
+                    self->draw_map = &self->multi_map[m];
+                    multi_map_ind = m;
+                    //invert
+                    
+                    break;
+                }
             }
-            else{      
-                fprintf(stderr,"Drawing Floor : %d Ind : %d\n", self->param_current_floor, m);
-                //fprintf(stderr,"Drawing Floor : %d\n", m);    
-                self->draw_map = &self->multi_map[m];
-                multi_map_ind = m;
-                //invert
-	
-                break;
+            break;
+        case ALL_FLOORS : // CUrrently not supported as it leaks memory
+            draw_all_floors = 1;
+            //fprintf(stderr,"Multi-Floor Drawing - Target Floor : %d\n", self->param_current_floor);
+            //self->draw_map = &self->map;
+            for(int m=0; m< self->no_floors; m++){
+                //fprintf(stderr,"Ind : %d => Floor No : %d\n", m , self->floor_map[m]); 
+                if(self->floor_map[m] != (self->param_current_floor)){
+                    continue;
+                }
+                else{      
+                    fprintf(stderr,"Drawing Floor : %d Ind : %d\n", self->param_current_floor, m);
+                    //fprintf(stderr,"Drawing Floor : %d\n", m);    
+                    self->draw_map = &self->multi_map[m];
+                    multi_map_ind = m;
+                    //invert
+                    
+                    break;
+                }
             }
-        }
-        break;
-    case ALL_FLOORS:
-        draw_all_floors = 1;
-        //fprintf(stderr,"Multi-Floor Drawing - Target Floor : %d\n", self->param_current_floor);
-        //self->draw_map = &self->map;
-        for(int m=0; m< self->no_floors; m++){
-            //fprintf(stderr,"Ind : %d => Floor No : %d\n", m , self->floor_map[m]); 
-            if(self->floor_map[m] != (self->param_current_floor)){
-                continue;
-            }
-            else{      
-                fprintf(stderr,"Drawing Floor : %d Ind : %d\n", self->param_current_floor, m);
-                //fprintf(stderr,"Drawing Floor : %d\n", m);    
-                self->draw_map = &self->multi_map[m];
-                multi_map_ind = m;
-                //invert
-	
-                break;
-            }
-        }
-        break;
-    case FRONTIER_UTILITY:
-        self->draw_map = &self->frontier_utility_map;
-        break;
-    case CAM_FRONTIER_UTILITY:
-        self->draw_map = &self->cam_frontier_utility_map;
-        break;
-    case NAVIGATOR_UTILITY:
-        self->draw_map = &self->nav_utility_map;
-        break;
-    case NAVIGATOR_COST:
-        self->draw_map = &self->nav_cost_map;
-        break;
+            break;
+        case FRONTIER_UTILITY:
+            self->draw_map = &self->frontier_utility_map;
+            break;
+        case CAM_FRONTIER_UTILITY:
+            self->draw_map = &self->cam_frontier_utility_map;
+            break;
+        case NAVIGATOR_UTILITY:
+            self->draw_map = &self->nav_utility_map;
+            break;
+        case NAVIGATOR_COST:
+            self->draw_map = &self->nav_cost_map;
+            break;
     }
-
+    
     float * draw_complete_map = NULL;
     static CvMat * draw_map_im = NULL;
     if (self->draw_map->map && self->param_draw_gmapper_map) {
@@ -377,6 +389,7 @@ static void upload_map_texture(RendererOccupancyMap *self)
                 x_size = self->draw_map->config.x_size;
                 y_size = self->draw_map->config.y_size;
                 draw_complete_map = self->draw_map->complete_map;
+
             }
 
             // create the texture object if necessary
@@ -441,14 +454,14 @@ static void upload_map_texture(RendererOccupancyMap *self)
                 self->draw_map = &self->multi_map[m];
                 multi_map_ind = m;
 
-                fprintf(stderr,"Drawing Floor : %d\n", m);
+                fprintf(stderr,"Drawing Floor Index : %d\n", m);
             
                 int maxDrawDim = 1024;
                 static int old_x_size = 0;
                 static int old_y_size = 0;
                 int x_size = 0;
                 int y_size = 0;
-                if (self->downsample && (self->draw_map->config.x_size > maxDrawDim || self->draw_map->config.y_size > maxDrawDim)) {
+                if (0 && self->downsample && (self->draw_map->config.x_size > maxDrawDim || self->draw_map->config.y_size > maxDrawDim)) {
                     //HUGE map... need to downsample
 
                     //*** this will add a memory leak 
@@ -828,17 +841,23 @@ renderer_occupancy_map_new(BotViewer *viewer, int render_priority, BotParam * _p
 
     self->param_draw_gmapper_map = bot_gtk_param_widget_get_bool(self->pw, PARAM_SHOW_GMAPPER_MAP);
     bot_gtk_param_widget_add_enum(self->pw, PARAM_MAP_MODE, BOT_GTK_PARAM_WIDGET_MENU, self->param_map_mode, "GMapping",
-                                  GMAPPER_MAP, "Multi Floor", MULTI_FLOOR, "All Floors", ALL_FLOORS, "Navigator Utility", NAVIGATOR_UTILITY, "Navigator Cost", NAVIGATOR_COST, "Frontier Utility", FRONTIER_UTILITY, "CAM Utility",
+                                  //GMAPPER_MAP, "Multi Floor", MULTI_FLOOR, "All Floors", ALL_FLOORS, "Navigator Utility", NAVIGATOR_UTILITY, // ALL FLOORS currently leaks memory
+                                  GMAPPER_MAP, "Multi Floor", MULTI_FLOOR, "Navigator Utility", NAVIGATOR_UTILITY, 
+                                  "Navigator Cost", NAVIGATOR_COST, "Frontier Utility", FRONTIER_UTILITY, "CAM Utility",
                                   CAM_FRONTIER_UTILITY, NULL);
+
+    /* bot_gtk_param_widget_add_enum(self->pw, PARAM_FLOOR_NO, BOT_GTK_PARAM_WIDGET_MENU,  */
+    /*                               self->param_current_floor,  */
+    /*                               "Ground",0, */
+    /*                               "First",1, */
+    /*                               "Second", 2,  */
+    /*                               "Third",3, */
+    /*                               "Fourth", 4,  */
+    /*                               "Fifth", 5, NULL); */
 
     bot_gtk_param_widget_add_enum(self->pw, PARAM_FLOOR_NO, BOT_GTK_PARAM_WIDGET_MENU, 
                                   self->param_current_floor, 
-                                  "Ground",0,
-                                  "First",1,
-                                  "Second", 2, 
-                                  "Third",3,
-                                  "Fourth", 4, 
-                                  "Fifth", 5, NULL);
+                                  "Default",0, NULL);
 
     gtk_widget_show_all(renderer->widget);
     g_signal_connect(G_OBJECT(self->pw), "changed", G_CALLBACK(on_param_widget_changed), self);

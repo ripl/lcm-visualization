@@ -31,6 +31,7 @@ pods_use_pkg_config_packages(hr-viewer
     laser-util-renderer
     image-util-renderer
     lcmtypes_hr-lcmtypes
+    lcmtypes_navigator
     map3d_interface
     hr-path-util
     #velodyne-renderer
