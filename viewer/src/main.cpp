@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
     //log_annotation_add_renderer_to_viewer(viewer, 1, lcm, param);
     add_husky_model_renderer_to_viewer(viewer, 1, param, frames);
     //verify_check_gridmap_add_renderer_to_viewer(viewer, 1, lcm);
-    //navigator_plan_renderer_to_viewer(viewer, 1, lcm);
+    navigator_plan_renderer_to_viewer(viewer, 1, lcm);
     //setup_renderer_place_classification(viewer, 1, lcm, param);
     setup_renderer_rrtstar(viewer, 1, lcm);
     setup_renderer_tracks(viewer, 1, lcm, param);

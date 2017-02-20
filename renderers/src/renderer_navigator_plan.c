@@ -81,6 +81,7 @@ typedef struct _RendererNavigatorPlan {
     int current_floor_ind; 
     int current_floor_no;
     int sent_topo_request;
+    int num_floors;
 
     GtkWidget *place_name_entry;
     GtkWidget *placename_dialog;
@@ -410,6 +411,32 @@ static void topology_handler(const lcm_recv_buf_t *rbuf, const char *channel, co
     self->topology = erlcm_topology_t_copy(msg);
 
 }
+
+
+static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channel, const erlcm_multi_gridmap_t *msg, void *user)
+{
+    RendererNavigatorPlan *self = (RendererNavigatorPlan *) user;
+    if (self->num_floors != msg->no_floors) {
+        
+        // Update the gtk widget to respect the new floors
+        if (msg->no_floors > 0)
+            bot_gtk_param_widget_clear_enum (self->pw, PARAM_FLOOR_NO);
+        
+        char name[26];
+        for (int i=0; i < msg->no_floors; i++) {
+            sprintf (name, "%d", msg->maps[i].floor_no);
+            
+            bot_gtk_param_widget_modify_enum (self->pw, PARAM_FLOOR_NO, name, msg->maps[i].floor_no);
+        }
+        bot_gtk_param_widget_set_enum (self->pw, PARAM_FLOOR_NO, msg->current_floor_ind);
+
+        self->num_floors = msg->no_floors;
+    }
+
+    bot_viewer_request_redraw(self->viewer);
+}
+
+
 
 void activate_nav(RendererNavigatorPlan *self,int type)
 {
@@ -827,6 +854,7 @@ static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, voi
         //publish_mission_control(self->lc, ERLCM_MISSION_CONTROL_MSG_T_NAVIGATOR_GO);
         //publish speech command go message
         erlcm_speech_cmd_t msg;
+        msg.utime = bot_timestamp_now();
         msg.cmd_type = "FOLLOWER";
         msg.cmd_property = "GO";
         erlcm_speech_cmd_t_publish(self->lc, "WAYPOINT_NAVIGATOR", &msg);
@@ -839,6 +867,7 @@ static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, voi
         // NOBODY SUBSCRIBES TO THIS MESSAGE
         //publish_mission_control(self->lc, ERLCM_MISSION_CONTROL_MSG_T_NAVIGATOR_PAUSE);
         erlcm_speech_cmd_t msg;
+        msg.utime = bot_timestamp_now();
         msg.cmd_type = "FOLLOWER";
         msg.cmd_property = "STOP";
         erlcm_speech_cmd_t_publish(self->lc, "WAYPOINT_NAVIGATOR", &msg);
@@ -1186,24 +1215,30 @@ void navigator_plan_renderer_to_viewer(BotViewer *viewer, int render_priority, l
     erlcm_topology_t_subscribe(self->lc,"TOPOLOGY", topology_handler, 
                                        self);
 
+    erlcm_multi_gridmap_t_subscribe(self->lc, "MULTI_FLOOR_MAPS", multi_gridmap_handler, 
+                                    self);
+
     // --- SETUP SIDE BOX WIDGET
     self->pw = BOT_GTK_PARAM_WIDGET(bot_gtk_param_widget_new());
     gtk_box_pack_start(GTK_BOX(renderer->widget), GTK_WIDGET(self->pw), TRUE, TRUE, 0);
     bot_gtk_param_widget_add_booleans(self->pw, 0, PARAM_SHOW_NAVIGATOR_PLAN, 1, NULL);
 
+    /* bot_gtk_param_widget_add_enum(self->pw, PARAM_FLOOR_NO, BOT_GTK_PARAM_WIDGET_MENU,  */
+    /*                               0,  */
+    /*                               "Ground",0, */
+    /*                               "First",1, */
+    /*                               "Second", 2,  */
+    /*                               "Third",3, */
+    /*                               "Fourth", 4,  */
+    /*                               "Fifth", 5, */
+    /*                               "Sixth", 6, */
+    /*                               "Seventh", 7, */
+    /*                               "Eight", 8, */
+    /*                               "Ninth", 9,NULL); */
+
     bot_gtk_param_widget_add_enum(self->pw, PARAM_FLOOR_NO, BOT_GTK_PARAM_WIDGET_MENU, 
                                   0, 
-                                  "Ground",0,
-                                  "First",1,
-                                  "Second", 2, 
-                                  "Third",3,
-                                  "Fourth", 4, 
-                                  "Fifth", 5,
-                                  "Sixth", 6,
-                                  "Seventh", 7,
-                                  "Eight", 8,
-                                  "Ninth", 9,NULL);
-  
+                                  "Default",0, NULL);
     self->param_goal_placement = 0;
     self->param_have_goal = 0;
     self->goal[0] = 0.0;
