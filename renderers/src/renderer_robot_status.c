@@ -24,6 +24,8 @@
 #include <bot_vis/gl_util.h>
 #include <bot_vis/scrollplot2d.h>
 
+#include <bot_param/param_client.h>
+
 #include <lcmtypes/erlcm_velocity_msg_t.h>
 #include <lcmtypes/erlcm_robot_status_t.h>
 #include <lcmtypes/erlcm_raw_odometry_msg_t.h>
@@ -37,6 +39,10 @@
 #define PARAM_NAME_SHOW_LEGEND "Show Legends"
 
 #define REDRAW_THRESHOLD_UTIME 5000000
+// The following are used to define the ploy y-axis limits unless
+// otherwise specified in the param file
+#define MAX_RV 0.7
+#define MAX_TV 0.5
 
 typedef struct _RendererRobotStatus RendererRobotStatus;
 
@@ -54,7 +60,9 @@ struct _RendererRobotStatus {
     erlcm_robot_status_t *robot_status;
 
     int64_t  vel_cmd_utime_last;
-    uint64_t      max_utime;
+    uint64_t max_utime;
+    double default_tv;
+    double max_rv;
 };
 
 static void 
@@ -177,28 +185,27 @@ robot_status_draw (BotViewer *viewer, BotRenderer *renderer)
     glColor3f(1,1,1);
     int8_t state = self->robot_status ? self->robot_status->state : ERLCM_ROBOT_STATUS_T_STATE_UNDEFINED;
     char *robot_string;
-    switch (state) 
-        {
-        case ERLCM_ROBOT_STATUS_T_STATE_RUN:
-            robot_string = "RUN"; 
-            break;
-        case ERLCM_ROBOT_STATUS_T_STATE_STOP:
-            robot_string = "PAUSE"; 
-            break;
-        case ERLCM_ROBOT_STATUS_T_STATE_MANUAL:
-            robot_string = "MANUAL"; 
-            break;
-        case ERLCM_ROBOT_STATUS_T_STATE_STANDBY:
-            robot_string = "STANDBY"; 
-            break;
-        case ERLCM_ROBOT_STATUS_T_STATE_ERROR:
-            robot_string = "ERROR"; 
-            break;
-        default:
-        case ERLCM_ROBOT_STATUS_T_STATE_UNDEFINED:
-            robot_string = "UNDEFINED"; 
-            break;
-        }
+    switch (state)  {
+    case ERLCM_ROBOT_STATUS_T_STATE_RUN:
+        robot_string = "RUN"; 
+        break;
+    case ERLCM_ROBOT_STATUS_T_STATE_STOP:
+        robot_string = "PAUSE"; 
+        break;
+    case ERLCM_ROBOT_STATUS_T_STATE_MANUAL:
+        robot_string = "MANUAL"; 
+        break;
+    case ERLCM_ROBOT_STATUS_T_STATE_STANDBY:
+        robot_string = "STANDBY"; 
+        break;
+    case ERLCM_ROBOT_STATUS_T_STATE_ERROR:
+        robot_string = "ERROR"; 
+        break;
+    default:
+    case ERLCM_ROBOT_STATUS_T_STATE_UNDEFINED:
+        robot_string = "UNDEFINED"; 
+        break;
+    }
         
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -279,7 +286,7 @@ robot_status_free (BotRenderer *renderer)
     
 }
 
-BotRenderer *renderer_robot_status_new (BotViewer *viewer)
+BotRenderer *renderer_robot_status_new (BotViewer *viewer, BotParam *param)
 {
     RendererRobotStatus *self = 
         (RendererRobotStatus*) calloc (1, sizeof (RendererRobotStatus));
@@ -293,7 +300,21 @@ BotRenderer *renderer_robot_status_new (BotViewer *viewer)
     self->renderer.widget = gtk_alignment_new (0, 0.5, 1.0, 0);
 
     self->lcm = bot_lcm_get_global (NULL);
-    
+
+    int ret = -1;
+    ret = bot_param_get_double (param, "motion_planner.speed_design.default_tv", &(self->default_tv));
+    if (ret != 0)
+        self->default_tv = MAX_TV;
+    else
+        self->default_tv = self->default_tv * 1.1; // Add a scale to BotParam value for plotting
+
+    ret = bot_param_get_double (param, "motion_planner.speed_design.max_rv", &(self->max_rv));
+    if (ret != 0)
+        self->max_rv = MAX_RV;
+    else
+        self->max_rv = self->max_rv * 1.25; // Add a scale to BotParam value for plotting
+                          
+
     self->pw = BOT_GTK_PARAM_WIDGET (bot_gtk_param_widget_new ());
     gtk_container_add (GTK_CONTAINER (self->renderer.widget), 
                        GTK_WIDGET(self->pw));
@@ -321,7 +342,7 @@ BotRenderer *renderer_robot_status_new (BotViewer *viewer)
     bot_gl_scrollplot2d_set_text_color   (self->trans_vel_plot, 0.7, 0.7, 0.7, 1);
     bot_gl_scrollplot2d_set_bgcolor      (self->trans_vel_plot, 0.1, 0.1, 0.1, 0.7);
     bot_gl_scrollplot2d_set_border_color (self->trans_vel_plot, 1, 1, 1, 0.7);
-    bot_gl_scrollplot2d_set_ylim    (self->trans_vel_plot, 0, 1.5);
+    bot_gl_scrollplot2d_set_ylim    (self->trans_vel_plot, 0, self->default_tv);
     bot_gl_scrollplot2d_add_plot    (self->trans_vel_plot, "requested", 1000);
     bot_gl_scrollplot2d_set_color   (self->trans_vel_plot, "requested", 0.7, 0, 0.7, 1);
 
@@ -338,7 +359,7 @@ BotRenderer *renderer_robot_status_new (BotViewer *viewer)
     bot_gl_scrollplot2d_set_text_color   (self->rot_vel_plot, 0.7, 0.7, 0.7, 1);
     bot_gl_scrollplot2d_set_bgcolor      (self->rot_vel_plot, 0.1, 0.1, 0.1, 0.7);
     bot_gl_scrollplot2d_set_border_color (self->rot_vel_plot, 1, 1, 1, 0.7);
-    bot_gl_scrollplot2d_set_ylim    (self->rot_vel_plot, -35, 35);
+    bot_gl_scrollplot2d_set_ylim    (self->rot_vel_plot, -self->max_rv*180/M_PI, self->max_rv*180/M_PI);
     bot_gl_scrollplot2d_add_plot    (self->rot_vel_plot, "requested", 1000);
     bot_gl_scrollplot2d_set_color   (self->rot_vel_plot, "requested", 0.7, 0, 0.7, 1);
 
@@ -364,9 +385,8 @@ BotRenderer *renderer_robot_status_new (BotViewer *viewer)
     return &self->renderer;
 }
 
-void setup_renderer_robot_status (BotViewer *viewer, int priority)
+void setup_renderer_robot_status (BotViewer *viewer, BotParam *param, int priority)
 {
-    bot_viewer_add_renderer(viewer, 
-                            renderer_robot_status_new(viewer), priority);
+    bot_viewer_add_renderer(viewer, renderer_robot_status_new(viewer, param), priority);
 }
 
