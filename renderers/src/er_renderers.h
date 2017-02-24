@@ -25,7 +25,7 @@ void setup_renderer_gridmap (BotViewer *viewer, int priority, lcm_t *_lcm, BotPa
 void add_person_model_renderer_to_viewer(BotViewer *viewer, int render_priority, BotParam * param, BotFrames * frames, lcm_t *lcm);
 void setup_renderer_host_status (BotViewer *viewer, int priority);
 void renderer_sensor_status_new (BotViewer *viewer);
-void setup_renderer_robot_status (BotViewer *viewer, int priority);
+void setup_renderer_robot_status (BotViewer *viewer, BotParam *param, int priority);
 void setup_renderer_robot_commands (BotViewer *viewer, int priority);
 //void setup_renderer_arm_trace_circle (BotViewer *viewer, int priority);
 void setup_renderer_pcl (BotViewer *viewer, int priority, BotParam * param);

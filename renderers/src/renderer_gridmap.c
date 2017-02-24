@@ -320,7 +320,6 @@ static void my_draw( BotViewer *viewer, BotRenderer *renderer )
         double alpha = !viewer ? 0.0 : bot_gtk_param_widget_get_double(
                 self->pw, PARAM_NAME_OBST_OPACITY);
         glColor4d(1, 1, 1, alpha);
-
         tile_set_draw(g_hash_table_lookup(self->tileset_hashtable, "OBSTACLE_MAP"));
     }
     

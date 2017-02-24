@@ -55,7 +55,6 @@ void tile_set_process_new_tile(struct tile_set *ts, const erlcm_gridmap_tile_t *
         ts->drawing_generation = ts->receiving_generation;
         ts->receiving_generation = tt->tile->generation;
     }
-
 //    g_ptr_array_foreach(ts->tiles, tile_destroy_helper, ts);
 
     for (int i = 0; i < ts->tiles->len;)
@@ -124,7 +123,6 @@ void tile_set_draw_tile(struct tile_set *ts, struct tile_texture *tt)
                       GL_BGRA, // GL_COLOR_INDEX, 
                       GL_UNSIGNED_BYTE, // GL_UNSIGNED_BYTE,
                       data32);
-        
         glBindTexture (GL_TEXTURE_2D, 0);
 
         free(data8);
@@ -162,6 +160,7 @@ void tile_set_draw_tile(struct tile_set *ts, struct tile_texture *tt)
 
     glBindTexture (GL_TEXTURE_2D, 0);
     glPopAttrib ();
+    glEnable (GL_DEPTH_TEST);
 }
 
 struct tile_set *tile_set_create()
@@ -203,16 +202,18 @@ tile_set_draw_tile_helper (gpointer data, gpointer user_data)
     struct tile_texture *tt = (struct tile_texture*) data;
     struct tile_set *ts = (struct tile_set*) user_data;
 
-    if (tt->tile->generation == ts->drawing_generation)
+    if (tt->tile->generation == ts->drawing_generation) {
         tile_set_draw_tile(ts, tt);
+    }
 
 }
 
 void tile_set_draw(struct tile_set *ts)
 {
-    if (!ts)
+    if (!ts) {
+        fprintf (stdout, "tile_set_draw: ts is NULL\n");
         return;
-
+    }
     g_ptr_array_foreach(ts->tiles, tile_set_draw_tile_helper, ts);
 
     //for (int tidx = 0; tidx < g_ptr_array_size(ts->tiles); tidx++) {
