@@ -68,7 +68,7 @@ typedef struct _RendererSimObs {
     double lastxy[2];
 
     // set to one if the user manually gave us "pick" by pressing a key
-    int         key_pick;
+    int key_pick;
     int transmitter;
 } RendererSimObs;
 

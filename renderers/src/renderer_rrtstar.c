@@ -408,7 +408,6 @@ static int mouse_motion (BotViewer *viewer, BotEventHandler *ehandler,
     return 0;
   }
 
-  fprintf (stdout, "on mouse motion\n");
   self->drag_finish_local = drag_pt_local;
   recompute_particle_distribution(self);
 
