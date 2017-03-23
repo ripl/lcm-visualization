@@ -576,11 +576,13 @@ static void OccupancyMap_draw(BotViewer *viewer, BotRenderer *renderer)
         bot_frames_transform_vec (self->frames, "global", "local", global_tr, local_tr);
         bot_frames_transform_vec (self->frames, "global", "local", global_br, local_br);
  
+        // Draw at a negative z to avoid occluding
+        double z = -0.01;
         bot_gl_texture_draw_coords(self->map2dtexture, 
-                                   local_tl[0], local_tl[1], 0, 
-                                   local_bl[0], local_bl[1], 0,
-                                   local_br[0], local_br[1], 0, 
-                                   local_tr[0], local_tr[1], 0);
+                                   local_tl[0], local_tl[1], z, 
+                                   local_bl[0], local_bl[1], z,
+                                   local_br[0], local_br[1], z, 
+                                   local_tr[0], local_tr[1], z);
     }
 
     if (self->map2dtexture_all && self->param_draw_gmapper_map && draw_all_floors) {
