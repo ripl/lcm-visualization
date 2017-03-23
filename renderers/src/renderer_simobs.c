@@ -140,7 +140,7 @@ static int find_idx(RendererSimObs *self, const double xy[2])
 static void floor_status_handler(const lcm_recv_buf_t *rbuf, const char *channel, 
                                  const erlcm_floor_status_msg_t *msg, void *user)
 {
-    fprintf(stderr, "Floor Status Received : Ind %d No ; %d", msg->floor_ind, msg->floor_no);
+    fprintf(stderr, "Floor Status Received : Ind %d No ; %d\n", msg->floor_ind, msg->floor_no);
 
     RendererSimObs *self = (RendererSimObs*) user;
 
