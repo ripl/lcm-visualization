@@ -58,7 +58,7 @@ typedef struct _RendererGridMap {
 } RendererGridMap;
 
 
-static int 
+static int
 frames_vehicle_pos_local(BotFrames *frames, double pos[3])
 {
     double pos_body[3] = { 0, 0, 0 };
@@ -66,14 +66,14 @@ frames_vehicle_pos_local(BotFrames *frames, double pos[3])
 }
 
 
-static gboolean 
+static gboolean
 tileset_remove_helper(gpointer k, gpointer v, gpointer user)
 {
     tile_set_destroy(v);
     return TRUE;
 }
 
-static void 
+static void
 my_free( BotRenderer *renderer )
 {
     RendererGridMap *self = (RendererGridMap*) renderer->user;
@@ -88,30 +88,30 @@ my_free( BotRenderer *renderer )
 static void
 on_obstacles (const lcm_recv_buf_t * rbuf, const char * channel,
               const erlcm_obstacle_list_t * msg, void * user)
-    
+
 {
     RendererGridMap *self = (RendererGridMap*) user;
-    
+
     if (self->rects)
         erlcm_rect_list_t_destroy(self->rects);
-    
+
     self->rects = erlcm_rect_list_t_copy(&msg->rects);
-    
+
     return;
 }
 
 static void
 on_map_rects (const lcm_recv_buf_t * rbuf, const char * channel,
               const erlcm_rect_list_t * msg, void * user)
-    
+
 {
     RendererGridMap *self = (RendererGridMap*) user;
-    
+
     if (self->map_rects)
         erlcm_rect_list_t_destroy(self->map_rects);
-    
+
     self->map_rects = erlcm_rect_list_t_copy(msg);
-    
+
     return;
 }
 
@@ -132,7 +132,7 @@ on_gridmap_tile(const lcm_recv_buf_t * rbuf, const char * channel,
     return;
 }
 
-static void 
+static void
 draw_rects(RendererGridMap *self)
 {
     if (!(self->rects) && !(self->map_rects))
@@ -140,7 +140,7 @@ draw_rects(RendererGridMap *self)
 
     double h = !self->viewer ? 1.0 : bot_gtk_param_widget_get_double(self->pw, PARAM_RECTS_HEIGHT);
     double alpha = !self->viewer ? 1.0 : bot_gtk_param_widget_get_double(self->pw, PARAM_NAME_OBST_OPACITY);
-  
+
 
     // Render the perceived rects
     if (self->rects) {
@@ -158,20 +158,20 @@ draw_rects(RendererGridMap *self)
         } else {
             glColor4f (.3, .3, .3, alpha);
         }
-        
+
         erlcm_rect_t *rects = self->rects->rects;
         for (int i = 0; i < self->rects->num_rects; i++) {
             double x0 = self->rects->xy[0] + rects[i].dxy[0];
             double y0 = self->rects->xy[1] + rects[i].dxy[1];
             double sx = rects[i].size[0] / 2;
             double sy = rects[i].size[1] / 2;
-            
+
             double MIN_RECT_SIZE = 0.1;
             sx = fmax(sx, MIN_RECT_SIZE);
             sy = fmax(sy, MIN_RECT_SIZE);
-            
+
             glPushMatrix();
-            
+
             glTranslated(x0, y0, h/2);
             glRotatef(bot_to_degrees(rects[i].theta), 0, 0, 1);
             if (h == 0) {
@@ -189,15 +189,15 @@ draw_rects(RendererGridMap *self)
                 bot_gl_draw_cube_frame ();
                 glPopAttrib();
             }
-            
+
             glPopMatrix();
         }
-        
+
         if (h > 0) {
             glPopAttrib();
         }
     }
-    
+
     // Render rects contained in the map (expressed in global coordinates)
     if (self->map_rects) {
         if (h > 0) {
@@ -213,11 +213,11 @@ draw_rects(RendererGridMap *self)
         } else {
             glColor4f (.35, .35, 35, alpha);
         }
-        
+
         erlcm_rect_t *rects = self->map_rects->rects;
         for (int i = 0; i < self->map_rects->num_rects; i++) {
             double pos_local[3], rpy_local[3], quat_local[4];
-            double pos_global[3] = {self->map_rects->xy[0] + rects[i].dxy[0], 
+            double pos_global[3] = {self->map_rects->xy[0] + rects[i].dxy[0],
                                     self->map_rects->xy[1] + rects[i].dxy[1], 0};
             double size_global[3] = {rects[i].size[0]/2, rects[i].size[1]/2, 0};
             double rpy_global[3] = {0, 0, rects[i].theta};
@@ -233,12 +233,12 @@ draw_rects(RendererGridMap *self)
             bot_quat_mult (quat_local, global_to_local.rot_quat, quat_global);
             bot_quat_to_roll_pitch_yaw (quat_local, rpy_local);
 
-            double MIN_RECT_SIZE = 0.1;
+            double MIN_RECT_SIZE = 0.05;
             double sx = fmax(size_global[0], MIN_RECT_SIZE);
             double sy = fmax(size_global[1], MIN_RECT_SIZE);
-            
+
             glPushMatrix();
-            
+
             double x0 = pos_local[0];
             double y0 = pos_local[1];
             double theta = rpy_local[2];
@@ -261,17 +261,17 @@ draw_rects(RendererGridMap *self)
                 bot_gl_draw_cube_frame ();
                 glPopAttrib();
             }
-            
+
             glPopMatrix();
         }
-        
+
         if (h > 0) {
             glPopAttrib();
         }
     }
 }
 
-static void 
+static void
 draw_rects_pos (RendererGridMap *self)
 {
     if (!self->rects)
@@ -289,7 +289,7 @@ draw_rects_pos (RendererGridMap *self)
     for (int i = 0; i < self->rects->num_rects; i++) {
         x0 = self->rects->xy[0] + rects[i].dxy[0];
         y0 = self->rects->xy[1] + rects[i].dxy[1];
-        
+
         const double pos_local[3] = {x0, y0, h/2};
         bot_trans_apply_vec (&local_to_body, pos_local, pos_local_to_body);
         sprintf (buf, "%.2f, %.2f", pos_local_to_body[0], pos_local_to_body[1]);
@@ -322,13 +322,13 @@ static void my_draw( BotViewer *viewer, BotRenderer *renderer )
         glColor4d(1, 1, 1, alpha);
         tile_set_draw(g_hash_table_lookup(self->tileset_hashtable, "OBSTACLE_MAP"));
     }
-    
+
     if (!viewer || bot_gtk_param_widget_get_bool(self->pw, PARAM_RECTS))
         draw_rects(self);
 
     if (!viewer || bot_gtk_param_widget_get_bool (self->pw, PARAM_RECTS_POS))
         draw_rects_pos (self);
-    
+
     glPopMatrix ();
 
     glPopAttrib();
@@ -386,14 +386,14 @@ BotRenderer *renderer_gridmap_new(BotViewer *viewer, lcm_t *_lcm, BotParam * _pa
         bot_gtk_param_widget_add_booleans (self->pw, 0, PARAM_RECTS, 1, NULL);
         bot_gtk_param_widget_add_booleans (self->pw, 0, PARAM_RECTS_POS, 0, NULL);
         bot_gtk_param_widget_add_booleans (self->pw, 0, PARAM_OBSTACLE_COST, 1, NULL);
-        
+
         bot_gtk_param_widget_add_double (self->pw,
                                          PARAM_NAME_OBST_OPACITY,
                                          BOT_GTK_PARAM_WIDGET_SLIDER, 0, 1, 0.05, 0.3);
         bot_gtk_param_widget_add_double (self->pw,
                                          PARAM_RECTS_HEIGHT,
                                          BOT_GTK_PARAM_WIDGET_SLIDER, 0, 5, 0.5, 0);
-        
+
         g_signal_connect (G_OBJECT (self->pw), "changed",
                           G_CALLBACK (on_param_widget_changed), self);
     }
@@ -442,17 +442,16 @@ BotRenderer *renderer_gridmap_new(BotViewer *viewer, lcm_t *_lcm, BotParam * _pa
     return renderer;
 }
 
-void 
+void
 setup_renderer_gridmap(BotViewer *viewer, int render_priority, lcm_t *_lcm, BotParam * param)
 {
     BotRenderer *renderer = renderer_gridmap_new(viewer, _lcm, param);
     if (viewer) {
         bot_viewer_add_renderer(viewer, renderer, render_priority);
-        
+
         g_signal_connect (G_OBJECT (viewer), "load-preferences",
                           G_CALLBACK (on_load_preferences), renderer);
         g_signal_connect (G_OBJECT (viewer), "save-preferences",
                           G_CALLBACK (on_save_preferences), renderer);
     }
 }
-
