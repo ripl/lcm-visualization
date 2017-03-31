@@ -263,14 +263,7 @@ static int mouse_motion (BotViewer *viewer, BotEventHandler *ehandler,
 
     erlcm_rect_t *rect = &g_array_index(self->rects, erlcm_rect_t, self->edit_idx);
     double real_xy[2] = {self->rects_xy[0] + rect->dxy[0], self->rects_xy[1] + rect->dxy[1]};
-    if (event->state==GDK_BUTTON1_MASK) {
-      
-        //  gps_linearize_to_lat_lon(self->gpslin, xy, self->edit_rect->ll);
-        rect->dxy[0]= xy[0] - self->rects_xy[0];
-        rect->dxy[1]= xy[1] - self->rects_xy[1];
-        consumed = 1;
-        
-    } else if (control) { 
+    if (control) { 
       
         double sx = xy[0] - real_xy[0];
         double sy = xy[1] - real_xy[1];
@@ -296,7 +289,14 @@ static int mouse_motion (BotViewer *viewer, BotEventHandler *ehandler,
         
         consumed = 1;
     } 
-    
+    else if (event->state & GDK_BUTTON1_MASK) {
+
+        //  gps_linearize_to_lat_lon(self->gpslin, xy, self->edit_rect->ll);
+        rect->dxy[0]= xy[0] - self->rects_xy[0];
+        rect->dxy[1]= xy[1] - self->rects_xy[1];
+        consumed = 1;
+        
+    }
     bot_viewer_request_redraw(viewer);
     return consumed;
 }
