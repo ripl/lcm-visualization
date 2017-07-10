@@ -18,9 +18,12 @@ from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from transforms3d import euler
 # import lcmtypes
-from ros2lcm import rpy_t, mag_t, husky_status_t
+from ros2lcm.rpy_t import rpy_t
+from ros2lcm.mag_t import mag_t
+from ros2lcm.husky_status_t import husky_status_t
 from erlcm import velocity_msg_t
-from kinect import frame_msg_t #TODO: remove
+from bot_core import image_t
+from light_control import lights_status_t
 
 # server configuration
 websocket_port = 8010
@@ -141,11 +144,16 @@ class LCM_Status_Handler(multiprocessing.Process):
         next_message_info['compass'] = compass_values[ angle_id ]
         next_message_info['compass_heading'] = angle
 
+    def lights_status_handler_fcn(self, channel, data):
+        msg = lights_status_t.decode(data)
+        next_message_info['lights_on'] = msg.lights_on
+
     def run(self):
         self.lcm.subscribe("IMU_RPY", self.rpy_handler_fcn)
         self.lcm.subscribe("HUSKY_STATUS", self.husky_status_handler_fcn)
         self.lcm.subscribe("VELOCITY_CMD", self.velocity_cmd_handler_fcn)
         self.lcm.subscribe("MAGNETOMETER", self.magnetometer_handler_fcn)
+        self.lcm.subscribe("LIGHTS_STATUS", self.lights_status_handler_fcn)
         try:
             while True:
                 self.lcm.handle()
@@ -163,12 +171,12 @@ class LCM_Camera_Handler(multiprocessing.Process):
         self.terminate = True
 
     def chameleon_camera_handler_fcn(self, channel, data):
-        msg = frame_msg_t.decode(data)
-        rgb_blob = msg.image.image_data
+        msg = image_t.decode(data)
+        rgb_blob = msg.data
         next_camera_frame['data'] = rgb_blob
 
     def run(self):
-        self.lcm.subscribe("KINECT_FRAME", self.chameleon_camera_handler_fcn)
+        self.lcm.subscribe("CHAMELEON_IMAGE", self.chameleon_camera_handler_fcn)
         try:
             while True:
                 self.lcm.handle()

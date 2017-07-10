@@ -235,8 +235,8 @@ function addTextIndicator( $id, $w, $x, $y, $color, $default ){
 
 
     <script language="javascript" type="text/javascript">
-        var ws_status = new WebSocket("ws://localhost:8010/husky_status");
-        var ws_camera = new WebSocket("ws://localhost:8010/husky_camera");
+        var ws_status = new WebSocket("ws://<?php echo $BASE_HOST ?>:8010/husky_status");
+        var ws_camera = new WebSocket("ws://<?php echo $BASE_HOST ?>:8010/husky_camera");
 
         ws_status.onopen = function(){
             console.log("Connected to the 'status' app.");
@@ -257,7 +257,7 @@ function addTextIndicator( $id, $w, $x, $y, $color, $default ){
             $(id).css('transform','rotate('+rot_angle+'deg)');
         }
 
-        function updateImageIndicator( id, value, is_static=false ){
+        function updateImageIndicator( id, value, is_static ){
             if( is_static ){
                 $(id).css('transform','rotate('+value+'deg)');
             }else{
@@ -288,16 +288,16 @@ function addTextIndicator( $id, $w, $x, $y, $color, $default ){
 
             updateImageIndicator( "#roll", data.roll, true );
             updateImageIndicator( "#pitch", data.pitch, true );
-            updateTextIndicator( "#roll_txt", data.roll, "", "&deg;" );
-            updateTextIndicator( "#pitch_txt", data.pitch, "", "&deg;" );
+            updateTextIndicator( "#roll_txt", data.roll, "", "&deg;", false );
+            updateTextIndicator( "#pitch_txt", data.pitch, "", "&deg;", false );
 
-            updateImageIndicator( "#compass", data.compass );
-            updateImageIndicator( "#gearbox", data.gearbox );
+            updateImageIndicator( "#compass", data.compass, false );
+            updateImageIndicator( "#gearbox", data.gearbox, false );
 
-            updateImageIndicator( "#lights", boolToOnOff(data.lights_on) );
-            updateImageIndicator( "#autopilot", boolToOnOff(data.autopilot_on) );
-            updateImageIndicator( "#faults", boolToOnOff(data.faults_on) );
-            updateImageIndicator( "#e_stop", boolToOnOff(data.e_stop_on) );
+            updateImageIndicator( "#lights", boolToOnOff(data.lights_on), false );
+            updateImageIndicator( "#autopilot", boolToOnOff(data.autopilot_on), false );
+            updateImageIndicator( "#faults", boolToOnOff(data.faults_on), false );
+            updateImageIndicator( "#e_stop", boolToOnOff(data.e_stop_on), false );
         };
 
         var canvas = document.getElementById('camera_frame_canvas');
