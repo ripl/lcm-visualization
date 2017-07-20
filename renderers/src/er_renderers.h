@@ -38,6 +38,7 @@ void setup_renderer_topological_graph (BotViewer *viewer, int priority, BotParam
     //void log_annotation_add_renderer_to_viewer(BotViewer *viewer, int render_priority, lcm_t *lcm, BotParam * param);
 void setup_renderer_vision_lcmgl (BotViewer *viewer, int render_priority, lcm_t *lcm, BotParam * param);
     //void setup_renderer_place_classification(BotViewer *viewer, int render_priority, BotParam * param);
+void setup_renderer_satellite(BotViewer *viewer, int render_priority, BotParam *param, BotFrames *frames);
 
 #ifdef __cplusplus
 }

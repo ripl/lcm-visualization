@@ -3,12 +3,12 @@ add_definitions(
 
 #build the viewer
 
-add_executable(hr-viewer 
+add_executable(hr-viewer
     udp_util.c
     main.cpp
     )
 
-#add_executable(hr-full-viewer 
+#add_executable(hr-full-viewer
 #    udp_util.c
 #    main_full.cpp
 #    )
@@ -22,22 +22,23 @@ target_link_libraries(hr-viewer
     ${GLUT_LIBRARIES})
 
 pods_use_pkg_config_packages(hr-viewer
-    bot2-vis 
-    bot2-lcmgl-renderer 
-    bot2-frames-renderers 
+    bot2-vis
+    bot2-lcmgl-renderer
+    bot2-frames-renderers
     bot2-frames
     opencv
     hr-renderers
     laser-util-renderer
     image-util-renderer
     lcmtypes_hr-lcmtypes
+    lcmtypes_gps18
     map3d_interface
     hr-path-util
     #velodyne-renderer
     image-util-renderer
     occ-map-renderers
     kinect-renderer
-    #collections_renderer  
+    #collections_renderer
     octomap-renderer
     )
 

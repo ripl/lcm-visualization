@@ -50,12 +50,12 @@ int frames_vehicle_pose_local (BotFrames *frames, bot_core_pose_t *pose)
     return ret;
 }
 
-static int 
-robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler, 
+static int
+robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
                          const GdkEventKey *event)
 {
     int keyval = event->keyval;
-    
+
     const ViewerAuxData * aux_data = get_viewer_aux_data (viewer);
     if (!aux_data->lcm)
         return 0;
@@ -83,7 +83,7 @@ robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
         cmd.sender = "viewer";
         cmd.comment = "Activating";
         erlcm_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);
-        
+
         break;
     case ' ':
         // go into pause mode eating key press.
@@ -119,13 +119,13 @@ robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
         break;
     case 'W':
     case 'w':
-        
-        //slow the robot down 
+
+        //slow the robot down
         shift_cmd.utime = bot_timestamp_now();
         shift_cmd.shift = ERLCM_SHIFT_VELOCITY_MSG_T_SHIFT_DOWN;
         erlcm_shift_velocity_msg_t_publish(aux_data->lcm,"SHIFT_VELOCITY_CMD",&shift_cmd);
         return 0;
-        
+
         break;
 
     default:
@@ -135,8 +135,8 @@ robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
     return 1;
 }
 
-static int 
-logplayer_remote_on_key_press(BotViewer *viewer, BotEventHandler *ehandler, 
+static int
+logplayer_remote_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
                               const GdkEventKey *event)
 {
     int keyval = event->keyval;
@@ -285,20 +285,20 @@ add_view_handlers (BotViewer *viewer, BotParam *param)
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(view_menuitem), view_menu);
 
     GSList *view_list = NULL;
-    GtkWidget *perspective_item = gtk_radio_menu_item_new_with_label(view_list, 
+    GtkWidget *perspective_item = gtk_radio_menu_item_new_with_label(view_list,
                                                                      "Perspective");
-    view_list = 
+    view_list =
         gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(perspective_item));
     gtk_menu_append(GTK_MENU(view_menu), perspective_item);
-    g_signal_connect(G_OBJECT(perspective_item), "activate", 
+    g_signal_connect(G_OBJECT(perspective_item), "activate",
                      G_CALLBACK(on_perspective_item), aux);
-    
-    GtkWidget *orthographic_item = 
+
+    GtkWidget *orthographic_item =
         gtk_radio_menu_item_new_with_label(view_list, "Orthographic");
-    view_list = 
+    view_list =
         gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(orthographic_item));
     gtk_menu_append(GTK_MENU(view_menu), orthographic_item);
-    g_signal_connect(G_OBJECT(orthographic_item), "activate", 
+    g_signal_connect(G_OBJECT(orthographic_item), "activate",
                      G_CALLBACK(on_orthographic_item), aux);
     // add camera view handlers
     aux->cam_names = bot_param_get_all_camera_names (param);
@@ -319,7 +319,7 @@ add_view_handlers (BotViewer *viewer, BotParam *param)
         gtk_widget_show (cvh_rmi);
 
         g_object_set_data(G_OBJECT (cvh_rmi), "camtrans", global_camtrans);
-        g_signal_connect (G_OBJECT (cvh_rmi), "activate", 
+        g_signal_connect (G_OBJECT (cvh_rmi), "activate",
                           G_CALLBACK (on_camera_view_handler_rmi_activate), aux);
     }
 
@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
         fprintf (stderr, "Unable to get LCM\n");
         return 0;
     }
-        
+
     BotParam * param;
     if (!(param = bot_param_get_global(lcm, 0))) {
         fprintf(stderr,"No server found : Reading from file\n");
@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
     setup_renderer_occupancy_map (viewer, 1, param);
     bot_viewer_add_stock_renderer(viewer, BOT_VIEWER_STOCK_RENDERER_GRID, 1);
     laser_util_add_renderer_to_viewer(viewer, 1, lcm, param, frames);
-    
+
     bot_lcmgl_add_renderer_to_viewer(viewer, lcm, 1);
     bot_frames_add_renderer_to_viewer(viewer, 1, frames);
     quad_waypoint_add_renderer_to_viewer(viewer, 1, lcm);
@@ -449,6 +449,7 @@ int main(int argc, char *argv[])
     setup_renderer_rrtstar(viewer, 1, lcm);
     setup_renderer_tracks(viewer, 1, lcm, param);
     setup_renderer_simobs(viewer, 1, lcm, param);
+    setup_renderer_satellite(viewer, 1, param, frames);
     setup_renderer_gridmap(viewer, 1, lcm, param);
     setup_renderer_host_status (viewer, 1);
     renderer_sensor_status_new (viewer);
@@ -456,33 +457,33 @@ int main(int argc, char *argv[])
     //setup_renderer_robot_commands (viewer, 1);
     occ_map_pixel_map_add_renderer_to_viewer(viewer, 1, "PIXEL_MAP", "PixelMap Viewer");
     occ_map_voxel_map_add_renderer_to_viewer(viewer, 1, "VOXEL_MAP");
-    kinect_add_renderer_to_viewer(viewer, 0, lcm, frames, "KINECT", param); 
+    kinect_add_renderer_to_viewer(viewer, 0, lcm, frames, "KINECT", param);
     //setup_renderer_pcl(viewer,1,param);
     //setup_renderer_topological_graph(viewer,1,param);
     //setup_renderer_manual_calib (viewer, 1);
     add_person_model_renderer_to_viewer(viewer, 1, param, frames, lcm);
     add_cam_thumb_renderer_to_viewer(viewer, 1, lcm, param, frames);
     setup_renderer_vision_lcmgl (viewer, 1, lcm, param);
-    
+
     BotEventHandler *rs_ehandler = (BotEventHandler*) calloc(1, sizeof(BotEventHandler));
     rs_ehandler->name = "Robot State";
     rs_ehandler->enabled = 1;
     rs_ehandler->key_press = robot_state_on_key_press;
     bot_viewer_add_event_handler(viewer, rs_ehandler, 0);
-    
+
     BotEventHandler *ehandler = (BotEventHandler*) calloc(1, sizeof(BotEventHandler));
     ehandler->name = "LogPlayer Remote";
     ehandler->enabled = 1;
     ehandler->key_press = logplayer_remote_on_key_press;
     bot_viewer_add_event_handler(viewer, ehandler, 0);
-    
+
     add_view_handlers (viewer, param);
 
-    char *fname = g_build_filename (g_get_user_config_dir(), ".envoy-viewerrc", 
+    char *fname = g_build_filename (g_get_user_config_dir(), ".envoy-viewerrc",
                                     NULL);
     bot_viewer_load_preferences (viewer, fname);
 
-    gtk_main ();  
+    gtk_main ();
 
     bot_viewer_save_preferences (viewer, fname);
 
