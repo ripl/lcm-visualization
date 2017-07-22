@@ -1,5 +1,5 @@
 <?php
-$BASE_HOST = $_SERVER['HTTP_HOST'];
+$BASE_HOST = $_SERVER["HTTP_HOST"];
 
 function addAnalogIndicator( $id, $size, $x, $y, $min_angle, $max_angle, $min_value, $max_value ){
     global $BASE_HOST;
@@ -229,7 +229,7 @@ function addTextIndicator( $id, $w, $x, $y, $color, $default ){
             // map.setCenter(latlngbounds.getCenter());
         }
 
-        initMap();
+        // initMap();
 
     </script>
 
@@ -308,13 +308,13 @@ function addTextIndicator( $id, $w, $x, $y, $color, $default ){
             img.onload = function(){
                 ctx.drawImage(img, 0, 0, 1096, 360);
             }
-            var binaryData = [];
-            binaryData.push(blob);
-            img.src = URL.createObjectURL(new Blob(binaryData, {type: "image/jpeg"}));
+            window.URL = window.URL || window.webkitURL;
+            img.src = blob;
         };
 
         ws_camera.onmessage = function(evt){
-            canvas.renderImage(evt.data);
+            var blob = "data:image/jpeg;charset=utf-8;base64,"+evt.data;
+            canvas.renderImage(blob);
         };
     </script>
 
