@@ -33,6 +33,7 @@ add_library(hr-renderers SHARED
     #renderer_robot_commands.c
     renderer_manual_calib.c
     renderer_vision_lcmgl.c
+    renderer_satellite.c
     #renderer_topological_graph.c
     )
 
@@ -41,19 +42,20 @@ add_library(hr-renderers SHARED
 #    ${OPENGL_LIBRARIES}
 #    ${GLUT_LIBRARIES}
 #    ${LCMTYPES_LIBS})
-    
-    
+
+
 set(REQUIRED_LIBRARIES
     lcm
     bot2-core
     bot2-vis
-    #bot2-param-client 
+    #bot2-param-client
     #bot2-frames
     hr-common
     check_gridmap
     lcmtypes_bot2-procman
     lcmtypes_hr-lcmtypes
     lcmtypes_rrtstar
+    lcmtypes-gps18
     #map3d_interface
     opencv
     jpeg-utils
@@ -75,6 +77,6 @@ pods_install_libraries(hr-renderers)
 # software to use.
 pods_install_pkg_config_file(hr-renderers
     CFLAGS
-    LIBS -lhr-renderers 
+    LIBS -lhr-renderers
     REQUIRES ${REQUIRED_LIBRARIES}
     VERSION 0.0.1)
