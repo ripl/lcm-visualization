@@ -23,7 +23,7 @@ from transforms3d import euler
 from ros2lcm.rpy_t import rpy_t
 from ros2lcm.mag_t import mag_t
 from ros2lcm.husky_status_t import husky_status_t
-from erlcm import velocity_msg_t
+from erlcm.velocity_msg_t import velocity_msg_t
 from bot_core import image_t
 from light_control import lights_status_t
 
