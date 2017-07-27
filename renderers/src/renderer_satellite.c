@@ -67,7 +67,7 @@ typedef struct _RendererSatelliteView {
     lcm_t              *lcm;
     GHashTable         *channels_hashtable;
     GPtrArray          *channels;
-    BotViewer             *viewer;
+    BotViewer          *viewer;
     BotGtkParamWidget  *pw;
     BotFrames          *frames;
     unsigned char      *sat_data;   // satellite image data
@@ -99,10 +99,12 @@ int
 gps_to_local (RendererSatelliteView *self, const double gps[3], double xyz[3], double cov[3][3])
 {
     if (!have_gps_to_local (self))
-    return 0;
+      return 0;
     g_mutex_lock (self->mutex);
     double p_g[2];
-    bot_gps_linearize_to_xy (self->gps_linearize, gps, p_g);
+    BotGPSLinearize gps_linearize;
+    bot_gps_linearize_init (&gps_linearize, self->gps_to_local.lat_lon_el_theta);
+    bot_gps_linearize_to_xy (&gps_linearize, gps, p_g);
 
     double theta = self->gps_to_local.lat_lon_el_theta[3];
     double sine, cosine;
@@ -167,6 +169,8 @@ void load_satellite_images( RendererSatelliteView *self, const char *dirname )
         double topleft_lon = - (double)id3 - (double)id4 / 1000000;
         double bottomright_lat = (double)id5 + (double)id6 / 1000000;
         double bottomright_lon = - (double)id7 - (double)id8 / 1000000;
+
+        //fprintf (stdout, "lat_tl = %f, lon_tl = %f, lat_lr = %f, lon_lr = %f\n", topleft_lat, topleft_lon, bottomright_lat, bottomright_lon);
 
         // create a new satellite tile structure
         satellite_tile_t *tt = (satellite_tile_t*)malloc(sizeof(satellite_tile_t));
@@ -239,7 +243,9 @@ on_gps_to_local (const lcm_recv_buf_t * rbuf, const char * channel,
     g_mutex_lock(self->mutex);
 
     memcpy (&self->gps_to_local, gl, sizeof (erlcm_gps_to_local_t));
-    bot_gps_linearize_init(self->gps_linearize, gl->lat_lon_el_theta);
+    //double lat_lon[] = {gl->lat_lon_el_theta[0], gl->lat_lon_el_theta[1]};
+    //fprintf (stdout, "lat_lon = (%f, %f)\n", lat_lon[0], lat_lon[1]);
+    //bot_gps_linearize_init(self->gps_linearize, lat_lon);
 
     self->have_gps_to_local = 1;
 
@@ -305,8 +311,11 @@ static void my_draw( BotViewer *viewer, BotRenderer *renderer )
             _latlon_local_pos( self, tt->x0, tt->y1, bottomleft );
             _latlon_local_pos( self, tt->x1, tt->y0, topright );
 
+            //fprintf (stdout, "x0 = %f, y0 = %f, x1 = %f, y1 = %f\n", tt->x0, tt->y0, tt->x1, tt->y1);
+
             double cx = (topleft[0]+bottomright[0])/2;
             double cy = (topleft[1]+bottomleft[1])/2;
+            //fprintf (stdout, "cx = %.2f, cy = %.2f\n", cx, cy);
             if (fabs(cx-pos[0])+fabs(cy-pos[1]) < MAX_SATELLITE_CAR_DIST)
                 bot_gl_texture_draw_coords (tt->tex,
                         topleft[0]+xoffset, topleft[1]+yoffset, 0,
@@ -418,8 +427,10 @@ BotRenderer *renderer_satellite_new(BotViewer *viewer, BotParam *param, BotFrame
     self->viewer = viewer;
     self->satellite_tiles = g_queue_new ();//g_array_new(FALSE, FALSE, sizeof(satellite_tile_t));
 
-    if (viewer)
-    {
+    self->mutex = g_mutex_new();
+
+
+    if (viewer) {
         bot_gtk_param_widget_add_booleans (self->pw, 0, PARAM_SATELLITE_IMAGE, 0, NULL);
         bot_gtk_param_widget_add_double (self->pw,
                 PARAM_NAME_SATELLITE_XOFF,
