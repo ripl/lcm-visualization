@@ -63,7 +63,7 @@ typedef struct _RendererSatelliteView {
     GMutex * mutex;
 
     BotParam           *param;
-    BotGPSLinearize    *gps_linearize;
+    BotGPSLinearize    gps_linearize;
     lcm_t              *lcm;
     GHashTable         *channels_hashtable;
     GPtrArray          *channels;
@@ -102,9 +102,7 @@ gps_to_local (RendererSatelliteView *self, const double gps[3], double xyz[3], d
       return 0;
     g_mutex_lock (self->mutex);
     double p_g[2];
-    BotGPSLinearize gps_linearize;
-    bot_gps_linearize_init (&gps_linearize, self->gps_to_local.lat_lon_el_theta);
-    bot_gps_linearize_to_xy (&gps_linearize, gps, p_g);
+    bot_gps_linearize_to_xy (&self->gps_linearize, gps, p_g);
 
     double theta = self->gps_to_local.lat_lon_el_theta[3];
     double sine, cosine;
@@ -119,7 +117,7 @@ gps_to_local (RendererSatelliteView *self, const double gps[3], double xyz[3], d
     xyz[1] = p_g[0] * sine   + p_g[1] * cosine;
     xyz[2] = gps[2];
 
-    // now add the local frame offset
+    // now add the local frame offset VERIFY
     xyz[0] += self->gps_to_local.local[0];
     xyz[1] += self->gps_to_local.local[1];
     xyz[2] += self->gps_to_local.local[2];
@@ -134,7 +132,7 @@ gps_to_local (RendererSatelliteView *self, const double gps[3], double xyz[3], d
 
 
 
-
+// Determine the local frame coordinates of (lat, lon) assuming zero elevation
 static void
 _latlon_local_pos (RendererSatelliteView *self, double lat, double lon, double p[3])
 {
@@ -245,7 +243,7 @@ on_gps_to_local (const lcm_recv_buf_t * rbuf, const char * channel,
     memcpy (&self->gps_to_local, gl, sizeof (erlcm_gps_to_local_t));
     //double lat_lon[] = {gl->lat_lon_el_theta[0], gl->lat_lon_el_theta[1]};
     //fprintf (stdout, "lat_lon = (%f, %f)\n", lat_lon[0], lat_lon[1]);
-    //bot_gps_linearize_init(self->gps_linearize, lat_lon);
+    bot_gps_linearize_init(&self->gps_linearize, gl->lat_lon_el_theta);
 
     self->have_gps_to_local = 1;
 
@@ -282,7 +280,7 @@ static void my_draw( BotViewer *viewer, BotRenderer *renderer )
 
     double pos_body[3] = { 0, 0, 0 };
     double pos[3] = {0, 0, 0};
-    bot_frames_transform_vec (self->frames, "body", "local", pos_body, pos);
+    //bot_frames_transform_vec (self->frames, "body", "local", pos_body, pos);
 
     glEnable (GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
