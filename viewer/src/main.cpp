@@ -26,7 +26,7 @@
 #include <kinect/kinect_renderer.h>
 #include <laser_utils/renderer_laser.h>
 #include <image_utils/renderer_cam_thumb.h>
-//#include <velodyne/renderer_velodyne.h>
+#include <velodyne/renderer_velodyne.h>
 #include <occ_map/occ_map_renderers.h>
 //#include <octomap_utils/renderer_octomap.h>
 
@@ -464,7 +464,7 @@ int main(int argc, char *argv[])
     add_person_model_renderer_to_viewer(viewer, 1, param, frames, lcm);
     add_cam_thumb_renderer_to_viewer(viewer, 1, lcm, param, frames);
     setup_renderer_vision_lcmgl (viewer, 1, lcm, param);
-
+    setup_renderer_velodyne(viewer, 0, param, lcm);
     BotEventHandler *rs_ehandler = (BotEventHandler*) calloc(1, sizeof(BotEventHandler));
     rs_ehandler->name = "Robot State";
     rs_ehandler->enabled = 1;

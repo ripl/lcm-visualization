@@ -40,6 +40,7 @@ pods_use_pkg_config_packages(hr-viewer
     kinect-renderer
     #collections_renderer
     octomap-renderer
+    velodyne-renderer
     )
 
 pods_install_executables(hr-viewer)
