@@ -390,8 +390,10 @@ static void  goal_querry_result_handler(const lcm_recv_buf_t *rbuf __attribute__
     bot_viewer_request_redraw(self->viewer);
 }
 
-static void floor_status_handler(const lcm_recv_buf_t *rbuf, const char *channel, const erlcm_floor_status_msg_t *msg,
-                                   void *user)
+static void floor_status_handler(const lcm_recv_buf_t *rbuf, 
+                                 const char *channel, 
+                                 const erlcm_floor_status_msg_t *msg,
+                                 void *user)
 {
     RendererNavigatorPlan *self = (RendererNavigatorPlan*) user;
 
@@ -412,7 +414,10 @@ static void topology_handler(const lcm_recv_buf_t *rbuf, const char *channel, co
 }
 
 
-static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channel, const erlcm_multi_gridmap_t *msg, void *user)
+static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, 
+                                  const char *channel, 
+                                  const erlcm_multi_gridmap_t *msg, 
+                                  void *user)
 {
     RendererNavigatorPlan *self = (RendererNavigatorPlan *) user;
     if (self->num_floors != msg->no_floors) {
@@ -427,7 +432,8 @@ static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channe
 
             bot_gtk_param_widget_modify_enum (self->pw, PARAM_FLOOR_NO, name, msg->maps[i].floor_no);
         }
-        bot_gtk_param_widget_set_enum (self->pw, PARAM_FLOOR_NO, msg->current_floor_ind);
+        bot_gtk_param_widget_set_enum (self->pw, PARAM_FLOOR_NO, 
+                                       msg->current_floor_ind);
 
         self->num_floors = msg->no_floors;
     }
@@ -1202,19 +1208,26 @@ void navigator_plan_renderer_to_viewer(BotViewer *viewer, int render_priority, l
     self->navigator_plan_subscription = erlcm_point_list_t_subscribe(self->lc, NAV_PLAN_CHANNEL,
                                                                      navigator_plan_handler, self);
 
-    erlcm_floor_status_msg_t_subscribe(self->lc,"CURRENT_FLOOR_STATUS",floor_status_handler,
+    erlcm_floor_status_msg_t_subscribe(self->lc,"CURRENT_FLOOR_STATUS",
+                                       floor_status_handler,
                                        self);
 
-    erlcm_goal_feasibility_querry_t_subscribe(self->lc,"GOAL_FEASIBILITY_RESULT", goal_querry_result_handler,
-                                       self);
+    erlcm_goal_feasibility_querry_t_subscribe(self->lc,
+                                              "GOAL_FEASIBILITY_RESULT", 
+                                              goal_querry_result_handler,
+                                              self);
 
-    erlcm_topology_t_subscribe(self->lc,"MAP_SERVER_TOPOLOGY", topology_handler,
-                                       self);
+    erlcm_topology_t_subscribe(self->lc,"MAP_SERVER_TOPOLOGY", 
+                               topology_handler,
+                               self);
 
-    erlcm_topology_t_subscribe(self->lc,"TOPOLOGY", topology_handler,
-                                       self);
+    erlcm_topology_t_subscribe(self->lc,"TOPOLOGY", 
+                               topology_handler,
+                               self);
 
-    erlcm_multi_gridmap_t_subscribe(self->lc, "MULTI_FLOOR_MAPS", multi_gridmap_handler,
+    erlcm_multi_gridmap_t_subscribe(self->lc, 
+                                    "MULTI_FLOOR_MAPS", 
+                                    multi_gridmap_handler,
                                     self);
 
     // --- SETUP SIDE BOX WIDGET
