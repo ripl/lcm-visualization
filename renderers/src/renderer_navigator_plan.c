@@ -35,14 +35,14 @@
 #define RENDERER_NAME "Navigator Plan"
 
 #define PARAM_SHOW_NAVIGATOR_PLAN "Show Navigator Plan"
-#define QUERRY_ELEVATOR "Querry Elevator"
+#define QUERY_ELEVATOR "Query Elevator"
 #define PLACE_NAV_GOAL "Place Goal"
-#define START_ROBOT "Go to Goal"
-#define STOP_ROBOT "Stop Robot"
+#define START_ROBOT "Go to Goal" // Currently not enabled
+#define STOP_ROBOT "Stop Robot"  // Currently not enabled
 #define ADD_NEW_PLACE "Add New Place"
 #define ADD_PORTAL_DOOR "Add Door"
 #define ADD_PORTAL_ELEVATOR "Add Elevator"
-#define QUERRY_PLACE "QUERRY_PLACE"
+#define QUERY_PLACE "QUERY_PLACE"
 #define PARAM_FLOOR_NO "Current Floor"
 
 typedef struct _RendererNavigatorPlan {
@@ -844,7 +844,7 @@ static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, voi
         bot_viewer_request_pick (self->viewer, &(self->ehandler));
         //fprintf(stderr,"Nav Goal\n");
     }
-    else if(!strcmp(name,QUERRY_ELEVATOR)){
+    else if(!strcmp(name,QUERY_ELEVATOR)){
         erlcm_goal_t ele_msg;
         memset(&ele_msg, 0, sizeof(erlcm_goal_t));
         ele_msg.pos[0] = 28.563433723667067;
@@ -909,8 +909,8 @@ static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, voi
         check_current_floor(self);
 
     }
-    else if(!strcmp(name, QUERRY_PLACE)){
-        //send querry msg - fixed querry for now
+    else if(!strcmp(name, QUERY_PLACE)){
+        //send querry msg - fixed query for now
         erlcm_place_node_t msg;
         msg.name = "lounge";
         msg.type = " ";
@@ -1002,22 +1002,23 @@ static int mouse_release(BotViewer *viewer, BotEventHandler *ehandler, const dou
         //goal.z = 0.5; //doesnt matter
         goal.yaw = self->goal_theta;
         fprintf(stderr,"Goal Yaw : %f\n", self->goal_theta);
-        /*erlcm_navigator_goal_msg_t msg;
+        erlcm_navigator_goal_msg_t msg;
         msg.goal = goal;
         msg.use_theta = 1;//0;
         msg.utime = bot_timestamp_now();
         msg.nonce = random();
         msg.sender = ERLCM_NAVIGATOR_GOAL_MSG_T_SENDER_WAYPOINT_TOOL;
-        erlcm_navigator_goal_msg_t_publish(self->lc, "NAV_GOAL_LOCAL", &msg);*/
+        erlcm_navigator_goal_msg_t_publish(self->lc, "NAV_GOAL_LOCAL", &msg);
 
-        erlcm_navigator_floor_goal_msg_t msg;
-        msg.goal_msg.goal = goal;
-        msg.goal_msg.use_theta = 1;//0;
-        msg.goal_msg.utime = bot_timestamp_now();
-        msg.goal_msg.nonce = random();
-        msg.goal_msg.sender = ERLCM_NAVIGATOR_GOAL_MSG_T_SENDER_WAYPOINT_TOOL;
-        msg.floor_no = 2;
-        erlcm_navigator_floor_goal_msg_t_publish(self->lc, "NAV_GOAL_FLOOR", &msg);
+        // Comment in navigator3d.c that floor number is ignored
+        //erlcm_navigator_floor_goal_msg_t msg;
+        //msg.goal_msg.goal = goal;
+        //msg.goal_msg.use_theta = 1;//0;
+        //msg.goal_msg.utime = bot_timestamp_now();
+        //msg.goal_msg.nonce = random();
+        //msg.goal_msg.sender = ERLCM_NAVIGATOR_GOAL_MSG_T_SENDER_WAYPOINT_TOOL;
+        //msg.floor_no = 2;
+        // erlcm_navigator_floor_goal_msg_t_publish(self->lc, "NAV_GOAL_FLOOR", &msg);
 
         fprintf(stderr, "Goal: x %f y %f z %f yaw %f\n", goal.x, goal.y, goal.z, goal.yaw);
 
@@ -1266,14 +1267,14 @@ void navigator_plan_renderer_to_viewer(BotViewer *viewer, int render_priority, l
     self->goal_querry_result = NULL;
     self->topology = NULL;
     //add three buttons
-    bot_gtk_param_widget_add_buttons(self->pw, QUERRY_ELEVATOR, NULL);
+    bot_gtk_param_widget_add_buttons(self->pw, QUERY_ELEVATOR, NULL);
     bot_gtk_param_widget_add_buttons(self->pw, PLACE_NAV_GOAL, NULL);
-    bot_gtk_param_widget_add_buttons(self->pw, START_ROBOT, NULL);
-    bot_gtk_param_widget_add_buttons(self->pw, STOP_ROBOT, NULL);
+    //bot_gtk_param_widget_add_buttons(self->pw, START_ROBOT, NULL); // Doesn't do anything
+    //bot_gtk_param_widget_add_buttons(self->pw, STOP_ROBOT, NULL); // Not necessary
     bot_gtk_param_widget_add_buttons(self->pw,ADD_NEW_PLACE, NULL);
     bot_gtk_param_widget_add_buttons(self->pw,ADD_PORTAL_DOOR , NULL);
     bot_gtk_param_widget_add_buttons(self->pw,ADD_PORTAL_ELEVATOR , NULL);
-    bot_gtk_param_widget_add_buttons(self->pw, QUERRY_PLACE , NULL);
+    //bot_gtk_param_widget_add_buttons(self->pw, QUERY_PLACE , NULL); // Nobody subscries to message
 
 
     self->param_draw_navigator_plan = bot_gtk_param_widget_get_bool(self->pw, PARAM_SHOW_NAVIGATOR_PLAN);

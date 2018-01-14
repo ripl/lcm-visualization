@@ -93,6 +93,7 @@ void request_occupancy_map(lcm_t *lcm)
     /* subscripe to map, and wait for it to come in... */
     erlcm_map_request_msg_t msg;
     msg.utime =  bot_timestamp_now();
+    msg.floor_no = -1;
     msg.requesting_prog = "VIEWER";
 
     erlcm_map_request_msg_t_publish(lcm,"MAP_REQUEST_CHANNEL",&msg);
