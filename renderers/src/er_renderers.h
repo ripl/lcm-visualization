@@ -16,7 +16,7 @@ void grid_add_renderer_to_viewer(BotViewer *viewer, int render_priority);
 
 void localize_add_renderer_to_viewer(BotViewer *viewer, int render_priority, lcm_t *lcm);
 void verify_check_gridmap_add_renderer_to_viewer(BotViewer *viewer, int render_priority, lcm_t *lcm);
-void navigator_plan_renderer_to_viewer(BotViewer *viewer, int render_priority, lcm_t *lcm);
+void navigator_plan_renderer_to_viewer(BotViewer *viewer, int render_priority, lcm_t *lcm, BotFrames *frames);
 void setup_renderer_tracks(BotViewer *viewer, int priority, lcm_t *_lcm, BotParam * param);
 void add_husky_model_renderer_to_viewer(BotViewer *viewer, int render_priority, BotParam * param, BotFrames * frames);
 void setup_renderer_simobs(BotViewer *viewer, int priority, lcm_t *lcm, BotParam *param);

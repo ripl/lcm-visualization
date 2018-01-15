@@ -54,6 +54,8 @@ typedef struct _RendererNavigatorPlan {
     BotViewer *viewer;
     BotGtkParamWidget *pw;
 
+    BotFrames *frames;
+
     erlcm_point_list_t_subscription_t *navigator_plan_subscription;
     erlcm_point_list_t *navigator_plan;
 
@@ -401,8 +403,8 @@ static void floor_status_handler(const lcm_recv_buf_t *rbuf,
     self->current_floor_no = msg->floor_no;
 }
 
-static void topology_handler(const lcm_recv_buf_t *rbuf, const char *channel, const erlcm_topology_t *msg,
-                             void *user)
+static void topology_handler(const lcm_recv_buf_t *rbuf, const char *channel, 
+                             const erlcm_topology_t *msg, void *user)
 {
     RendererNavigatorPlan *self = (RendererNavigatorPlan*) user;
 
@@ -617,16 +619,23 @@ static void navigator_plan_renderer_draw(BotViewer *viewer, BotRenderer *super)
             glVertex2f(c_portal->xy1[0],c_portal->xy1[1]);
             glEnd();
 
-            double pos[3] = {(c_portal->xy0[0] + c_portal->xy1[0])/2 ,(c_portal->xy0[1] + c_portal->xy1[1])/2,0};
+            // Convert from global to local frame
+            double pos_global[3] = {(c_portal->xy0[0] + c_portal->xy1[0])/2 ,(c_portal->xy0[1] + c_portal->xy1[1])/2,0};
+            double pos_local[3];
+
+            bot_frames_transform_vec (self->frames, "global", "local", pos_global, pos_local);
+
+            //bot_frames_transform_vec (
+
             if(c_portal->type == 0){
-                bot_gl_draw_text(pos, NULL, "Door", 0);
+                bot_gl_draw_text(pos_local, NULL, "Door", 0);
             }
             else if(c_portal->type == 1){
-                bot_gl_draw_text(pos, NULL, "Elevator", 0);
+                bot_gl_draw_text(pos_local, NULL, "Elevator", 0);
             }
             glLineWidth (3.0);
             glPushMatrix();
-            glTranslatef(c_portal->xy0[0],c_portal->xy0[1],0);
+            glTranslatef(pos_local[0],pos_local[1],0);
             bot_gl_draw_circle(0.3);
             glPopMatrix();
 
@@ -642,10 +651,26 @@ static void navigator_plan_renderer_draw(BotViewer *viewer, BotRenderer *super)
 
         for(int i=0; i < self->topology->place_list.place_count; i++){
             erlcm_place_node_t *place = &self->topology->place_list.trajectory[i];
+                                       
 
             if(place->floor_ind != self->current_floor_ind){
                 continue;
             }
+            
+            double pos_global[3] = {place->x, place->y, 0};
+            double pos_local[3];
+
+            bot_frames_transform_vec (self->frames, "global", "local", pos_global, pos_local);
+            BotTrans global_to_local;
+            bot_frames_get_trans (self->frames, "global", "local", &global_to_local);
+            double rpy_global[3] = {0, 0, place->theta};
+            double quat_global[4], quat_local[4];
+            double rpy_local[3];
+
+            bot_roll_pitch_yaw_to_quat (rpy_global, quat_global);
+            bot_quat_mult (quat_local, global_to_local.rot_quat, quat_global);
+            bot_quat_to_roll_pitch_yaw (quat_local, rpy_local);
+
 
             color_curr[0] = 0.0;
             color_curr[1] = 1.0;
@@ -655,7 +680,7 @@ static void navigator_plan_renderer_draw(BotViewer *viewer, BotRenderer *super)
 
             glLineWidth (3.0);
             glPushMatrix();
-            glTranslatef(place->x,place->y,0);
+            glTranslatef(pos_local[0],pos_local[1],0);
             bot_gl_draw_circle(0.3);
 
             color_curr[0] = 0.0;
@@ -671,7 +696,7 @@ static void navigator_plan_renderer_draw(BotViewer *viewer, BotRenderer *super)
 
             glBegin(GL_LINE_STRIP);
             glVertex2f(0.0,0.0);
-            glVertex2f(place->std*cos(place->theta), place->std*sin(place->theta));
+            glVertex2f(place->std*cos(rpy_local[2]), place->std*sin(rpy_local[2]));
             glEnd();
 
             glPopMatrix();
@@ -694,10 +719,22 @@ static void navigator_plan_renderer_draw(BotViewer *viewer, BotRenderer *super)
                 color_curr[1] = 0.0;
                 color_curr[2] = 0.0;
             }
+
+            // Convert from global to local frame
+            double pos0_global[3] = {c_portal->xy0[0], c_portal->xy0[1], 0};
+            double pos0_local[3];
+
+            bot_frames_transform_vec (self->frames, "global", "local", pos0_global, pos0_local);
+
+            double pos1_global[3] = {c_portal->xy1[0], c_portal->xy1[1], 0};
+            double pos1_local[3];
+
+            bot_frames_transform_vec (self->frames, "global", "local", pos1_global, pos1_local);
+
             glMaterialfv (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color_curr);
             glBegin(GL_LINE_STRIP);
-            glVertex2f(c_portal->xy0[0],c_portal->xy0[1]);
-            glVertex2f(c_portal->xy1[0],c_portal->xy1[1]);
+            glVertex2f(pos0_local[0],pos0_local[1]);
+            glVertex2f(pos1_local[0],pos1_local[1]);
             glEnd();
 
             glLineWidth (3.0);
@@ -710,13 +747,12 @@ static void navigator_plan_renderer_draw(BotViewer *viewer, BotRenderer *super)
             glMaterialfv (GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color_curr);
 
             glPushMatrix();
-            glTranslatef(c_portal->xy1[0],c_portal->xy1[1],0);
+            glTranslatef(pos1_local[0], pos1_local[1],0);
             bot_gl_draw_circle(0.3);
             glPopMatrix();
             glLineWidth (2.0);
             curr_portal = g_slist_next(curr_portal);
         }
-
     }
 
 
@@ -832,7 +868,8 @@ static void navigator_plan_renderer_draw(BotViewer *viewer, BotRenderer *super)
 /*     erlcm_mission_control_msg_t_publish(lc, MISSION_CONTROL_CHANNEL, &msg); */
 /* } */
 
-static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, void *user)
+static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, 
+                                    void *user)
 {
     RendererNavigatorPlan *self = (RendererNavigatorPlan*) user;
 
@@ -1018,7 +1055,7 @@ static int mouse_release(BotViewer *viewer, BotEventHandler *ehandler, const dou
         //msg.goal_msg.nonce = random();
         //msg.goal_msg.sender = ERLCM_NAVIGATOR_GOAL_MSG_T_SENDER_WAYPOINT_TOOL;
         //msg.floor_no = 2;
-        // erlcm_navigator_floor_goal_msg_t_publish(self->lc, "NAV_GOAL_FLOOR", &msg);
+        //erlcm_navigator_floor_goal_msg_t_publish(self->lc, "NAV_GOAL_FLOOR", &msg);
 
         fprintf(stderr, "Goal: x %f y %f z %f yaw %f\n", goal.x, goal.y, goal.z, goal.yaw);
 
@@ -1166,19 +1203,22 @@ static int mouse_press(BotViewer *viewer, BotEventHandler *ehandler, const doubl
 }
 
 
-static void on_load_preferences(BotViewer *viewer, GKeyFile *keyfile, void *user_data)
+static void on_load_preferences(BotViewer *viewer, GKeyFile *keyfile, 
+                                void *user_data)
 {
     RendererNavigatorPlan *self = user_data;
     bot_gtk_param_widget_load_from_key_file(self->pw, keyfile, RENDERER_NAME);
 }
 
-static void on_save_preferences(BotViewer *viewer, GKeyFile *keyfile, void *user_data)
+static void on_save_preferences(BotViewer *viewer, GKeyFile *keyfile, 
+                                void *user_data)
 {
     RendererNavigatorPlan *self = user_data;
     bot_gtk_param_widget_save_to_key_file(self->pw, keyfile, RENDERER_NAME);
 }
 
-void navigator_plan_renderer_to_viewer(BotViewer *viewer, int render_priority, lcm_t *lcm)
+void navigator_plan_renderer_to_viewer(BotViewer *viewer, int render_priority, 
+                                       lcm_t *lcm, BotFrames *frames)
 {
     RendererNavigatorPlan *self = (RendererNavigatorPlan*) calloc(1, sizeof(RendererNavigatorPlan));
     BotRenderer *renderer = &self->renderer;
@@ -1204,6 +1244,7 @@ void navigator_plan_renderer_to_viewer(BotViewer *viewer, int render_priority, l
 
     self->viewer = viewer;
     self->lc = lcm;//globals_get_lcm_full(NULL,1);
+    self->frames = frames;
 
     // message subscriptions
     self->navigator_plan_subscription = erlcm_point_list_t_subscribe(self->lc, NAV_PLAN_CHANNEL,
