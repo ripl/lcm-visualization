@@ -965,7 +965,8 @@ static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name,
         erlcm_floor_change_msg_t msg;
         msg.utime = bot_timestamp_now();
         msg.floor_no = floor_no;
-        erlcm_floor_change_msg_t_publish(self->lc, "FLOOR_CHANGE",&msg);
+        fprintf (stdout, "Navigator Renderer: Publishing floor disabled\n");
+        //erlcm_floor_change_msg_t_publish(self->lc, "FLOOR_CHANGE",&msg);
     }
 
     bot_viewer_request_redraw(self->viewer);
