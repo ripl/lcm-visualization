@@ -34,10 +34,9 @@ pods_use_pkg_config_packages(hr-viewer
     lcmtypes_gps18
     map3d_interface
     hr-path-util
-    #velodyne-renderer
     image-util-renderer
     occ-map-renderers
-    kinect-renderer
+    #kinect-renderer
     #collections_renderer
     octomap-renderer
     velodyne-renderer

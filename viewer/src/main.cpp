@@ -23,7 +23,7 @@
 #include <bot_lcmgl_render/lcmgl_bot_renderer.h>
 #include <er_renderers/er_renderers.h>
 #include <er_renderers/viewer_aux_data.h>
-#include <kinect/kinect_renderer.h>
+//#include <kinect/kinect_renderer.h>
 #include <laser_utils/renderer_laser.h>
 #include <image_utils/renderer_cam_thumb.h>
 #include <velodyne/renderer_velodyne.h>
@@ -449,21 +449,21 @@ int main(int argc, char *argv[])
     setup_renderer_rrtstar(viewer, 1, lcm);
     setup_renderer_tracks(viewer, 1, lcm, param);
     setup_renderer_simobs(viewer, 1, lcm, param);
-    setup_renderer_satellite(viewer, 1, param, frames);
+    //setup_renderer_satellite(viewer, 1, param, frames);
     setup_renderer_gridmap(viewer, 1, lcm, param);
     setup_renderer_host_status (viewer, 1);
     renderer_sensor_status_new (viewer);
     setup_renderer_robot_status (viewer, param, 1);
     //setup_renderer_robot_commands (viewer, 1);
     occ_map_pixel_map_add_renderer_to_viewer(viewer, 1, "PIXEL_MAP", "PixelMap Viewer");
-    occ_map_voxel_map_add_renderer_to_viewer(viewer, 1, "VOXEL_MAP");
-    kinect_add_renderer_to_viewer(viewer, 0, lcm, frames, "KINECT", param);
+    //occ_map_voxel_map_add_renderer_to_viewer(viewer, 1, "VOXEL_MAP");
+    //kinect_add_renderer_to_viewer(viewer, 0, lcm, frames, "KINECT", param);
     //setup_renderer_pcl(viewer,1,param);
     //setup_renderer_topological_graph(viewer,1,param);
     //setup_renderer_manual_calib (viewer, 1);
-    add_person_model_renderer_to_viewer(viewer, 1, param, frames, lcm);
+    //add_person_model_renderer_to_viewer(viewer, 1, param, frames, lcm);
     add_cam_thumb_renderer_to_viewer(viewer, 1, lcm, param, frames);
-    setup_renderer_vision_lcmgl (viewer, 1, lcm, param);
+    //setup_renderer_vision_lcmgl (viewer, 1, lcm, param);
     setup_renderer_velodyne(viewer, 0, param, lcm);
     BotEventHandler *rs_ehandler = (BotEventHandler*) calloc(1, sizeof(BotEventHandler));
     rs_ehandler->name = "Robot State";
