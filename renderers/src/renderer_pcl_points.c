@@ -496,7 +496,7 @@ renderer_pcl_new (BotViewer *viewer, BotParam * param)
                                        DRAW_XYZRGB, 0, NULL);
     
     
-    //senlcm_velodyne_t_subscribe (self->lcm, lcm_channel, on_velodyne, self);
+    //velodyne_t_subscribe (self->lcm, lcm_channel, on_velodyne, self);
     self->segments = NULL;
     self->normals = NULL;
     self->xyz_points = NULL;
