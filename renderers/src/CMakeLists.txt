@@ -20,28 +20,14 @@ add_library(hr-renderers SHARED
     renderer_navigator_plan.c
     renderer_tracks.c
     renderer_robot_wavefront_model.c
-    renderer_quad_model.c
     renderer_simobs.c
     renderer_gridmap.c
-    renderer_person_model.c
-    #renderer_verify_check_gridmap.c
     renderer_host_status.c
     renderer_sensor_status.c
     renderer_robot_status.c
-    #renderer_pcl_points.c
-    #drawing_utility.c
-    #renderer_robot_commands.c
-    renderer_manual_calib.c
-    renderer_vision_lcmgl.c
-    renderer_satellite.c
-    #renderer_topological_graph.c
+    renderer_laser.c
+    renderer_cam_thumb.c
     )
-
-#target_link_libraries (hr-renderers
-#    ${GTK2_LDFLAGS}
-#    ${OPENGL_LIBRARIES}
-#    ${GLUT_LIBRARIES}
-#    ${LCMTYPES_LIBS})
 
 
 set(REQUIRED_LIBRARIES
@@ -51,16 +37,12 @@ set(REQUIRED_LIBRARIES
     #bot2-param-client
     #bot2-frames
     hr-common
-    check_gridmap
     lcmtypes_bot2-procman
     lcmtypes_hr-lcmtypes
     lcmtypes_rrtstar
-    lcmtypes-gps18
-    #map3d_interface
     opencv
     jpeg-utils
     bot2-lcmgl-renderer
-    #alcmtypes_bot2-lcmgl
     hr-path-util
     )
 
@@ -68,7 +50,7 @@ pods_use_pkg_config_packages(hr-renderers ${REQUIRED_LIBRARIES})
 
 # make the header public
 # install it to include/quad-renderers
-pods_install_headers(er_renderers.h er_gl_utils.h viewer_aux_data.h DESTINATION er_renderers)
+pods_install_headers(er_renderers.h er_gl_utils.h viewer_aux_data.h renderer_cam_thumb.h renderer_laser.h DESTINATION er_renderers)
 
 # make the library public
 pods_install_libraries(hr-renderers)
