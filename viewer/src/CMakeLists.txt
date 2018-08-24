@@ -8,11 +8,6 @@ add_executable(hr-viewer
     main.cpp
     )
 
-#add_executable(hr-full-viewer
-#    udp_util.c
-#    main_full.cpp
-#    )
-
 include_directories(
     ${GTK2_INCLUDE_DIRS}
     ${GLUT_INCLUDE_DIR})
@@ -28,18 +23,12 @@ pods_use_pkg_config_packages(hr-viewer
     bot2-frames
     opencv
     hr-renderers
-    laser-util-renderer
-    image-util-renderer
     lcmtypes_hr-lcmtypes
-    lcmtypes_gps18
-    map3d_interface
-    hr-path-util
-    image-util-renderer
+    carmen-utils
+    image-utils-renderer
+    laser-utils-renderer
     occ-map-renderers
-    #kinect-renderer
-    #collections_renderer
-    octomap-renderer
-    velodyne-renderer
+    hr-common
     )
 
 pods_install_executables(hr-viewer)

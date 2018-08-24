@@ -17,16 +17,12 @@ add_library(hr-renderers SHARED
     renderer_occupancy_map.c
     renderer_grid.c
     renderer_localize.c
-    renderer_navigator_plan.c
     renderer_tracks.c
     renderer_robot_wavefront_model.c
-    renderer_simobs.c
     renderer_gridmap.c
     renderer_host_status.c
     renderer_sensor_status.c
     renderer_robot_status.c
-    renderer_laser.c
-    renderer_cam_thumb.c
     )
 
 
@@ -36,21 +32,25 @@ set(REQUIRED_LIBRARIES
     bot2-vis
     #bot2-param-client
     #bot2-frames
-    hr-common
     lcmtypes_bot2-procman
     lcmtypes_hr-lcmtypes
-    lcmtypes_rrtstar
+    #lcmtypes_rrtstar
     opencv
     jpeg-utils
     bot2-lcmgl-renderer
-    hr-path-util
+    carmen-utils
+    laser-utils
+    image-utils
     )
 
 pods_use_pkg_config_packages(hr-renderers ${REQUIRED_LIBRARIES})
 
 # make the header public
 # install it to include/quad-renderers
-pods_install_headers(er_renderers.h er_gl_utils.h viewer_aux_data.h renderer_cam_thumb.h renderer_laser.h DESTINATION er_renderers)
+pods_install_headers(er_renderers.h
+    er_gl_utils.h
+    viewer_aux_data.h
+    DESTINATION er_renderers)
 
 # make the library public
 pods_install_libraries(hr-renderers)

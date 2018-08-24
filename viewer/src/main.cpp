@@ -23,9 +23,8 @@
 #include <er_renderers/er_renderers.h>
 #include <er_renderers/viewer_aux_data.h>
 //#include <kinect/kinect_renderer.h>
-#include <er_renderers/renderer_cam_thumb.h>
-#include <er_renderers/render_laser.h>
-#include <velodyne/renderer_velodyne.h>
+#include <image_utils/renderer_cam_thumb.h>
+#include <laser_utils/renderer_laser.h>
 #include <occ_map/occ_map_renderers.h>
 //#include <octomap_utils/renderer_octomap.h>
 
@@ -366,21 +365,14 @@ int main(int argc, char *argv[])
 
     BotParam * param;
     if (!(param = bot_param_get_global(lcm, 0))) {
-        fprintf(stderr,"No server found : Reading from file\n");
-        char config_path[2048];
-        sprintf(config_path, "%s/husky.cfg", getConfigPath());
-        param = bot_param_new_from_file(config_path);
-
-        if(!param){
-            fprintf (stderr, "Unable to get BotParam instance\n");
-            return 0;
-        }
+          fprintf (stderr, "Unable to get BotParam instance\n");
+          return -1;
     }
 
     BotFrames * frames;
     if (!(frames = bot_frames_get_global (lcm, param))) {
         fprintf (stderr, "Unable to get BotFrames instance\n");
-        return 0;
+        return -1;
     }
 
     bot_glib_mainloop_attach_lcm (lcm);
@@ -420,10 +412,8 @@ int main(int argc, char *argv[])
     bot_frames_add_renderer_to_viewer(viewer, 1, frames);
     localize_add_renderer_to_viewer(viewer, 1, lcm);
     add_husky_model_renderer_to_viewer(viewer, 1, param, frames);
-    navigator_plan_renderer_to_viewer(viewer, 1, lcm, frames);
     setup_renderer_rrtstar(viewer, 1, lcm);
     setup_renderer_tracks(viewer, 1, lcm, param);
-    setup_renderer_simobs(viewer, 1, lcm, param);
     setup_renderer_gridmap(viewer, 1, lcm, param);
     setup_renderer_host_status (viewer, 1);
     renderer_sensor_status_new (viewer);
