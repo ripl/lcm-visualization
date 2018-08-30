@@ -23,12 +23,10 @@ set(REQUIRED_LIBRARIES
     lcmtypes_bot2-procman
     lcmtypes_hr-lcmtypes
     lcmtypes_rrtstar
-    lcmtypes-gps18
     lcmtypes_obstacle-detector
     opencv
     jpeg-utils
     bot2-lcmgl-renderer
-    path-utils
     )
 
 pods_use_pkg_config_packages(husky-renderers ${REQUIRED_LIBRARIES})

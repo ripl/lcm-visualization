@@ -24,9 +24,7 @@ pods_use_pkg_config_packages(hr-viewer
     laser-utils-renderer
     image-utils-renderer
     lcmtypes_hr-lcmtypes
-    lcmtypes_gps18
     map3d_interface
-    path-utils
     occ-map-renderers
     octomap-renderer
     velodyne-renderer

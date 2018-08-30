@@ -14,11 +14,11 @@
 #include <bot_core/bot_core.h>
 #include <bot_vis/bot_vis.h>
 #include <bot_frames/bot_frames.h>
-#include <path_utils/path_util.h>
-#include "gl_utils.h"
 
 #include <lcmtypes/hr_lcmtypes.h>
 #include <lcmtypes/bot_core_pose_t.h>
+
+#include "gl_utils.h"
 
 #define RENDERER_NAME "Husky"
 
@@ -375,7 +375,7 @@ setup_renderer_husky_model(BotViewer *viewer, int render_priority,
 
     self->draw_frame = bot_frames_get_root_name(self->frames);
 
-    const char * models_dir = getModelsPath();
+    const char * models_dir = BASE_PATH "/models";
 
     char *model_name;
     char model_full_path[256];

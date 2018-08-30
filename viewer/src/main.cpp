@@ -12,7 +12,6 @@
 #include <bot_vis/bot_vis.h>
 #include <bot_param/param_client.h>
 #include <bot_param/param_util.h>
-#include <path_utils/path_util.h>
 #include <lcmtypes/ripl_robot_state_command_t.h>
 #include <lcmtypes/ripl_robot_status_t.h>
 
@@ -372,14 +371,8 @@ int main(int argc, char *argv[])
 
     BotParam * param;
     if (!(param = bot_param_get_global(lcm, 0))) {
-        fprintf(stderr,"No server found : Reading from file\n");
-        char config_path[2048];
-        sprintf(config_path, "%s/husky.cfg", getConfigPath());
-        param = bot_param_new_from_file(config_path);
-
-        if(!param){
-            fprintf (stderr, "Unable to get BotParam instance\n");
-            return 0;
+        fprintf (stderr, "Unable to get BotParam instance\n");
+        return 0;
         }
     }
 
