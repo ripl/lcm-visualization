@@ -116,8 +116,8 @@ on_param_widget_changed (BotGtkParamWidget *pw, const char *name,
         
         msg.node_ind[0] =  bot_gtk_param_widget_get_int(pw, PARAM_START);
         msg.node_ind[1] =  bot_gtk_param_widget_get_int(pw, PARAM_END);
-        msg.type_of_nodes = ERLCM_SLAM_NODE_SELECT_T_NODES_START_END;
-        msg.mode = ERLCM_SLAM_NODE_SELECT_T_PUBLISH_VOXEL_MAP;
+        msg.type_of_nodes = RIPL_SLAM_NODE_SELECT_T_NODES_START_END;
+        msg.mode = RIPL_SLAM_NODE_SELECT_T_PUBLISH_VOXEL_MAP;
         */
         int start = bot_gtk_param_widget_get_int(pw, PARAM_START);
         int end = bot_gtk_param_widget_get_int(pw, PARAM_END);
@@ -130,8 +130,8 @@ on_param_widget_changed (BotGtkParamWidget *pw, const char *name,
         
         msg.node_ind[0] =  bot_gtk_param_widget_get_int(pw, PARAM_START);
         msg.node_ind[1] =  bot_gtk_param_widget_get_int(pw, PARAM_END);
-        msg.type_of_nodes = ERLCM_SLAM_NODE_SELECT_T_NODES_VALID_NODE;
-        msg.mode = ERLCM_SLAM_NODE_SELECT_T_PUBLISH_VOXEL_MAP;
+        msg.type_of_nodes = RIPL_SLAM_NODE_SELECT_T_NODES_VALID_NODE;
+        msg.mode = RIPL_SLAM_NODE_SELECT_T_PUBLISH_VOXEL_MAP;
 
         for(int i=0; i< count; i++){
             msg.node_ind[i] = start + i;
@@ -145,41 +145,41 @@ on_param_widget_changed (BotGtkParamWidget *pw, const char *name,
 
     if(!strcmp(name, PARAM_SEND_MANUAL)) {
         int64_t faults=0;
-        faults|= ERLCM_ROBOT_STATUS_T_FAULT_MANUAL; 
-        //faults|= ERLCM_ROBOT_STATUS_T_FAULT_FRONT_DROPOFF;
-        //faults|= ERLCM_ROBOT_STATUS_T_FAULT_REAR_DROPOFF;
+        faults|= RIPL_ROBOT_STATUS_T_FAULT_MANUAL; 
+        //faults|= RIPL_ROBOT_STATUS_T_FAULT_FRONT_DROPOFF;
+        //faults|= RIPL_ROBOT_STATUS_T_FAULT_REAR_DROPOFF;
         ripl_robot_state_command_t state_msg;
         state_msg.utime = bot_timestamp_now();
         state_msg.sender = "viewer";
         state_msg.comment = "";
         state_msg.faults = faults;
-        state_msg.fault_mask =  ERLCM_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
-        state_msg.state = ERLCM_ROBOT_STATE_COMMAND_T_STATE_ERROR;  
+        state_msg.fault_mask =  RIPL_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
+        state_msg.state = RIPL_ROBOT_STATE_COMMAND_T_STATE_ERROR;  
         ripl_robot_state_command_t_publish (self->lcm, "ROBOT_STATE_COMMAND", &state_msg);
     }
     if(!strcmp(name, PARAM_SEND_FRONT_FAULT)) {
         int64_t faults=0;
-        faults|= ERLCM_ROBOT_STATUS_T_FAULT_FRONT_DROPOFF;
-        //faults|= ERLCM_ROBOT_STATUS_T_FAULT_REAR_DROPOFF;
+        faults|= RIPL_ROBOT_STATUS_T_FAULT_FRONT_DROPOFF;
+        //faults|= RIPL_ROBOT_STATUS_T_FAULT_REAR_DROPOFF;
         ripl_robot_state_command_t state_msg;
         state_msg.utime = bot_timestamp_now();
         state_msg.sender = "viewer";
         state_msg.comment = "";
         state_msg.faults = faults;
-        state_msg.fault_mask =  ERLCM_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
-        state_msg.state = ERLCM_ROBOT_STATE_COMMAND_T_STATE_ERROR;  
+        state_msg.fault_mask =  RIPL_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
+        state_msg.state = RIPL_ROBOT_STATE_COMMAND_T_STATE_ERROR;  
         ripl_robot_state_command_t_publish (self->lcm, "ROBOT_STATE_COMMAND", &state_msg);
     }
     if(!strcmp(name, PARAM_SEND_REAR_FAULT)) {
         int64_t faults=0;
-        faults|= ERLCM_ROBOT_STATUS_T_FAULT_REAR_DROPOFF;
+        faults|= RIPL_ROBOT_STATUS_T_FAULT_REAR_DROPOFF;
         ripl_robot_state_command_t state_msg;
         state_msg.utime = bot_timestamp_now();
         state_msg.sender = "viewer";
         state_msg.comment = "";
         state_msg.faults = faults;
-        state_msg.fault_mask =  ERLCM_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
-        state_msg.state = ERLCM_ROBOT_STATE_COMMAND_T_STATE_ERROR;  
+        state_msg.fault_mask =  RIPL_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
+        state_msg.state = RIPL_ROBOT_STATE_COMMAND_T_STATE_ERROR;  
         ripl_robot_state_command_t_publish (self->lcm, "ROBOT_STATE_COMMAND", &state_msg);
     }
     if(!strcmp(name, PARAM_SEND_REGION)) {
@@ -263,11 +263,11 @@ mouse_press (BotViewer *viewer, BotEventHandler *ehandler, const double ray_star
         ripl_roi_t msg; 
         memset(&msg, 0, sizeof(ripl_roi_t)); 
         msg.utime = bot_timestamp_now();
-        msg.foviation_type = ERLCM_ROI_T_MOVE_HORIZONTAL; 
+        msg.foviation_type = RIPL_ROI_T_MOVE_HORIZONTAL; 
         msg.pos[0] = click_pt_local.x;
         msg.pos[1] = click_pt_local.y;
         msg.pos[2] = 0;
-        msg.frame = ERLCM_ROI_T_FRAME_LOCAL;//"local";
+        msg.frame = RIPL_ROI_T_FRAME_LOCAL;//"local";
 
         ripl_roi_t_publish(self->lcm, "ROI", &msg);
     }
@@ -350,27 +350,27 @@ robot_commands_draw (BotViewer *viewer, BotRenderer *renderer)
     gluOrtho2D(0, viewport[2], 0, viewport[3]);
 
     glColor3f(1,1,1);
-    int8_t state = self->robot_status ? self->robot_status->state : ERLCM_ROBOT_STATUS_T_STATE_UNDEFINED;
+    int8_t state = self->robot_status ? self->robot_status->state : RIPL_ROBOT_STATUS_T_STATE_UNDEFINED;
     char *robot_string;
     switch (state) 
         {
-        case ERLCM_ROBOT_STATUS_T_STATE_RUN:
+        case RIPL_ROBOT_STATUS_T_STATE_RUN:
             robot_string = "RUN"; 
             break;
-        case ERLCM_ROBOT_STATUS_T_STATE_STOP:
+        case RIPL_ROBOT_STATUS_T_STATE_STOP:
             robot_string = "PAUSE"; 
             break;
-        case ERLCM_ROBOT_STATUS_T_STATE_MANUAL:
+        case RIPL_ROBOT_STATUS_T_STATE_MANUAL:
             robot_string = "MANUAL"; 
             break;
-        case ERLCM_ROBOT_STATUS_T_STATE_STANDBY:
+        case RIPL_ROBOT_STATUS_T_STATE_STANDBY:
             robot_string = "STANDBY"; 
             break;
-        case ERLCM_ROBOT_STATUS_T_STATE_ERROR:
+        case RIPL_ROBOT_STATUS_T_STATE_ERROR:
             robot_string = "ERROR"; 
             break;
         default:
-        case ERLCM_ROBOT_STATUS_T_STATE_UNDEFINED:
+        case RIPL_ROBOT_STATUS_T_STATE_UNDEFINED:
             robot_string = "UNDEFINED"; 
             break;
         }

@@ -71,9 +71,9 @@ robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
     case 'F':
         // clear faults
         cmd.utime = bot_timestamp_now();
-        cmd.state = ERLCM_ROBOT_STATUS_T_STATE_STOP;
-        cmd.faults = ERLCM_ROBOT_STATUS_T_FAULT_NONE;
-        cmd.fault_mask = ERLCM_ROBOT_STATUS_T_FAULT_MASK_CLEAR_ALL;
+        cmd.state = RIPL_ROBOT_STATUS_T_STATE_STOP;
+        cmd.faults = RIPL_ROBOT_STATUS_T_FAULT_NONE;
+        cmd.fault_mask = RIPL_ROBOT_STATUS_T_FAULT_MASK_CLEAR_ALL;
         cmd.sender = "viewer";
         cmd.comment = "Clear Faults";
         ripl_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);
@@ -81,9 +81,9 @@ robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
     case 'R':
         // go into run mode
         cmd.utime = bot_timestamp_now();
-        cmd.state = ERLCM_ROBOT_STATUS_T_STATE_RUN;
-        cmd.faults = ERLCM_ROBOT_STATUS_T_FAULT_NONE;
-        cmd.fault_mask = ERLCM_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
+        cmd.state = RIPL_ROBOT_STATUS_T_STATE_RUN;
+        cmd.faults = RIPL_ROBOT_STATUS_T_FAULT_NONE;
+        cmd.fault_mask = RIPL_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
         cmd.sender = "viewer";
         cmd.comment = "Activating";
         ripl_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);
@@ -92,9 +92,9 @@ robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
     case ' ':
         // go into pause mode eating key press.
         cmd.utime = bot_timestamp_now();
-        cmd.state = ERLCM_ROBOT_STATUS_T_STATE_STOP;
-        cmd.faults = ERLCM_ROBOT_STATUS_T_FAULT_NONE;
-        cmd.fault_mask = ERLCM_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
+        cmd.state = RIPL_ROBOT_STATUS_T_STATE_STOP;
+        cmd.faults = RIPL_ROBOT_STATUS_T_FAULT_NONE;
+        cmd.fault_mask = RIPL_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
         cmd.sender = "viewer";
         cmd.comment = "Stopping";
         ripl_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);
@@ -105,9 +105,9 @@ robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
         // go into pause mode
         // don't eat keypress let logplayer see it too.
         cmd.utime = bot_timestamp_now();
-        cmd.state = ERLCM_ROBOT_STATUS_T_STATE_STOP;
-        cmd.faults = ERLCM_ROBOT_STATUS_T_FAULT_NONE;
-        cmd.fault_mask = ERLCM_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
+        cmd.state = RIPL_ROBOT_STATUS_T_STATE_STOP;
+        cmd.faults = RIPL_ROBOT_STATUS_T_FAULT_NONE;
+        cmd.fault_mask = RIPL_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
         cmd.sender = "viewer";
         cmd.comment = "Pause requested.";
         ripl_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);

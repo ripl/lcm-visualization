@@ -183,26 +183,26 @@ robot_status_draw (BotViewer *viewer, BotRenderer *renderer)
     gluOrtho2D(0, viewport[2], 0, viewport[3]);
 
     glColor3f(1,1,1);
-    int8_t state = self->robot_status ? self->robot_status->state : ERLCM_ROBOT_STATUS_T_STATE_UNDEFINED;
+    int8_t state = self->robot_status ? self->robot_status->state : RIPL_ROBOT_STATUS_T_STATE_UNDEFINED;
     char *robot_string;
     switch (state)  {
-    case ERLCM_ROBOT_STATUS_T_STATE_RUN:
+    case RIPL_ROBOT_STATUS_T_STATE_RUN:
         robot_string = "RUN"; 
         break;
-    case ERLCM_ROBOT_STATUS_T_STATE_STOP:
+    case RIPL_ROBOT_STATUS_T_STATE_STOP:
         robot_string = "PAUSE"; 
         break;
-    case ERLCM_ROBOT_STATUS_T_STATE_MANUAL:
+    case RIPL_ROBOT_STATUS_T_STATE_MANUAL:
         robot_string = "MANUAL"; 
         break;
-    case ERLCM_ROBOT_STATUS_T_STATE_STANDBY:
+    case RIPL_ROBOT_STATUS_T_STATE_STANDBY:
         robot_string = "STANDBY"; 
         break;
-    case ERLCM_ROBOT_STATUS_T_STATE_ERROR:
+    case RIPL_ROBOT_STATUS_T_STATE_ERROR:
         robot_string = "ERROR"; 
         break;
     default:
-    case ERLCM_ROBOT_STATUS_T_STATE_UNDEFINED:
+    case RIPL_ROBOT_STATUS_T_STATE_UNDEFINED:
         robot_string = "UNDEFINED"; 
         break;
     }

@@ -178,7 +178,7 @@ static int mouse_press(BotViewer *viewer, BotEventHandler *ehandler, const doubl
         //LEFT BUTTON: Go to waypoint
         ripl_waypoint_msg_t waypt_msg;
         //ripl_controller_set_noop(&waypt_msg);
-        waypt_msg.waypt_type = ERLCM_WAYPOINT_MSG_T_TYPE_WAYPT;
+        waypt_msg.waypt_type = RIPL_WAYPOINT_MSG_T_TYPE_WAYPT;
         waypt_msg.pos.x = self->last_xyzt[0];
         waypt_msg.pos.y = self->last_xyzt[1];
 
@@ -187,7 +187,7 @@ static int mouse_press(BotViewer *viewer, BotEventHandler *ehandler, const doubl
 
         waypt_msg.nonce = random();
         waypt_msg.utime = bot_timestamp_now();
-        waypt_msg.sender = ERLCM_WAYPOINT_MSG_T_SENDER_VIEWER;//QUAD_WAYPOINT_T_SENDER_VIEWER;
+        waypt_msg.sender = RIPL_WAYPOINT_MSG_T_SENDER_VIEWER;//QUAD_WAYPOINT_T_SENDER_VIEWER;
 
         /*if (self->param_click_waypt_type == CONTROLLER_WAYPT) {
           ripl_controller_sanity_check_and_publish(self->lc, WAYPOINT_COMMAND_CHANNEL, &waypt_msg);

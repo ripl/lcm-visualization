@@ -461,8 +461,8 @@ static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, voi
         fprintf(stderr,"Clicked Activate - Person is in front\n");
         ripl_person_tracking_cmd_t msg;
         msg.utime = bot_timestamp_now();
-        msg.command = ERLCM_PERSON_TRACKING_CMD_T_CMD_PERSON_IN_FRONT;
-        msg.sender = ERLCM_PERSON_TRACKING_CMD_T_SENDER_DM;
+        msg.command = RIPL_PERSON_TRACKING_CMD_T_CMD_PERSON_IN_FRONT;
+        msg.sender = RIPL_PERSON_TRACKING_CMD_T_SENDER_DM;
         ripl_person_tracking_cmd_t_publish(self->lc, "PERSON_TRACKING_CMD", &msg);
     }
 }

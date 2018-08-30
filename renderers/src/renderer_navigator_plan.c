@@ -277,12 +277,12 @@ void add_portal_button(GtkWidget *button __attribute__ ((unused)),
 
     if(self->portal_type == 0){
         fprintf(stderr, "Type : Door\n");
-        msg.type = ERLCM_PORTAL_NODE_T_PORTAL_DOOR;
+        msg.type = RIPL_PORTAL_NODE_T_PORTAL_DOOR;
     }
     //elevators need to be treated differently - they span multiple floors
     else if(self->portal_type == 1){
         fprintf(stderr, "Type : Elevator\n");
-        msg.type = ERLCM_PORTAL_NODE_T_PORTAL_ELEVATOR;
+        msg.type = RIPL_PORTAL_NODE_T_PORTAL_ELEVATOR;
     }
 
     msg.node_id = 0; //will not be used here - should be reprocessed somewhere else
@@ -603,12 +603,12 @@ static void navigator_plan_renderer_draw(BotViewer *viewer, BotRenderer *super)
                 continue;
             }
 
-            if(c_portal->type ==  ERLCM_PORTAL_NODE_T_PORTAL_DOOR){
+            if(c_portal->type ==  RIPL_PORTAL_NODE_T_PORTAL_DOOR){
                 color_curr[0] = 0.0;
                 color_curr[1] = 0.0;
                 color_curr[2] = 1.0;
             }
-            else if(c_portal->type ==  ERLCM_PORTAL_NODE_T_PORTAL_ELEVATOR){
+            else if(c_portal->type ==  RIPL_PORTAL_NODE_T_PORTAL_ELEVATOR){
                 color_curr[0] = 1.0;
                 color_curr[1] = 0.0;
                 color_curr[2] = 0.0;
@@ -709,12 +709,12 @@ static void navigator_plan_renderer_draw(BotViewer *viewer, BotRenderer *super)
         GSList *curr_portal = self->portal_list;
         while(curr_portal){
             ripl_portal_node_t *c_portal = (ripl_portal_node_t *) curr_portal->data;
-            if(c_portal->type ==  ERLCM_PORTAL_NODE_T_PORTAL_DOOR){
+            if(c_portal->type ==  RIPL_PORTAL_NODE_T_PORTAL_DOOR){
                 color_curr[0] = 0.0;
                 color_curr[1] = 0.0;
                 color_curr[2] = 1.0;
             }
-            else if(c_portal->type ==  ERLCM_PORTAL_NODE_T_PORTAL_ELEVATOR){
+            else if(c_portal->type ==  RIPL_PORTAL_NODE_T_PORTAL_ELEVATOR){
                 color_curr[0] = 1.0;
                 color_curr[1] = 0.0;
                 color_curr[2] = 0.0;
@@ -893,7 +893,7 @@ static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name,
         activate_nav(self,2);
         //start navigator to issue commands to the robot
         // NOBODY SUBSCRIBES TO THIS MESSAGE
-        //publish_mission_control(self->lc, ERLCM_MISSION_CONTROL_MSG_T_NAVIGATOR_GO);
+        //publish_mission_control(self->lc, RIPL_MISSION_CONTROL_MSG_T_NAVIGATOR_GO);
         //publish speech command go message
         ripl_speech_cmd_t msg;
         msg.utime = bot_timestamp_now();
@@ -907,7 +907,7 @@ static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name,
     else if(!strcmp(name, STOP_ROBOT)) {
         activate_nav(self,3);//pause the navigator
         // NOBODY SUBSCRIBES TO THIS MESSAGE
-        //publish_mission_control(self->lc, ERLCM_MISSION_CONTROL_MSG_T_NAVIGATOR_PAUSE);
+        //publish_mission_control(self->lc, RIPL_MISSION_CONTROL_MSG_T_NAVIGATOR_PAUSE);
         ripl_speech_cmd_t msg;
         msg.utime = bot_timestamp_now();
         msg.cmd_type = "FOLLOWER";
@@ -1045,7 +1045,7 @@ static int mouse_release(BotViewer *viewer, BotEventHandler *ehandler, const dou
         msg.use_theta = 1;//0;
         msg.utime = bot_timestamp_now();
         msg.nonce = random();
-        msg.sender = ERLCM_NAVIGATOR_GOAL_MSG_T_SENDER_WAYPOINT_TOOL;
+        msg.sender = RIPL_NAVIGATOR_GOAL_MSG_T_SENDER_WAYPOINT_TOOL;
         ripl_navigator_goal_msg_t_publish(self->lc, "NAV_GOAL_LOCAL", &msg);
 
         // Comment in navigator3d.c that floor number is ignored
@@ -1054,7 +1054,7 @@ static int mouse_release(BotViewer *viewer, BotEventHandler *ehandler, const dou
         //msg.goal_msg.use_theta = 1;//0;
         //msg.goal_msg.utime = bot_timestamp_now();
         //msg.goal_msg.nonce = random();
-        //msg.goal_msg.sender = ERLCM_NAVIGATOR_GOAL_MSG_T_SENDER_WAYPOINT_TOOL;
+        //msg.goal_msg.sender = RIPL_NAVIGATOR_GOAL_MSG_T_SENDER_WAYPOINT_TOOL;
         //msg.floor_no = 2;
         //ripl_navigator_floor_goal_msg_t_publish(self->lc, "NAV_GOAL_FLOOR", &msg);
 
