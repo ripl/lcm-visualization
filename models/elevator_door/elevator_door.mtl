@@ -1,0 +1,38 @@
+#
+## Alias OBJ Material File
+# Exported from SketchUp, (c) 2000-2006 Google, Inc.
+
+newmtl door_silver
+Ka 0.000000 0.000000 0.000000
+Kd 0.635294 0.600000 0.584314
+Ks 0.330000 0.330000 0.330000
+map_Kd elevator_door/door_silver.JPG
+
+newmtl FrontColor
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.330000 0.330000 0.330000
+
+newmtl door_silver1
+Ka 0.000000 0.000000 0.000000
+Kd 0.635294 0.600000 0.584314
+Ks 0.330000 0.330000 0.330000
+
+newmtl Material15
+Ka 0.000000 0.000000 0.000000
+Kd 0.756863 0.407843 0.035294
+Ks 0.330000 0.330000 0.330000
+d 0.500000
+
+newmtl Material14
+Ka 0.000000 0.000000 0.000000
+Kd 0.929412 0.537255 0.211765
+Ks 0.330000 0.330000 0.330000
+d 0.500000
+
+newmtl Metal_Aluminum_Anodized
+Ka 0.000000 0.000000 0.000000
+Kd 0.792157 0.819608 0.858824
+Ks 0.330000 0.330000 0.330000
+map_Kd elevator_door/Metal_Aluminum_Anodized.jpg
+
