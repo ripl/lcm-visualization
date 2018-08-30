@@ -192,7 +192,7 @@ mouse_press (BotViewer *viewer, BotEventHandler *ehandler, const double ray_star
 }
 
 void clear_people(RendererLocalize *self){
-    erlcm_localize_reinitialize_cmd_t msg;
+    ripl_localize_reinitialize_cmd_t msg;
     msg.utime = bot_timestamp_now();
     msg.mean[0] = 0;
     msg.mean[1] = 0;
@@ -201,7 +201,7 @@ void clear_people(RendererLocalize *self){
     msg.variance[0] = 0;
     msg.variance[1] = 0;
     msg.variance[2] = 0;
-    erlcm_localize_reinitialize_cmd_t_publish(self->lc, "CLEAR_PEOPLE_CHANNEL", &msg); 
+    ripl_localize_reinitialize_cmd_t_publish(self->lc, "CLEAR_PEOPLE_CHANNEL", &msg); 
 }
 
 void send_simulator_msg(RendererLocalize *self, int state){
@@ -210,10 +210,10 @@ void send_simulator_msg(RendererLocalize *self, int state){
 
     //we should prob send speed up/ slow down messages as well 
 
-    erlcm_simulator_cmd_t msg; 
+    ripl_simulator_cmd_t msg; 
     msg.timestamp = bot_timestamp_now();
     msg.command = state; 
-    erlcm_simulator_cmd_t_publish(self->lc, "SIMULATOR_CMD", &msg);
+    ripl_simulator_cmd_t_publish(self->lc, "SIMULATOR_CMD", &msg);
 }
 
 static
@@ -228,7 +228,7 @@ void add_value_button(GtkWidget *button __attribute__ ((unused)),
     
     fprintf(stderr, "Pose : %f,%f,%f => %f\n", self->particle_mean.x, self->particle_mean.y, self->theta, score);
        
-    erlcm_pose_value_t msg; 
+    ripl_pose_value_t msg; 
     msg.utime = bot_timestamp_now(); 
     msg.x = self->particle_mean.x;
     msg.y = self->particle_mean.y;
@@ -237,7 +237,7 @@ void add_value_button(GtkWidget *button __attribute__ ((unused)),
     
     //this should be added to a list and displayed 
 
-    erlcm_pose_value_t_publish(self->lc, "POSE_VALUE", &msg);
+    ripl_pose_value_t_publish(self->lc, "POSE_VALUE", &msg);
 
     self->pose_values = (pose_value *) realloc(self->pose_values, (self->size_of_pose_values +1) * sizeof(pose_value));
 
@@ -306,7 +306,7 @@ static int mouse_release(BotViewer *viewer, BotEventHandler *ehandler,
     
     if (self->active != 0 && self->active < 3) {
         // check drag points and publish
-        erlcm_localize_reinitialize_cmd_t msg;
+        ripl_localize_reinitialize_cmd_t msg;
         msg.utime = bot_timestamp_now();
         msg.mean[0] = self->particle_mean.x;
         msg.mean[1] = self->particle_mean.y;
@@ -320,13 +320,13 @@ static int mouse_release(BotViewer *viewer, BotEventHandler *ehandler,
         fprintf(stderr,"Localizer Button Released => Activate Value : %d\n", self->active);
         if(self->active == 1){
             fprintf(stderr, "Reinitializing \n");
-            erlcm_localize_reinitialize_cmd_t_publish(self->lc, LOCALIZE_REINITIALIZE_CHANNEL, &msg);
+            ripl_localize_reinitialize_cmd_t_publish(self->lc, LOCALIZE_REINITIALIZE_CHANNEL, &msg);
         }
         else if (self->active == 2){
             //clear the current location 
             clear_people(self);
             //send new location 
-            erlcm_localize_reinitialize_cmd_t_publish(self->lc, "CREATE_PEOPLE_CHANNEL", &msg);
+            ripl_localize_reinitialize_cmd_t_publish(self->lc, "CREATE_PEOPLE_CHANNEL", &msg);
         }
 
         bot_viewer_set_status_bar_message(self->viewer, "");
@@ -436,34 +436,34 @@ static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, voi
 
     if(!strcmp(name, START_FOLLOWING)) {
         fprintf(stderr,"Start Following\n");
-        erlcm_speech_cmd_t msg;
+        ripl_speech_cmd_t msg;
         msg.cmd_type = "FOLLOWER";
         msg.cmd_property = "START_FOLLOWING";
-        erlcm_speech_cmd_t_publish(self->lc, "PERSON_TRACKER", &msg);        
+        ripl_speech_cmd_t_publish(self->lc, "PERSON_TRACKER", &msg);        
     }  
 
      if(!strcmp(name, STOP_FOLLOWING)) {
         fprintf(stderr,"Stop Following\n");
-        erlcm_speech_cmd_t msg;
+        ripl_speech_cmd_t msg;
         msg.cmd_type = "FOLLOWER";
         msg.cmd_property = "IDLE";
-        erlcm_speech_cmd_t_publish(self->lc, "PERSON_TRACKER", &msg);        
+        ripl_speech_cmd_t_publish(self->lc, "PERSON_TRACKER", &msg);        
     }  
 
     if(!strcmp(name, LOOK_FOR_PERSON)) {
         fprintf(stderr,"Clicked Activate - Look for person\n");
-        erlcm_speech_cmd_t msg;
+        ripl_speech_cmd_t msg;
         msg.cmd_type = "TRACKER";
         msg.cmd_property = "ASKED_TO_FRONT";
-        erlcm_speech_cmd_t_publish(self->lc, "PERSON_TRACKER", &msg);        
+        ripl_speech_cmd_t_publish(self->lc, "PERSON_TRACKER", &msg);        
     }  
     if(!strcmp(name, PERSON_INFRONT)) {
         fprintf(stderr,"Clicked Activate - Person is in front\n");
-        erlcm_person_tracking_cmd_t msg; 
+        ripl_person_tracking_cmd_t msg; 
         msg.utime = bot_timestamp_now();
         msg.command = ERLCM_PERSON_TRACKING_CMD_T_CMD_PERSON_IN_FRONT; 
         msg.sender = ERLCM_PERSON_TRACKING_CMD_T_SENDER_DM; 
-        erlcm_person_tracking_cmd_t_publish(self->lc, "PERSON_TRACKING_CMD", &msg);        
+        ripl_person_tracking_cmd_t_publish(self->lc, "PERSON_TRACKING_CMD", &msg);        
     }  
 }
 

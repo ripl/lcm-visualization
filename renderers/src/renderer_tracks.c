@@ -25,14 +25,14 @@
 
 #define FORCE_RED
 
-#include <lcmtypes/erlcm_track_list_t.h>
-#include <lcmtypes/erlcm_obstacle_list_t.h>
+#include <lcmtypes/obs_track_list_t.h>
+#include <lcmtypes/obs_obstacle_list_t.h>
 
 #define RENDERER_NAME "Tracks"
 
 struct track_info
 {
-    erlcm_track_list_t *tlist;
+    obs_track_list_t *tlist;
     double        color[3];
 
     char          channel[256];
@@ -81,10 +81,10 @@ static void my_draw( BotViewer *viewer, BotRenderer *renderer )
     for (unsigned int chanidx = 0; chanidx < bot_g_ptr_array_size(self->channels); chanidx++) {
         struct track_info *tdata = g_ptr_array_index(self->channels, chanidx);
 
-        erlcm_track_list_t *tlist = tdata->tlist;
+        obs_track_list_t *tlist = tdata->tlist;
 	//this only draws the tracts - not static obs 
         for (int tidx = 0; tidx < tlist->ntracks; tidx++) {
-            erlcm_track_t *t = &tlist->tracks[tidx];
+            obs_track_t *t = &tlist->tracks[tidx];
 
             double x0 = t->pos[0];
             double y0 = t->pos[1];
@@ -134,7 +134,7 @@ static void my_draw( BotViewer *viewer, BotRenderer *renderer )
 
 static void
 on_tracks(const lcm_recv_buf_t *buf, const char *channel, 
-	  const erlcm_track_list_t *msg, void *user_data )
+	  const obs_track_list_t *msg, void *user_data )
 {
     RendererTracks *self = (RendererTracks*) user_data;
 
@@ -158,16 +158,16 @@ on_tracks(const lcm_recv_buf_t *buf, const char *channel,
     }
 
     if (tinfo->tlist)
-        erlcm_track_list_t_destroy(tinfo->tlist);
+        obs_track_list_t_destroy(tinfo->tlist);
 
-    tinfo->tlist = erlcm_track_list_t_copy(msg);
+    tinfo->tlist = obs_track_list_t_copy(msg);
 
     bot_viewer_request_redraw(self->viewer);
 }
 
 static void
 on_obstacles (const lcm_recv_buf_t *buf, const char * channel, 
-	      const erlcm_obstacle_list_t * msg, void * user)
+	      const obs_obstacle_list_t * msg, void * user)
 {
   on_tracks (buf, channel, &msg->tracks, user);
 }
@@ -217,8 +217,8 @@ void setup_renderer_tracks(BotViewer *viewer, int priority, lcm_t *_lcm, BotPara
     g_signal_connect (G_OBJECT (self->pw), "changed", 
                       G_CALLBACK (on_param_widget_changed), self);
     
-    erlcm_track_list_t_subscribe(self->lcm, ".*TRACKS.*", on_tracks, self);
-    erlcm_obstacle_list_t_subscribe (self->lcm, "OBSTACLES", on_obstacles, self);
+    obs_track_list_t_subscribe(self->lcm, ".*TRACKS.*", on_tracks, self);
+    obs_obstacle_list_t_subscribe (self->lcm, "OBSTACLES", on_obstacles, self);
 
     bot_viewer_add_renderer(viewer, renderer, priority);
 

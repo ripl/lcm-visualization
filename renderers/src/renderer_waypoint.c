@@ -57,7 +57,7 @@ typedef struct _RendererWaypt {
 
     bot_core_pose_t *last_curr_waypt;
     bot_core_pose_t *last_goal_waypt;
-    erlcm_waypoint_msg_t_subscription_t *waypt_subscription;
+    ripl_waypoint_msg_t_subscription_t *waypt_subscription;
     int max_draw_poses;
     int send_waypts;
     int show_waypt;
@@ -77,7 +77,7 @@ typedef struct _RendererWaypt {
 
 } RendererWaypt;
 
-static void on_waypoint(const lcm_recv_buf_t *rbuf, const char *channel, const erlcm_waypoint_msg_t *msg, void *user)
+static void on_waypoint(const lcm_recv_buf_t *rbuf, const char *channel, const ripl_waypoint_msg_t *msg, void *user)
 {
     RendererWaypt *self = (RendererWaypt*) user;
 
@@ -176,8 +176,8 @@ static int mouse_press(BotViewer *viewer, BotEventHandler *ehandler, const doubl
 
     if ((event->state & GDK_CONTROL_MASK) && event->button == 1) {
         //LEFT BUTTON: Go to waypoint
-        erlcm_waypoint_msg_t waypt_msg;
-        //erlcm_controller_set_noop(&waypt_msg);
+        ripl_waypoint_msg_t waypt_msg;
+        //ripl_controller_set_noop(&waypt_msg);
         waypt_msg.waypt_type = ERLCM_WAYPOINT_MSG_T_TYPE_WAYPT;
         waypt_msg.pos.x = self->last_xyzt[0];
         waypt_msg.pos.y = self->last_xyzt[1];
@@ -190,13 +190,13 @@ static int mouse_press(BotViewer *viewer, BotEventHandler *ehandler, const doubl
         waypt_msg.sender = ERLCM_WAYPOINT_MSG_T_SENDER_VIEWER;//QUAD_WAYPOINT_T_SENDER_VIEWER;
 
         /*if (self->param_click_waypt_type == CONTROLLER_WAYPT) {
-          erlcm_controller_sanity_check_and_publish(self->lc, WAYPOINT_COMMAND_CHANNEL, &waypt_msg);
+          ripl_controller_sanity_check_and_publish(self->lc, WAYPOINT_COMMAND_CHANNEL, &waypt_msg);
           fprintf(stderr, "Controller click %.3f %.3f %.3f\n", self->last_xyzt[0], self->last_xyzt[1], self->last_xyzt[2]);
           }
           else if (self->param_click_waypt_type == PLANNER_WAYPT) {
           waypt_msg.xyzt[2] = self->last_xyzt[2];
           waypt_msg.xyzt[3] = self->last_xyzt[3];
-          erlcm_controller_sanity_check_and_publish(self->lc, WAYPOINT_PLANNER_GOAL_CHANNEL, &waypt_msg);
+          ripl_controller_sanity_check_and_publish(self->lc, WAYPOINT_PLANNER_GOAL_CHANNEL, &waypt_msg);
           fprintf(stderr, "Planner waypoint click %.3f %.3f %.3f\n", self->last_xyzt[0], self->last_xyzt[1],
           self->last_xyzt[2]);
           }*/
@@ -212,13 +212,13 @@ static int mouse_press(BotViewer *viewer, BotEventHandler *ehandler, const doubl
         self->last_xyzt[3] = atan2(self->last_xyzt[1] - xy[1], self->last_xyzt[0] - xy[0]);
 
         /*quad_waypoint_t waypt_msg;
-          erlcm_controller_set_noop(&waypt_msg);
+          ripl_controller_set_noop(&waypt_msg);
           waypt_msg.waypt_type = QUAD_WAYPOINT_T_TYPE_WAYPT;
           waypt_msg.xyzt[3] = self->last_xyzt[3];
           waypt_msg.nonce = random();
           waypt_msg.utime = bot_timestamp_now();
           waypt_msg.sender = QUAD_WAYPOINT_T_SENDER_VIEWER;
-          erlcm_controller_sanity_check_and_publish(self->lc, WAYPOINT_COMMAND_CHANNEL, &waypt_msg);
+          ripl_controller_sanity_check_and_publish(self->lc, WAYPOINT_COMMAND_CHANNEL, &waypt_msg);
           fprintf(stderr, "Controller click %.3f %.3f %.3f\n", self->last_xyzt[0], self->last_xyzt[1], self->last_xyzt[2]);
         */
     }
@@ -247,7 +247,7 @@ static void rateLimitHeightRelativeWaypts(RendererWaypt *self, double dh)
     /*double min_period = fabs(dh) / MAX_KEYBOARD_Z_VEL;
       if (now - self->last_height_relative_waypt_time > min_period * 1e6) {
       self->last_height_relative_waypt_time = now;
-      erlcm_controller_publish_relative_waypoint(self->lc, 0, 0, dh, 0, now);
+      ripl_controller_publish_relative_waypoint(self->lc, 0, 0, dh, 0, now);
       }*/
 
 }
@@ -258,7 +258,7 @@ static void rateLimitYawRelativeWaypts(RendererWaypt *self, double dyaw)
     /*double min_period = fabs(dyaw) / MAX_KEYBOARD_YAW_VEL;
       if (now - self->last_yaw_relative_waypt_time > min_period * 1e6) {
       self->last_yaw_relative_waypt_time = now;
-      erlcm_controller_publish_relative_waypoint(self->lc, 0, 0, 0, dyaw, now);
+      ripl_controller_publish_relative_waypoint(self->lc, 0, 0, 0, dyaw, now);
       }*/
 
 }
@@ -271,7 +271,7 @@ static void rateLimitBodyRelativeWaypts(RendererWaypt *self, double dx, double d
       double min_period = mag / MAX_KEYBOARD_XY_VEL;
       if (now - self->last_body_relative_waypt_time > min_period * 1e6) {
       self->last_body_relative_waypt_time = now;
-      erlcm_controller_publish_body_relative_waypoint(self->lc, dx, dy, now);
+      ripl_controller_publish_body_relative_waypoint(self->lc, dx, dy, now);
       }*/
 }
 
@@ -396,8 +396,8 @@ void quad_waypoint_add_renderer_to_viewer(BotViewer *viewer, int render_priority
     self->last_xyzt[2] = 0;
     self->last_xyzt[3] = 0;
 
-    self->waypt_subscription = erlcm_waypoint_msg_t_subscribe(self->lc, WAYPOINT_CURR_CHANNEL, on_waypoint, self);
-    self->waypt_subscription = erlcm_waypoint_msg_t_subscribe(self->lc, WAYPOINT_GOAL_CHANNEL, on_waypoint, self);
+    self->waypt_subscription = ripl_waypoint_msg_t_subscribe(self->lc, WAYPOINT_CURR_CHANNEL, on_waypoint, self);
+    self->waypt_subscription = ripl_waypoint_msg_t_subscribe(self->lc, WAYPOINT_GOAL_CHANNEL, on_waypoint, self);
 
     // TBD - WAYPOINT_COMMAND_CHANNEL
 

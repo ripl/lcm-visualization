@@ -1,8 +1,6 @@
 add_definitions(
     -std=gnu99)
 
-#build the viewer
-
 add_executable(hr-viewer
     udp_util.c
     main.cpp
@@ -23,12 +21,17 @@ pods_use_pkg_config_packages(hr-viewer
     bot2-frames
     opencv
     hr-renderers
-    lcmtypes_hr-lcmtypes
-    carmen-utils
-    image-utils-renderer
     laser-utils-renderer
+    image-utils-renderer
+    lcmtypes_hr-lcmtypes
+    lcmtypes_gps18
+    map3d_interface
+    path-utils
     occ-map-renderers
-    hr-common
+    octomap-renderer
+    velodyne-renderer
+    rrtstar-renderer
+    obstacle-renderer
     )
 
 pods_install_executables(hr-viewer)

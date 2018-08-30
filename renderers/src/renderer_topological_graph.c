@@ -59,7 +59,7 @@ struct _RendererTopoGraph {
     
     BotPtrCircular   *data_circ;
 
-    erlcm_xyz_point_list_t *xyz_points;
+    ripl_xyz_point_list_t *xyz_points;
 
     BotViewer         *viewer;
     BotGtkParamWidget *pw;   
@@ -69,7 +69,7 @@ struct _RendererTopoGraph {
 
 static void
 on_xyz_points (const lcm_recv_buf_t *rbuf, const char *channel,
-             const erlcm_xyz_point_list_t *msg, void *user)
+             const ripl_xyz_point_list_t *msg, void *user)
 {
     //fprintf(stderr, "GOT MESSAGE");
     RendererTopoGraph *self = (RendererTopoGraph *)user;
@@ -78,9 +78,9 @@ on_xyz_points (const lcm_recv_buf_t *rbuf, const char *channel,
     fprintf(stderr, ".");
 
     if(self->xyz_points){
-        erlcm_xyz_point_list_t_destroy(self->xyz_points);
+        ripl_xyz_point_list_t_destroy(self->xyz_points);
     }
-    self->xyz_points = erlcm_xyz_point_list_t_copy(msg);
+    self->xyz_points = ripl_xyz_point_list_t_copy(msg);
     self->have_data = 1;    
     bot_viewer_request_redraw (self->viewer);
 }
@@ -232,7 +232,7 @@ renderer_topological_graph_new (BotViewer *viewer, BotParam * param)
 
     self->xyz_points = NULL;
 
-    erlcm_xyz_point_list_t_subscribe(self->lcm, "TOPOLOGICAL_GRAPH_XYZ_LIST", on_xyz_points, self);
+    ripl_xyz_point_list_t_subscribe(self->lcm, "TOPOLOGICAL_GRAPH_XYZ_LIST", on_xyz_points, self);
    
     return self;
 }

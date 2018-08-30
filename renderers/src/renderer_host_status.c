@@ -16,7 +16,7 @@
 #include <bot_vis/viewer.h>
 #include <bot_vis/gl_util.h>
 
-#include <lcmtypes/erlcm_host_status_t.h>
+#include <lcmtypes/ripl_host_status_t.h>
 #include <lcmtypes/bot_procman_info2_t.h>
 #include <hr_common/clock_skew_estimator.h>
 
@@ -28,7 +28,7 @@
 typedef struct
 {
     char *id;
-    erlcm_host_status_t * host_status;
+    ripl_host_status_t * host_status;
     bot_procman_info2_t * pmd_info;
 } HS;
 
@@ -36,7 +36,7 @@ static void hs_destroy(HS *hs)
 {
     free(hs->id);
     if(hs->host_status)
-        erlcm_host_status_t_destroy(hs->host_status);
+        ripl_host_status_t_destroy(hs->host_status);
     if(hs->pmd_info)
         bot_procman_info2_t_destroy(hs->pmd_info);
     free(hs);
@@ -64,7 +64,7 @@ typedef struct
     BotViewer *viewer;
 
     lcm_t *lcm;
-    erlcm_host_status_t_subscription_t *sub;
+    ripl_host_status_t_subscription_t *sub;
     bot_procman_info2_t_subscription_t *pm_sub;
 
     // key: char*  val: HS*
@@ -88,13 +88,13 @@ get_hs(RendererHostStatus * self, const char *name)
 
 static void 
 on_host_status(const lcm_recv_buf_t *rbuf, 
-               const char *channel, const erlcm_host_status_t *msg, void *user)
+               const char *channel, const ripl_host_status_t *msg, void *user)
 {
     RendererHostStatus *self = (RendererHostStatus*)user;
     HS * hs = get_hs(self, msg->id);
     if(hs->host_status)
-        erlcm_host_status_t_destroy(hs->host_status);
-    hs->host_status = erlcm_host_status_t_copy(msg);
+        ripl_host_status_t_destroy(hs->host_status);
+    hs->host_status = ripl_host_status_t_copy(msg);
     bot_viewer_request_redraw(self->viewer);
 }
 
@@ -343,7 +343,7 @@ _destroy(BotRenderer *r)
     RendererHostStatus *self = (RendererHostStatus*)r->user;
     if (self->lcm) {
         if (self->sub)
-            erlcm_host_status_t_unsubscribe(self->lcm, self->sub);
+            ripl_host_status_t_unsubscribe(self->lcm, self->sub);
     }
     if (self->hosts)
         g_hash_table_destroy(self->hosts);
@@ -368,7 +368,7 @@ BotRenderer *renderer_host_status_new(BotViewer *viewer)
     self->skew = clock_skew_estimator_new (self->ref_clock_name);
 
     self->lcm = bot_lcm_get_global (NULL);
-    self->sub = erlcm_host_status_t_subscribe(self->lcm, "HOST_STATUS", on_host_status, self);
+    self->sub = ripl_host_status_t_subscribe(self->lcm, "HOST_STATUS", on_host_status, self);
 
     self->pm_sub = bot_procman_info2_t_subscribe(self->lcm, "PMD_INFO2", on_procman_info_data, self);
 

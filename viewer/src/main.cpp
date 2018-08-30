@@ -12,23 +12,21 @@
 #include <bot_vis/bot_vis.h>
 #include <bot_param/param_client.h>
 #include <bot_param/param_util.h>
-#include <hr_common/path_util.h>
-#include <lcmtypes/erlcm_robot_state_command_t.h>
-#include <lcmtypes/erlcm_robot_status_t.h>
-
+#include <path_utils/path_util.h>
+#include <lcmtypes/ripl_robot_state_command_t.h>
+#include <lcmtypes/ripl_robot_status_t.h>
 
 // Renderers
 #include <bot_frames/bot_frames_renderers.h>
 #include <bot_lcmgl_render/lcmgl_bot_renderer.h>
 #include <er_renderers/er_renderers.h>
 #include <er_renderers/viewer_aux_data.h>
-//#include <kinect/kinect_renderer.h>
-#include <image_utils/renderer_cam_thumb.h>
 #include <laser_utils/renderer_laser.h>
+#include <image_utils/renderer_cam_thumb.h>
+#include <velodyne/renderer_velodyne.h>
 #include <occ_map/occ_map_renderers.h>
-//#include <octomap_utils/renderer_octomap.h>
-
-//#include <visualization/collections_renderer.hpp>
+#include <rrtstar_renderer/renderer_rrtstar.h>
+#include <obstacle_renderer/renderer_tracks.h>
 
 #include "udp_util.h"
 
@@ -58,7 +56,7 @@ robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
     if (!aux_data->lcm)
         return 0;
 
-    erlcm_robot_state_command_t cmd;
+    ripl_robot_state_command_t cmd;
 
     switch (keyval) {
     case 'F':
@@ -69,7 +67,7 @@ robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
         cmd.fault_mask = ERLCM_ROBOT_STATUS_T_FAULT_MASK_CLEAR_ALL;
         cmd.sender = "viewer";
         cmd.comment = "Clear Faults";
-        erlcm_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);
+        ripl_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);
         break;
     case 'R':
         // go into run mode
@@ -79,7 +77,7 @@ robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
         cmd.fault_mask = ERLCM_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
         cmd.sender = "viewer";
         cmd.comment = "Activating";
-        erlcm_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);
+        ripl_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);
 
         break;
     case ' ':
@@ -90,7 +88,7 @@ robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
         cmd.fault_mask = ERLCM_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
         cmd.sender = "viewer";
         cmd.comment = "Stopping";
-        erlcm_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);
+        ripl_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);
 
         break;
     case 'P':
@@ -103,10 +101,10 @@ robot_state_on_key_press(BotViewer *viewer, BotEventHandler *ehandler,
         cmd.fault_mask = ERLCM_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
         cmd.sender = "viewer";
         cmd.comment = "Pause requested.";
-        erlcm_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);
+        ripl_robot_state_command_t_publish(aux_data->lcm,"ROBOT_STATE_COMMAND",&cmd);
         return 0;
         break;
-default:
+    default:
         return 0;
     }
 
@@ -365,14 +363,21 @@ int main(int argc, char *argv[])
 
     BotParam * param;
     if (!(param = bot_param_get_global(lcm, 0))) {
-          fprintf (stderr, "Unable to get BotParam instance\n");
-          return -1;
+        fprintf(stderr,"No server found : Reading from file\n");
+        char config_path[2048];
+        sprintf(config_path, "%s/husky.cfg", getConfigPath());
+        param = bot_param_new_from_file(config_path);
+
+        if(!param){
+            fprintf (stderr, "Unable to get BotParam instance\n");
+            return 0;
+        }
     }
 
     BotFrames * frames;
     if (!(frames = bot_frames_get_global (lcm, param))) {
         fprintf (stderr, "Unable to get BotFrames instance\n");
-        return -1;
+        return 0;
     }
 
     bot_glib_mainloop_attach_lcm (lcm);
@@ -412,15 +417,17 @@ int main(int argc, char *argv[])
     bot_frames_add_renderer_to_viewer(viewer, 1, frames);
     localize_add_renderer_to_viewer(viewer, 1, lcm);
     add_husky_model_renderer_to_viewer(viewer, 1, param, frames);
+    navigator_plan_renderer_to_viewer(viewer, 1, lcm, frames);
     setup_renderer_rrtstar(viewer, 1, lcm);
     setup_renderer_tracks(viewer, 1, lcm, param);
+    setup_renderer_simobs(viewer, 1, lcm, param);
     setup_renderer_gridmap(viewer, 1, lcm, param);
     setup_renderer_host_status (viewer, 1);
     renderer_sensor_status_new (viewer);
     setup_renderer_robot_status (viewer, param, 1);
+    occ_map_pixel_map_add_renderer_to_viewer(viewer, 1, "PIXEL_MAP", "PixelMap Viewer");
     add_cam_thumb_renderer_to_viewer(viewer, 1, lcm, param, frames);
-    //setup_renderer_vision_lcmgl (viewer, 1, lcm, param);
-    //setup_renderer_velodyne(viewer, 0, param, lcm);
+    setup_renderer_velodyne(viewer, 0, param, lcm);
     BotEventHandler *rs_ehandler = (BotEventHandler*) calloc(1, sizeof(BotEventHandler));
     rs_ehandler->name = "Robot State";
     rs_ehandler->enabled = 1;

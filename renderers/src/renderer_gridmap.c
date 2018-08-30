@@ -26,8 +26,8 @@
 
 #include <hr_common/gridmap.h>
 
-#include <lcmtypes/erlcm_rect_list_t.h>
-#include <lcmtypes/erlcm_obstacle_list_t.h>
+#include <lcmtypes/obs_rect_list_t.h>
+#include <lcmtypes/obs_obstacle_list_t.h>
 
 #include "tile_set.h"
 
@@ -53,8 +53,8 @@ typedef struct _RendererGridMap {
     BotGtkParamWidget  *pw;
     GHashTable         *tileset_hashtable;
     BotFrames          *frames;
-    erlcm_rect_list_t  *rects;
-    erlcm_rect_list_t  *map_rects;
+    obs_rect_list_t  *rects;
+    obs_rect_list_t  *map_rects;
 } RendererGridMap;
 
 
@@ -87,37 +87,37 @@ my_free( BotRenderer *renderer )
 
 static void
 on_obstacles (const lcm_recv_buf_t * rbuf, const char * channel,
-              const erlcm_obstacle_list_t * msg, void * user)
+              const obs_obstacle_list_t * msg, void * user)
 
 {
     RendererGridMap *self = (RendererGridMap*) user;
 
     if (self->rects)
-        erlcm_rect_list_t_destroy(self->rects);
+        obs_rect_list_t_destroy(self->rects);
 
-    self->rects = erlcm_rect_list_t_copy(&msg->rects);
+    self->rects = obs_rect_list_t_copy(&msg->rects);
 
     return;
 }
 
 static void
 on_map_rects (const lcm_recv_buf_t * rbuf, const char * channel,
-              const erlcm_rect_list_t * msg, void * user)
+              const obs_rect_list_t * msg, void * user)
 
 {
     RendererGridMap *self = (RendererGridMap*) user;
 
     if (self->map_rects)
-        erlcm_rect_list_t_destroy(self->map_rects);
+        obs_rect_list_t_destroy(self->map_rects);
 
-    self->map_rects = erlcm_rect_list_t_copy(msg);
+    self->map_rects = obs_rect_list_t_copy(msg);
 
     return;
 }
 
 static void
 on_gridmap_tile(const lcm_recv_buf_t * rbuf, const char * channel,
-                const erlcm_gridmap_tile_t * tile, void * user)
+                const ripl_gridmap_tile_t * tile, void * user)
 {
     RendererGridMap *self = (RendererGridMap*) user;
 
@@ -159,7 +159,7 @@ draw_rects(RendererGridMap *self)
             glColor4f (.3, .3, .3, alpha);
         }
 
-        erlcm_rect_t *rects = self->rects->rects;
+        obs_rect_t *rects = self->rects->rects;
         for (int i = 0; i < self->rects->num_rects; i++) {
             double x0 = self->rects->xy[0] + rects[i].dxy[0];
             double y0 = self->rects->xy[1] + rects[i].dxy[1];
@@ -214,7 +214,7 @@ draw_rects(RendererGridMap *self)
             glColor4f (.35, .35, 35, alpha);
         }
 
-        erlcm_rect_t *rects = self->map_rects->rects;
+        obs_rect_t *rects = self->map_rects->rects;
         for (int i = 0; i < self->map_rects->num_rects; i++) {
             double pos_local[3], rpy_local[3], quat_local[4];
             double pos_global[3] = {self->map_rects->xy[0] + rects[i].dxy[0],
@@ -285,7 +285,7 @@ draw_rects_pos (RendererGridMap *self)
     double pos_local_to_body[3];
     char buf[256];
     double x0, y0;
-    erlcm_rect_t *rects = self->rects->rects;
+    obs_rect_t *rects = self->rects->rects;
     for (int i = 0; i < self->rects->num_rects; i++) {
         x0 = self->rects->xy[0] + rects[i].dxy[0];
         y0 = self->rects->xy[1] + rects[i].dxy[1];
@@ -435,9 +435,9 @@ BotRenderer *renderer_gridmap_new(BotViewer *viewer, lcm_t *_lcm, BotParam * _pa
 
 #undef SIZE
 
-    erlcm_obstacle_list_t_subscribe (self->lcm, "OBSTACLES", on_obstacles, self);
-    erlcm_rect_list_t_subscribe (self->lcm, "MAP_SERVER_RECTS", on_map_rects, self);
-    erlcm_gridmap_tile_t_subscribe(self->lcm, "OBSTACLE_MAP", on_gridmap_tile, self);
+    obs_obstacle_list_t_subscribe (self->lcm, "OBSTACLES", on_obstacles, self);
+    obs_rect_list_t_subscribe (self->lcm, "MAP_SERVER_RECTS", on_map_rects, self);
+    ripl_gridmap_tile_t_subscribe(self->lcm, "OBSTACLE_MAP", on_gridmap_tile, self);
 
     return renderer;
 }

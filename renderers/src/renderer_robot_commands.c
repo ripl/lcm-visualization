@@ -77,7 +77,7 @@ on_param_widget_changed (BotGtkParamWidget *pw, const char *name,
         
         double raw_value = bot_gtk_param_widget_get_double(pw,H_POSITION);
 
-        erlcm_servo_position_list_t msg;
+        ripl_servo_position_list_t msg;
 
         msg.utime = bot_timestamp_now();
         msg.dof = 2; 
@@ -85,14 +85,14 @@ on_param_widget_changed (BotGtkParamWidget *pw, const char *name,
         msg.values[0] = raw_value; 
         msg.command_type = 0x0001;
         
-        erlcm_servo_position_list_t_publish (self->lcm, "HEAD_POSITION", &msg);
+        ripl_servo_position_list_t_publish (self->lcm, "HEAD_POSITION", &msg);
         free(msg.values);
     }
     if(!strcmp(name, V_POSITION)) {
 
         double raw_value = bot_gtk_param_widget_get_double(pw, V_POSITION);
 
-        erlcm_servo_position_list_t msg;
+        ripl_servo_position_list_t msg;
 
         msg.utime = bot_timestamp_now();
         msg.dof = 2; 
@@ -100,7 +100,7 @@ on_param_widget_changed (BotGtkParamWidget *pw, const char *name,
         msg.values[1] = raw_value; 
         msg.command_type = 0x0010;
         
-        erlcm_servo_position_list_t_publish (self->lcm, "HEAD_POSITION", &msg);
+        ripl_servo_position_list_t_publish (self->lcm, "HEAD_POSITION", &msg);
         free(msg.values);
     }
 
@@ -109,7 +109,7 @@ on_param_widget_changed (BotGtkParamWidget *pw, const char *name,
         /*int start = bot_gtk_param_widget_get_int(pw, PARAM_START);
         int end = bot_gtk_param_widget_get_int(pw, PARAM_END);
 
-        erlcm_slam_node_select_t msg;
+        ripl_slam_node_select_t msg;
         msg.utime = bot_timestamp_now();
         msg.no_nodes = 2;
         msg.node_ind = (int32_t *) calloc(2,sizeof(int32_t));
@@ -122,7 +122,7 @@ on_param_widget_changed (BotGtkParamWidget *pw, const char *name,
         int start = bot_gtk_param_widget_get_int(pw, PARAM_START);
         int end = bot_gtk_param_widget_get_int(pw, PARAM_END);
 
-        erlcm_slam_node_select_t msg;
+        ripl_slam_node_select_t msg;
         msg.utime = bot_timestamp_now();
         int count = end-start+1;
         msg.no_nodes = count;
@@ -137,7 +137,7 @@ on_param_widget_changed (BotGtkParamWidget *pw, const char *name,
             msg.node_ind[i] = start + i;
         }
         
-        erlcm_slam_node_select_t_publish (self->lcm, "SLAM_3D_POINT_REQUEST", &msg);
+        ripl_slam_node_select_t_publish (self->lcm, "SLAM_3D_POINT_REQUEST", &msg);
         free(msg.node_ind);
     }
     
@@ -148,66 +148,66 @@ on_param_widget_changed (BotGtkParamWidget *pw, const char *name,
         faults|= ERLCM_ROBOT_STATUS_T_FAULT_MANUAL; 
         //faults|= ERLCM_ROBOT_STATUS_T_FAULT_FRONT_DROPOFF;
         //faults|= ERLCM_ROBOT_STATUS_T_FAULT_REAR_DROPOFF;
-        erlcm_robot_state_command_t state_msg;
+        ripl_robot_state_command_t state_msg;
         state_msg.utime = bot_timestamp_now();
         state_msg.sender = "viewer";
         state_msg.comment = "";
         state_msg.faults = faults;
         state_msg.fault_mask =  ERLCM_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
         state_msg.state = ERLCM_ROBOT_STATE_COMMAND_T_STATE_ERROR;  
-        erlcm_robot_state_command_t_publish (self->lcm, "ROBOT_STATE_COMMAND", &state_msg);
+        ripl_robot_state_command_t_publish (self->lcm, "ROBOT_STATE_COMMAND", &state_msg);
     }
     if(!strcmp(name, PARAM_SEND_FRONT_FAULT)) {
         int64_t faults=0;
         faults|= ERLCM_ROBOT_STATUS_T_FAULT_FRONT_DROPOFF;
         //faults|= ERLCM_ROBOT_STATUS_T_FAULT_REAR_DROPOFF;
-        erlcm_robot_state_command_t state_msg;
+        ripl_robot_state_command_t state_msg;
         state_msg.utime = bot_timestamp_now();
         state_msg.sender = "viewer";
         state_msg.comment = "";
         state_msg.faults = faults;
         state_msg.fault_mask =  ERLCM_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
         state_msg.state = ERLCM_ROBOT_STATE_COMMAND_T_STATE_ERROR;  
-        erlcm_robot_state_command_t_publish (self->lcm, "ROBOT_STATE_COMMAND", &state_msg);
+        ripl_robot_state_command_t_publish (self->lcm, "ROBOT_STATE_COMMAND", &state_msg);
     }
     if(!strcmp(name, PARAM_SEND_REAR_FAULT)) {
         int64_t faults=0;
         faults|= ERLCM_ROBOT_STATUS_T_FAULT_REAR_DROPOFF;
-        erlcm_robot_state_command_t state_msg;
+        ripl_robot_state_command_t state_msg;
         state_msg.utime = bot_timestamp_now();
         state_msg.sender = "viewer";
         state_msg.comment = "";
         state_msg.faults = faults;
         state_msg.fault_mask =  ERLCM_ROBOT_STATUS_T_FAULT_MASK_NO_CHANGE;
         state_msg.state = ERLCM_ROBOT_STATE_COMMAND_T_STATE_ERROR;  
-        erlcm_robot_state_command_t_publish (self->lcm, "ROBOT_STATE_COMMAND", &state_msg);
+        ripl_robot_state_command_t_publish (self->lcm, "ROBOT_STATE_COMMAND", &state_msg);
     }
     if(!strcmp(name, PARAM_SEND_REGION)) {
-        erlcm_region_change_t msg;
+        ripl_region_change_t msg;
         msg.utime = bot_timestamp_now();
         int region_id = bot_gtk_param_widget_get_int(self->pw, PARAM_REGION_ID);
         msg.region_no = region_id;
         fprintf(stderr,"New region id : %d\n", msg.region_no);
-        erlcm_region_change_t_publish(self->lcm, "REGION_CHANGE",&msg);
+        ripl_region_change_t_publish(self->lcm, "REGION_CHANGE",&msg);
     }
 
     if(!strcmp(name, PARAM_SEND_FLOOR)) {
-        erlcm_floor_change_msg_t msg;
+        ripl_floor_change_msg_t msg;
         msg.utime = bot_timestamp_now();
         int region_id = bot_gtk_param_widget_get_int(self->pw, PARAM_FLOOR_ID);
         msg.floor_no = region_id;
         fprintf(stderr,"New floor id : %d\n", msg.floor_no);
-        erlcm_floor_change_msg_t_publish(self->lcm, "FLOOR_STAUS",&msg);
+        ripl_floor_change_msg_t_publish(self->lcm, "FLOOR_STAUS",&msg);
     }
 
     if(!strcmp(name, PARAM_SEND_SEGMENT)) {
         if(self->segment_utime > 0){
-            erlcm_person_id_t msg;
+            ripl_person_id_t msg;
             msg.sensor_utime = self->segment_utime;
             int person_id = bot_gtk_param_widget_get_int(self->pw, PARAM_SEGMENT_ID);
             msg.person_segment_no = person_id;
             fprintf(stderr,"Person id : %d\n", msg.person_segment_no);
-            erlcm_person_id_t_publish(self->lcm, "PERSON_SEGMENT_ANNOTATION",&msg);
+            ripl_person_id_t_publish(self->lcm, "PERSON_SEGMENT_ANNOTATION",&msg);
         }
         else{
             fprintf(stderr,"Error - no time stamp heard for segments\n");
@@ -260,8 +260,8 @@ mouse_press (BotViewer *viewer, BotEventHandler *ehandler, const double ray_star
         self->pos[0] = click_pt_local.x;
         self->pos[1] = click_pt_local.y;
 
-        erlcm_roi_t msg; 
-        memset(&msg, 0, sizeof(erlcm_roi_t)); 
+        ripl_roi_t msg; 
+        memset(&msg, 0, sizeof(ripl_roi_t)); 
         msg.utime = bot_timestamp_now();
         msg.foviation_type = ERLCM_ROI_T_MOVE_HORIZONTAL; 
         msg.pos[0] = click_pt_local.x;
@@ -269,7 +269,7 @@ mouse_press (BotViewer *viewer, BotEventHandler *ehandler, const double ray_star
         msg.pos[2] = 0;
         msg.frame = ERLCM_ROI_T_FRAME_LOCAL;//"local";
 
-        erlcm_roi_t_publish(self->lcm, "ROI", &msg);
+        ripl_roi_t_publish(self->lcm, "ROI", &msg);
     }
     /*double dx = self->drag_finish_local.x - self->drag_start_local.x;
     double dy = self->drag_finish_local.y - self->drag_start_local.y;
@@ -281,7 +281,7 @@ mouse_press (BotViewer *viewer, BotEventHandler *ehandler, const double ray_star
 
 static void
 on_segments (const lcm_recv_buf_t *rbuf, const char *channel,
-             const erlcm_segment_feature_list_t *msg, void *user)
+             const ripl_segment_feature_list_t *msg, void *user)
 {
     RendererRobotCommands *self = (RendererRobotCommands *)user;
     g_assert(self);
@@ -491,7 +491,7 @@ BotRenderer *renderer_robot_commands_new (BotViewer *viewer)
     
 
 
-    erlcm_segment_feature_list_t_subscribe(self->lcm, "VELODYNE_PERSON_SEGMENTS", on_segments, self);
+    ripl_segment_feature_list_t_subscribe(self->lcm, "VELODYNE_PERSON_SEGMENTS", on_segments, self);
     
     
     // translational velocity plot

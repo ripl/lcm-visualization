@@ -26,9 +26,9 @@
 
 #include <bot_param/param_client.h>
 
-#include <lcmtypes/erlcm_velocity_msg_t.h>
-#include <lcmtypes/erlcm_robot_status_t.h>
-#include <lcmtypes/erlcm_raw_odometry_msg_t.h>
+#include <lcmtypes/ripl_velocity_msg_t.h>
+#include <lcmtypes/ripl_robot_status_t.h>
+#include <lcmtypes/ripl_raw_odometry_msg_t.h>
 
 #define PARAM_NAME_GRAPH_TIMESPAN "Time span"
 #define PARAM_NAME_FREEZE "Freeze"
@@ -57,7 +57,7 @@ struct _RendererRobotStatus {
     BotGlScrollPlot2d *trans_vel_plot;
     BotGlScrollPlot2d *rot_vel_plot;
 
-    erlcm_robot_status_t *robot_status;
+    ripl_robot_status_t *robot_status;
 
     int64_t  vel_cmd_utime_last;
     uint64_t max_utime;
@@ -81,18 +81,18 @@ update_xaxis (RendererRobotStatus *self, uint64_t utime)
 
 static void
 on_robot_status (const lcm_recv_buf_t * buf, const char *channel, 
-                 const erlcm_robot_status_t *msg, void *user_data)
+                 const ripl_robot_status_t *msg, void *user_data)
 {
     RendererRobotStatus *self = (RendererRobotStatus*) user_data;
     if (self->robot_status)
-        erlcm_robot_status_t_destroy (self->robot_status);
-    self->robot_status = erlcm_robot_status_t_copy (msg);
+        ripl_robot_status_t_destroy (self->robot_status);
+    self->robot_status = ripl_robot_status_t_copy (msg);
 }
 
 
 static void
 on_velocity_msg (const lcm_recv_buf_t *rbuf, const char *channel,
-                 const erlcm_velocity_msg_t *msg, void *user)
+                 const ripl_velocity_msg_t *msg, void *user)
 {
     RendererRobotStatus *self = (RendererRobotStatus *) user;
 
@@ -112,7 +112,7 @@ on_velocity_msg (const lcm_recv_buf_t *rbuf, const char *channel,
 
 static void
 on_raw_odometry_msg (const lcm_recv_buf_t *rbuf, const char *channel,
-                 const erlcm_raw_odometry_msg_t *msg, void *user)
+                 const ripl_raw_odometry_msg_t *msg, void *user)
 {
     RendererRobotStatus *self = (RendererRobotStatus *) user;
 
@@ -279,7 +279,7 @@ robot_status_free (BotRenderer *renderer)
 {
     RendererRobotStatus *self = (RendererRobotStatus*) renderer;
     if (self->robot_status)
-        erlcm_robot_status_t_destroy (self->robot_status);
+        ripl_robot_status_t_destroy (self->robot_status);
 
     if (self)
         free (self);
@@ -377,10 +377,10 @@ BotRenderer *renderer_robot_status_new (BotViewer *viewer, BotParam *param)
     self->robot_status = NULL;
 
     // subscribe to LCM messages
-    erlcm_raw_odometry_msg_t_subscribe (self->lcm, "ODOMETRY", on_raw_odometry_msg, self);
-    //erlcm_velocity_msg_t_subscribe (self->lcm, "ROBOT_VELOCITY_STATUS", on_velocity_msg, self);
-    erlcm_velocity_msg_t_subscribe (self->lcm, "ROBOT_VELOCITY_CMD", on_velocity_msg, self);
-    erlcm_robot_status_t_subscribe (self->lcm, "ROBOT_STATUS", on_robot_status, self);
+    ripl_raw_odometry_msg_t_subscribe (self->lcm, "ODOMETRY", on_raw_odometry_msg, self);
+    //ripl_velocity_msg_t_subscribe (self->lcm, "ROBOT_VELOCITY_STATUS", on_velocity_msg, self);
+    ripl_velocity_msg_t_subscribe (self->lcm, "ROBOT_VELOCITY_CMD", on_velocity_msg, self);
+    ripl_robot_status_t_subscribe (self->lcm, "ROBOT_STATUS", on_robot_status, self);
 
     return &self->renderer;
 }

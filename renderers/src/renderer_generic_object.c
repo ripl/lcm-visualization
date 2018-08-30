@@ -32,7 +32,7 @@
 #include <lcmtypes/hr_lcmtypes.h>
 #include <hr_lcmtypes/lcm_channel_names.h>
 
-#include <hr_common/path_util.h>
+#include <path_utils/path_util.h>
 
 #define MODELS_DIR "test" //we should get then from path config
 
@@ -120,7 +120,7 @@ typedef struct _renderer_generic_object_t {
     lcm_t    *lcm;
     //RWXConf  *rwx_conf;
     //arlcm_pallet_list_t_subscription_t *pallet_lcm_hid;
-    erlcm_object_list_t_subscription_t *object_lcm_hid;
+    ripl_object_list_t_subscription_t *object_lcm_hid;
 
     BotGtkParamWidget *pw;
     gboolean draw_unit_triads;
@@ -134,7 +134,7 @@ typedef struct _renderer_generic_object_t {
 
     /* local copy of last pallet/object lcm message */
     //arlcm_pallet_list_t *pallet_list;
-    erlcm_object_list_t *object_list;
+    ripl_object_list_t *object_list;
     
     int num_of_models;
     //GLuint *gl_list;
@@ -149,7 +149,7 @@ typedef struct _renderer_generic_object_t {
     int             teleport_request;
     uint64_t        hover_id;
     //arlcm_pallet_t *teleport_pallet;
-    erlcm_object_t *teleport_object;
+    ripl_object_t *teleport_object;
 } renderer_generic_object_t;
 
 //adding a mapping from type to string (name of object to object id
@@ -750,7 +750,7 @@ transform_bounding_box(const double min_v[3], const double max_v[3])
 }
 
 /*static void
-draw_pallet(renderer_generic_object_t *self, const erlcm_pallet_t *pallet)
+draw_pallet(renderer_generic_object_t *self, const ripl_pallet_t *pallet)
 {
     // If we are in simulation mode, don't draw pallets with id = -1,
     // which correspond to pallets added by the pallet filter, since they
@@ -882,7 +882,7 @@ draw_pallet(renderer_generic_object_t *self, const erlcm_pallet_t *pallet)
 }*/
 
 static void
-draw_object(renderer_generic_object_t *self, const erlcm_object_t *object)
+draw_object(renderer_generic_object_t *self, const ripl_object_t *object)
 {
     /* get the model */
     GString *config_prefix = g_string_new("");
@@ -987,15 +987,15 @@ draw_object(renderer_generic_object_t *self, const erlcm_object_t *object)
 
 static void
 on_object_list(const lcm_recv_buf_t *rbuf, const char *channel,
-               const erlcm_object_list_t *msg, void *user)
+               const ripl_object_list_t *msg, void *user)
 {
     renderer_generic_object_t *self = (renderer_generic_object_t*)user;
 
     /* copy lcm message data to local buffer and let draw update the display */
     g_mutex_lock(self->mutex);
     if (self->object_list)
-        erlcm_object_list_t_destroy(self->object_list);
-    self->object_list = erlcm_object_list_t_copy(msg);
+        ripl_object_list_t_destroy(self->object_list);
+    self->object_list = ripl_object_list_t_copy(msg);
     BotViewer *viewer = self->viewer; /* copy viewer to stack in case self is 
                                     * free'd between the unlock and call to 
                                     * viewer_request_redraw */
@@ -1028,7 +1028,7 @@ objects_snapshot (renderer_generic_object_t *self)
     count = 0;
     if (self->object_list && self->object_list->num_objects) {
         for (int i=0; i<self->object_list->num_objects; i++) {
-            erlcm_object_t *o = self->object_list->objects + i;
+            ripl_object_t *o = self->object_list->objects + i;
             if (o->id == -1)
                 continue;
 
@@ -1088,11 +1088,11 @@ on_load_button (GtkWidget *button, renderer_generic_object_t *self)
 
             //send xml write command to the object simulator 
 
-            erlcm_xml_cmd_t msg; 
+            ripl_xml_cmd_t msg; 
             msg.utime = bot_timestamp_now();
             msg.cmd_type = ERLCM_XML_CMD_T_LOAD_FILE; 
             msg.path = strdup(filename);
-            erlcm_xml_cmd_t_publish(self->lcm, "XML_COMMAND", &msg);
+            ripl_xml_cmd_t_publish(self->lcm, "XML_COMMAND", &msg);
 
             free (filename);
             free(msg.path);
@@ -1126,12 +1126,12 @@ on_save_button (GtkWidget *button, renderer_generic_object_t *self)
 
             //send xml write command to the object simulator 
 
-            erlcm_xml_cmd_t msg; 
+            ripl_xml_cmd_t msg; 
             msg.utime = bot_timestamp_now();
             msg.cmd_type = ERLCM_XML_CMD_T_WRITE_FILE; 
             msg.path = strdup(filename);
 
-            erlcm_xml_cmd_t_publish(self->lcm, "XML_COMMAND", &msg);
+            ripl_xml_cmd_t_publish(self->lcm, "XML_COMMAND", &msg);
            
             free (filename);
             free(msg.path);
@@ -1168,7 +1168,7 @@ renderer_generic_object_draw(BotViewer *viewer, BotRenderer *renderer)
      
         if (self->object_list && self->object_list->num_objects) {
             for (int i = 0; i < self->object_list->num_objects; i++) {         
-                erlcm_object_t *object = self->object_list->objects + i;
+                ripl_object_t *object = self->object_list->objects + i;
                 
                 draw_object(self, self->object_list->objects + i);
                 
@@ -1203,13 +1203,13 @@ renderer_generic_object_destroy(BotRenderer *renderer)
     /* stop listening to lcm */
     if (self->lcm) {
         if (self->object_lcm_hid)
-            erlcm_object_list_t_unsubscribe(self->lcm, 
+            ripl_object_list_t_unsubscribe(self->lcm, 
                                             self->object_lcm_hid);
     }
     
     /* destory local copy of lcm data objects */
     if (self->object_list)
-        erlcm_object_list_t_destroy(self->object_list);
+        ripl_object_list_t_destroy(self->object_list);
     
     if (self->last_save_filename)
         g_free (self->last_save_filename);
@@ -1231,11 +1231,11 @@ on_param_widget_changed(BotGtkParamWidget *pw, const char *name, void *user)
     g_mutex_lock(self->mutex);
     
     if(!strcmp(name, TAG_POSE)) {
-        erlcm_affordance_tag_t msg;
+        ripl_affordance_tag_t msg;
         msg.utime = bot_timestamp_now();
         msg.source = ERLCM_AFFORDANCE_TAG_T_SOURCE_VIEWER;
         msg.activity = bot_gtk_param_widget_get_enum(self->pw, PARAM_ACTIVITY);
-        erlcm_affordance_tag_t_publish(self->lcm, "AFFORDANCE_TAG", &msg);
+        ripl_affordance_tag_t_publish(self->lcm, "AFFORDANCE_TAG", &msg);
     }
 
     self->draw_unit_triads = 
@@ -1270,16 +1270,16 @@ on_save_preferences(BotViewer *viewer, GKeyFile *keyfile, void *user)
 }
 
 
-static erlcm_object_t * 
+static ripl_object_t * 
 find_closest_object(renderer_generic_object_t *self, const double pos[3])
 
 {
     double closest_dist=HUGE;
-    erlcm_object_t *closest_object=NULL;
+    ripl_object_t *closest_object=NULL;
     /* iterate through object list to find closest object to pos */
     if (self->object_list && self->object_list->num_objects) {
         for (int i = 0; i < self->object_list->num_objects; i++) {
-            erlcm_object_t *p = self->object_list->objects + i;  
+            ripl_object_t *p = self->object_list->objects + i;  
             double dist = sqrt(bot_sq(p->pos[0] - pos[0]) + bot_sq(p->pos[1] - pos[1]));        
             if (closest_dist>dist) {
                 closest_dist=dist;
@@ -1306,7 +1306,7 @@ static double pick_query(BotViewer *viewer, BotEventHandler *ehandler,
     g_mutex_lock(self->mutex);
 
     double closest_dist =HUGE;
-    erlcm_object_t *closest_object = find_closest_object(self,pos);
+    ripl_object_t *closest_object = find_closest_object(self,pos);
     if (closest_object) {
         double dist = sqrt(bot_sq(closest_object->pos[0] - pos[0]) + bot_sq(closest_object->pos[1] - pos[1]));
         if (dist<closest_dist) {
@@ -1345,15 +1345,15 @@ static int mouse_press (BotViewer *viewer, BotEventHandler *ehandler,
         double closest_pallet_dist =HUGE;
         double closest_object_dist =HUGE;
  
-        erlcm_object_t *closest_object = find_closest_object(self,pos);
+        ripl_object_t *closest_object = find_closest_object(self,pos);
         if (closest_object) {
             closest_object_dist = sqrt(bot_sq(closest_object->pos[0] - pos[0]) + bot_sq(closest_object->pos[1] - pos[1]));
         }
         if (closest_object&&closest_object_dist<closest_pallet_dist) {
             self->hover_id = closest_object->id;
             if (self->teleport_object)
-                erlcm_object_t_destroy(self->teleport_object);
-            self->teleport_object = erlcm_object_t_copy(closest_object);
+                ripl_object_t_destroy(self->teleport_object);
+            self->teleport_object = ripl_object_t_copy(closest_object);
         }
         g_mutex_unlock(self->mutex);
         //self->teleport_object = 1;
@@ -1372,7 +1372,7 @@ static int mouse_release(BotViewer *viewer, BotEventHandler *ehandler,
     self->teleport_request = 0;
     self->ehandler.picking = 0;
     if (self->teleport_object) {
-        erlcm_object_t_destroy(self->teleport_object);
+        ripl_object_t_destroy(self->teleport_object);
         self->teleport_object=NULL;
     }
 
@@ -1426,12 +1426,12 @@ static int mouse_motion (BotViewer *viewer, BotEventHandler *ehandler,
         }
     }
     if (self->teleport_object) {
-        erlcm_object_list_t ol;
+        ripl_object_list_t ol;
         ol.num_objects=1;
         ol.utime = bot_timestamp_now();
         self->teleport_object->utime=ol.utime;
         ol.objects = self->teleport_object;
-        erlcm_object_list_t_publish(self->lcm, "OBJECTS_UPDATE_RENDERER", &ol);
+        ripl_object_list_t_publish(self->lcm, "OBJECTS_UPDATE_RENDERER", &ol);
     }
 
     return 1;
@@ -1453,7 +1453,7 @@ static int key_press (BotViewer *viewer, BotEventHandler *ehandler,
         self->teleport_request = 0;
         self->hover_id=0;
         if (self->teleport_object) {
-            erlcm_object_t_destroy(self->teleport_object);
+            ripl_object_t_destroy(self->teleport_object);
             self->teleport_object=NULL;
         }
     }
@@ -1521,7 +1521,7 @@ renderer_generic_object_new(BotViewer *viewer, BotParam * param)
 
     /* listen to object list */
 
-    self->object_lcm_hid = erlcm_object_list_t_subscribe(self->lcm, 
+    self->object_lcm_hid = ripl_object_list_t_subscribe(self->lcm, 
         "OBJECT_LIST", on_object_list, self);
     if (!self->object_lcm_hid) {
         ERR("Error: renderer_generic_object_new() failed to subscribe to the "
