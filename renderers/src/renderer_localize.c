@@ -15,6 +15,8 @@
 #include <gdk/gdkkeysyms.h>
 
 #include <bot_core/bot_core.h>
+#include <bot_vis/bot_vis.h>
+
 #include <carmen_utils/global.h>
 #include <geom_utils/geometry.h>
 

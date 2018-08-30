@@ -22,9 +22,9 @@
 #include <opencv/cxcore.h>
 
 #include <bot_core/bot_core.h>
-#include <bot_vis/texture.h>
-#include <bot_param/param_client.h>
+#include <bot_vis/bot_vis.h>
 #include <bot_frames/bot_frames.h>
+#include <bot_param/param_client.h>
 
 #include <interfaces/map3d_interface.h>
 

@@ -19,10 +19,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #include <bot_core/bot_core.h>
-#include <bot_vis/gtk_util.h>
-#include <bot_vis/viewer.h>
-#include <bot_vis/gl_util.h>
-#include <bot_vis/scrollplot2d.h>
+#include <bot_vis/bot_vis.h>
 
 #include <bot_param/param_client.h>
 
@@ -65,10 +62,10 @@ struct _RendererRobotStatus {
     double max_rv;
 };
 
-static void 
+static void
 update_xaxis (RendererRobotStatus *self, uint64_t utime)
 {
-    if ((utime < self->max_utime) && 
+    if ((utime < self->max_utime) &&
         (utime > self->max_utime - REDRAW_THRESHOLD_UTIME)) return;
 
     self->max_utime = utime;
@@ -80,7 +77,7 @@ update_xaxis (RendererRobotStatus *self, uint64_t utime)
 
 
 static void
-on_robot_status (const lcm_recv_buf_t * buf, const char *channel, 
+on_robot_status (const lcm_recv_buf_t * buf, const char *channel,
                  const ripl_robot_status_t *msg, void *user_data)
 {
     RendererRobotStatus *self = (RendererRobotStatus*) user_data;
@@ -106,7 +103,7 @@ on_velocity_msg (const lcm_recv_buf_t *rbuf, const char *channel,
 
     bot_gl_scrollplot2d_add_point (self->trans_vel_plot, "requested", timestamp, msg->tv);
     bot_gl_scrollplot2d_add_point (self->rot_vel_plot, "requested", timestamp, msg->rv * 180/M_PI);
-    
+
     bot_viewer_request_redraw (self->viewer);
 }
 
@@ -131,19 +128,19 @@ on_raw_odometry_msg (const lcm_recv_buf_t *rbuf, const char *channel,
         utime = msg->utime;
 
     update_xaxis(self, utime);
-    
+
     double timestamp = utime * 1e-6;
 
     bot_gl_scrollplot2d_add_point (self->trans_vel_plot, "actual", timestamp, msg->tv);
     bot_gl_scrollplot2d_add_point (self->rot_vel_plot, "actual", timestamp, msg->rv*180/M_PI);
-    
+
     bot_viewer_request_redraw (self->viewer);
 }
 
 
 
-static void 
-on_param_widget_changed (BotGtkParamWidget *pw, const char *name, 
+static void
+on_param_widget_changed (BotGtkParamWidget *pw, const char *name,
         RendererRobotStatus *self)
 {
     if (! strcmp (name, PARAM_NAME_SHOW_LEGEND)) {
@@ -154,7 +151,7 @@ on_param_widget_changed (BotGtkParamWidget *pw, const char *name,
         bot_gl_scrollplot2d_set_show_legend (self->trans_vel_plot, legloc);
         bot_gl_scrollplot2d_set_show_legend (self->rot_vel_plot, legloc);
     }
-    
+
     bot_viewer_request_redraw (self->viewer);
 }
 
@@ -164,9 +161,9 @@ static void
 robot_status_draw (BotViewer *viewer, BotRenderer *renderer)
 {
     RendererRobotStatus *self = (RendererRobotStatus*) renderer->user;
-    
-       
-    
+
+
+
 
     GLdouble model_matrix[16];
     GLdouble proj_matrix[16];
@@ -187,32 +184,32 @@ robot_status_draw (BotViewer *viewer, BotRenderer *renderer)
     char *robot_string;
     switch (state)  {
     case RIPL_ROBOT_STATUS_T_STATE_RUN:
-        robot_string = "RUN"; 
+        robot_string = "RUN";
         break;
     case RIPL_ROBOT_STATUS_T_STATE_STOP:
-        robot_string = "PAUSE"; 
+        robot_string = "PAUSE";
         break;
     case RIPL_ROBOT_STATUS_T_STATE_MANUAL:
-        robot_string = "MANUAL"; 
+        robot_string = "MANUAL";
         break;
     case RIPL_ROBOT_STATUS_T_STATE_STANDBY:
-        robot_string = "STANDBY"; 
+        robot_string = "STANDBY";
         break;
     case RIPL_ROBOT_STATUS_T_STATE_ERROR:
-        robot_string = "ERROR"; 
+        robot_string = "ERROR";
         break;
     default:
     case RIPL_ROBOT_STATUS_T_STATE_UNDEFINED:
-        robot_string = "UNDEFINED"; 
+        robot_string = "UNDEFINED";
         break;
     }
-        
+
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
 
     double state_xyz[] = {50, 90, 100};
-    
+
     if (bot_gtk_param_widget_get_bool (self->pw, PARAM_DRAW_STATUS)) {
         bot_gl_draw_text(state_xyz, NULL, robot_string,
                          //                     GLUTIL_DRAW_TEXT_NORMALIZED_SCREEN_COORDINATES |
@@ -255,27 +252,27 @@ robot_status_draw (BotViewer *viewer, BotRenderer *renderer)
 
     int x = viewport[2] - plot_width;
     int y = viewport[1];
-    
+
 
     if (bot_gtk_param_widget_get_bool (self->pw, PARAM_NAME_RENDER_TRANS_VEL)) {
-        bot_gl_scrollplot2d_gl_render_at_window_pos (self->trans_vel_plot, 
+        bot_gl_scrollplot2d_gl_render_at_window_pos (self->trans_vel_plot,
                 x, y, plot_width, plot_height);
         y += plot_height;
     }
 
     if (bot_gtk_param_widget_get_bool (self->pw, PARAM_NAME_RENDER_ROT_VEL)) {
-        bot_gl_scrollplot2d_gl_render_at_window_pos (self->rot_vel_plot, 
+        bot_gl_scrollplot2d_gl_render_at_window_pos (self->rot_vel_plot,
                 x, y, plot_width, plot_height);
         y += plot_height;
     }
 
 
-    
+
 
 }
 
 static void
-robot_status_free (BotRenderer *renderer) 
+robot_status_free (BotRenderer *renderer)
 {
     RendererRobotStatus *self = (RendererRobotStatus*) renderer;
     if (self->robot_status)
@@ -283,12 +280,12 @@ robot_status_free (BotRenderer *renderer)
 
     if (self)
         free (self);
-    
+
 }
 
 BotRenderer *renderer_robot_status_new (BotViewer *viewer, BotParam *param)
 {
-    RendererRobotStatus *self = 
+    RendererRobotStatus *self =
         (RendererRobotStatus*) calloc (1, sizeof (RendererRobotStatus));
     self->viewer = viewer;
     self->renderer.draw = robot_status_draw;
@@ -313,29 +310,29 @@ BotRenderer *renderer_robot_status_new (BotViewer *viewer, BotParam *param)
         self->max_rv = MAX_RV;
     else
         self->max_rv = self->max_rv * 1.25; // Add a scale to BotParam value for plotting
-                          
+
 
     self->pw = BOT_GTK_PARAM_WIDGET (bot_gtk_param_widget_new ());
-    gtk_container_add (GTK_CONTAINER (self->renderer.widget), 
+    gtk_container_add (GTK_CONTAINER (self->renderer.widget),
                        GTK_WIDGET(self->pw));
     gtk_widget_show (GTK_WIDGET (self->pw));
-    
+
     bot_gtk_param_widget_add_int (self->pw, PARAM_NAME_SIZE,
                                   BOT_GTK_PARAM_WIDGET_SLIDER, 50, 800, 10, 250);
-    bot_gtk_param_widget_add_double (self->pw, PARAM_NAME_GRAPH_TIMESPAN, 
+    bot_gtk_param_widget_add_double (self->pw, PARAM_NAME_GRAPH_TIMESPAN,
                                      BOT_GTK_PARAM_WIDGET_SLIDER, 1, 20, 0.5, 5);
-    bot_gtk_param_widget_add_booleans (self->pw, 
+    bot_gtk_param_widget_add_booleans (self->pw,
                                        BOT_GTK_PARAM_WIDGET_TOGGLE_BUTTON, PARAM_NAME_FREEZE, 0, NULL);
     bot_gtk_param_widget_add_booleans (self->pw, 0,
-                                       PARAM_NAME_RENDER_TRANS_VEL, 1, 
-                                       PARAM_NAME_RENDER_ROT_VEL, 1, 
+                                       PARAM_NAME_RENDER_TRANS_VEL, 1,
+                                       PARAM_NAME_RENDER_ROT_VEL, 1,
                                        NULL);
     bot_gtk_param_widget_add_booleans (self->pw, 0, PARAM_NAME_SHOW_LEGEND, 0, PARAM_DRAW_STATUS, 0, NULL);
-    
-    g_signal_connect (G_OBJECT (self->pw), "changed", 
+
+    g_signal_connect (G_OBJECT (self->pw), "changed",
                       G_CALLBACK (on_param_widget_changed), self);
-    
-    
+
+
     // translational velocity plot
     self->trans_vel_plot = bot_gl_scrollplot2d_new ();
     bot_gl_scrollplot2d_set_title        (self->trans_vel_plot, "TV (m/s)");
@@ -373,7 +370,7 @@ BotRenderer *renderer_robot_status_new (BotViewer *viewer, BotParam *param)
     }
     bot_gl_scrollplot2d_set_show_legend (self->trans_vel_plot, legloc);
     bot_gl_scrollplot2d_set_show_legend (self->rot_vel_plot, legloc);
-     
+
     self->robot_status = NULL;
 
     // subscribe to LCM messages
@@ -389,4 +386,3 @@ void setup_renderer_robot_status (BotViewer *viewer, BotParam *param, int priori
 {
     bot_viewer_add_renderer(viewer, renderer_robot_status_new(viewer, param), priority);
 }
-

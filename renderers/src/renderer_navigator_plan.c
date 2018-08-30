@@ -24,7 +24,8 @@
 
 #include <lcm/lcm.h>
 #include <bot_core/bot_core.h>
-#include <bot_vis/texture.h>
+#include <bot_vis/bot_vis.h>
+#include <bot_frames/bot_frames.h>
 #include <geom_utils/geometry.h>
 #include <carmen_utils/global.h>
 

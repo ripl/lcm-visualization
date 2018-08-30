@@ -13,7 +13,8 @@
 #endif
 
 #include <bot_core/bot_core.h>
-#include <bot_vis/viewer.h>
+#include <bot_vis/bot_vis.h>
+#include <bot_frames/bot_frames.h>
 #include <bot_vis/gl_util.h>
 
 #include <lcmtypes/ripl_host_status_t.h>
@@ -75,7 +76,7 @@ typedef struct
     char *ref_clock_name;
 } RendererHostStatus;
 
-static HS * 
+static HS *
 get_hs(RendererHostStatus * self, const char *name)
 {
     HS *hs = g_hash_table_lookup(self->hosts, name);
@@ -86,8 +87,8 @@ get_hs(RendererHostStatus * self, const char *name)
     return hs;
 }
 
-static void 
-on_host_status(const lcm_recv_buf_t *rbuf, 
+static void
+on_host_status(const lcm_recv_buf_t *rbuf,
                const char *channel, const ripl_host_status_t *msg, void *user)
 {
     RendererHostStatus *self = (RendererHostStatus*)user;
@@ -107,7 +108,7 @@ on_procman_info_data(const lcm_recv_buf_t *rbuf,
     if(hs->pmd_info)
         bot_procman_info2_t_destroy(hs->pmd_info);
     hs->pmd_info = bot_procman_info2_t_copy(msg);
-    
+
     clock_skew_estimator_add_measurement (self->skew, msg->host,
                                           rbuf->recv_utime, msg->utime);
     bot_viewer_request_redraw(self->viewer);
@@ -117,7 +118,7 @@ on_procman_info_data(const lcm_recv_buf_t *rbuf,
 // ------------------------------ Drawing Functions ------------------------- //
 ////////////////////////////////////////////////////////////////////////////////
 
-static void 
+static void
 _draw(BotViewer *viewer, BotRenderer *r)
 {
     RendererHostStatus *self = (RendererHostStatus*)r;
@@ -127,7 +128,7 @@ _draw(BotViewer *viewer, BotRenderer *r)
         g_ptr_array_free(hosts, TRUE);
         return;
     }
-    g_ptr_array_sort(hosts, hs_comp); 
+    g_ptr_array_sort(hosts, hs_comp);
 
     glPushAttrib (GL_ENABLE_BIT);
     glEnable (GL_BLEND);
@@ -190,7 +191,7 @@ _draw(BotViewer *viewer, BotRenderer *r)
                         max_cpu_freq = hs->host_status->max_cpu_freq_hz[i];
                     }
                 }
-                
+
                 have_cpu_freq = TRUE;
                 cur_cpu_freq_ghz = ((double) min_cpu_freq) * 1E-9;
                 max_cpu_freq_ghz = ((double) max_cpu_freq) * 1E-9;
@@ -213,7 +214,7 @@ _draw(BotViewer *viewer, BotRenderer *r)
         int tmp_status = 0;
         if(tmp > 80) {
             tmp_status = 1;
-        } 
+        }
         if(tmp > 90) {
             tmp_status = 2;
         }
@@ -228,9 +229,9 @@ _draw(BotViewer *viewer, BotRenderer *r)
 
         // CPU
         int cpu_status = 0;
-        if(cpu > 80) 
+        if(cpu > 80)
             cpu_status = 1;
-        if(cpu > 90) 
+        if(cpu > 90)
             cpu_status = 2;
 
         // host overall
@@ -250,7 +251,7 @@ _draw(BotViewer *viewer, BotRenderer *r)
         if(hs->host_status) {
             sprintf(line1, "%8s (%2.0fC)", hs->id, tmp);
             sprintf(line2, "tmp:%4.1f C", tmp);
-            sprintf(line3, "bat:%3.0f%% %s", 
+            sprintf(line3, "bat:%3.0f%% %s",
                     batt,
                     plugged_in == 1 ? "ACOK" : "NOAC");
         } else {
@@ -268,7 +269,7 @@ _draw(BotViewer *viewer, BotRenderer *r)
         } else {
             sprintf(line5, "cur: ????");
         }
-        
+
         if (strcmp(hs->id, self->ref_clock_name)==0)
             sprintf(line6, "skew:0.0ms (ref)");
         else {
@@ -277,7 +278,7 @@ _draw(BotViewer *viewer, BotRenderer *r)
             else
                 sprintf(line6, "skew: ????");
         }
-	
+
 
         //double x = hind * 110 + 120;
         double x = hind * 175 + 10;
@@ -335,7 +336,7 @@ _draw(BotViewer *viewer, BotRenderer *r)
 // ------------------------------ Up and Down ------------------------------- //
 ////////////////////////////////////////////////////////////////////////////////
 
-static void 
+static void
 _destroy(BotRenderer *r)
 {
     if (!r) return;
@@ -372,7 +373,7 @@ BotRenderer *renderer_host_status_new(BotViewer *viewer)
 
     self->pm_sub = bot_procman_info2_t_subscribe(self->lcm, "PMD_INFO2", on_procman_info_data, self);
 
-    //we should subscribe to sensor status also 
+    //we should subscribe to sensor status also
 
     return r;
 }
