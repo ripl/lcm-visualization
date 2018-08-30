@@ -1,3 +1,4 @@
+add_definitions(-DBASE_PATH="${BASE_PATH}")
 add_definitions(-std=gnu99)
 
 include_directories(
