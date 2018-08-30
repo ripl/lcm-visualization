@@ -339,8 +339,8 @@ on_save_preferences(BotViewer *viewer, GKeyFile *keyfile, void *user_data)
     bot_gtk_param_widget_save_to_key_file(self->pw, keyfile, RENDERER_NAME);
 }
 
-void 
-setup_husky_model_renderer(BotViewer *viewer, int render_priority,
+void
+setup_renderer_husky_model(BotViewer *viewer, int render_priority,
                            BotParam * param, BotFrames * frames)
 {
     RendererHusky *self = (RendererHusky*) calloc(1, sizeof(RendererHusky));

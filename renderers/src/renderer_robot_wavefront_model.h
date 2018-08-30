@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-void setup_husky_model_renderer(BotViewer *viewer, int render_priority,
+void setup_renderer_husky_model(BotViewer *viewer, int render_priority,
                                 BotParam * param, BotFrames * frames);
 
 #ifdef __cplusplus
