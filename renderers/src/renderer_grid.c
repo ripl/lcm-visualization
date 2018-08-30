@@ -17,9 +17,9 @@
 #include <GL/glu.h>
 #endif
 
-#include "er_renderers.h"
-#include "gl_utils.h"
 #include <bot_core/bot_core.h>
+
+#include "gl_utils.h"
 
 #define PARAM_AZIMUTH "Rotation"
 #define PARAM_BGLIGHT "Light"

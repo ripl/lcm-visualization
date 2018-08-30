@@ -14,14 +14,15 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
-#include <geom_utils/geometry.h>
-#include "er_renderers.h"
-#include "gl_utils.h"
 #include <bot_core/bot_core.h>
 #include <carmen_utils/global.h>
+#include <geom_utils/geometry.h>
 
 #include <lcmtypes/hr_lcmtypes.h>
 #include <hr_lcmtypes/lcm_channel_names.h>
+
+#include "gl_utils.h"
+
 
 #define RENDERER_NAME "Localize"
 

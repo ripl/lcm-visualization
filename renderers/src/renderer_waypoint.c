@@ -12,7 +12,7 @@
 #include <bot_vis/bot_vis.h>
 #include <lcmtypes/hr_lcmtypes.h>
 #include <hr_lcmtypes/lcm_channel_names.h>
-#include "er_renderers.h"
+
 #include "gl_utils.h"
 
 #define RENDERER_NAME "ER Waypoints"

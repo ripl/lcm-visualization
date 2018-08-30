@@ -23,14 +23,15 @@
 #include <gdk/gdkkeysyms.h>
 
 #include <lcm/lcm.h>
-#include <geom_utils/geometry.h>
-#include <carmen_utils/global.h>
-#include "er_renderers.h"
-#include "gl_utils.h"
 #include <bot_core/bot_core.h>
 #include <bot_vis/texture.h>
+#include <geom_utils/geometry.h>
+#include <carmen_utils/global.h>
+
 #include <lcmtypes/hr_lcmtypes.h>
 #include <hr_lcmtypes/lcm_channel_names.h>
+
+#include "gl_utils.h"
 
 #define RENDERER_NAME "Navigator Plan"
 
@@ -1218,7 +1219,7 @@ static void on_save_preferences(BotViewer *viewer, GKeyFile *keyfile,
     bot_gtk_param_widget_save_to_key_file(self->pw, keyfile, RENDERER_NAME);
 }
 
-void setup_renderer_navigator_plan(BotViewer *viewer, int render_priority, 
+void setup_renderer_navigator_plan(BotViewer *viewer, int render_priority,
                                        lcm_t *lcm, BotFrames *frames)
 {
     RendererNavigatorPlan *self = (RendererNavigatorPlan*) calloc(1, sizeof(RendererNavigatorPlan));

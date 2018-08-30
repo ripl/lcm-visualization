@@ -17,7 +17,10 @@
 #include <GL/glu.h>
 #endif
 
-#include "er_renderers.h"
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
+#include <opencv/cxcore.h>
+
 #include <bot_core/bot_core.h>
 #include <bot_vis/texture.h>
 #include <bot_param/param_client.h>
@@ -27,11 +30,6 @@
 
 #include <lcmtypes/hr_lcmtypes.h>
 #include <hr_lcmtypes/lcm_channel_names.h>
-
-#include <opencv/cv.h>
-#include <opencv/highgui.h>
-#include <opencv/cxcore.h>
-
 
 #define PARAM_SHOW_GMAPPER_MAP "Show Gmapper Map"
 #define PARAM_MAP_MODE "Map Mode"
