@@ -1221,7 +1221,7 @@ static void on_save_preferences(BotViewer *viewer, GKeyFile *keyfile,
 }
 
 void setup_renderer_navigator_plan(BotViewer *viewer, int render_priority,
-                                       lcm_t *lcm, BotFrames *frames)
+                                   lcm_t *lcm, BotFrames *frames)
 {
     RendererNavigatorPlan *self = (RendererNavigatorPlan*) calloc(1, sizeof(RendererNavigatorPlan));
     BotRenderer *renderer = &self->renderer;
