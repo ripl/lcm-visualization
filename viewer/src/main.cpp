@@ -373,7 +373,6 @@ int main(int argc, char *argv[])
     if (!(param = bot_param_get_global(lcm, 0))) {
         fprintf (stderr, "Unable to get BotParam instance\n");
         return 0;
-        }
     }
 
     BotFrames * frames;
