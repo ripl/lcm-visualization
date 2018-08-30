@@ -84,7 +84,7 @@ void draw_place(float x,float y,float radius)
     for (int i=0; i < 360; i++){
         float degInRad = i*M_PI/180;
         glVertex2f(x+sin(degInRad)*radius,y+cos(degInRad)*radius);
-    } 
+    }
     glEnd();
 }
 
@@ -114,7 +114,7 @@ static void map3d_place_handler(const lcm_recv_buf_t *rbuf, const char *channel,
 static void upload_map_texture(RendererOccupancyMap *self);
 
 
-static void on_obstacle_map(const lcm_recv_buf_t *rbuf, const char *channel, 
+static void on_obstacle_map(const lcm_recv_buf_t *rbuf, const char *channel,
                             const ripl_gridmap_tile_t *msg, void *user)
 {
     RendererOccupancyMap *self = (RendererOccupancyMap *) user;
@@ -122,7 +122,7 @@ static void on_obstacle_map(const lcm_recv_buf_t *rbuf, const char *channel,
     bot_viewer_request_redraw(self->viewer);
 }
 
-static void gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channel, 
+static void gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channel,
                             const ripl_gridmap_t *msg, void *user)
 {
     static ripl_gridmap_t* staticmsg = NULL;
@@ -135,7 +135,7 @@ static void gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channel,
     RendererOccupancyMap *self = (RendererOccupancyMap*) user;
     ripl_map_t *map = NULL;
 
-    if ((strcmp(channel, GMAPPER_GRIDMAP_CHANNEL) == 0) || 
+    if ((strcmp(channel, GMAPPER_GRIDMAP_CHANNEL) == 0) ||
         (strcmp(channel, "MAP_SERVER")==0)) {
         fprintf(stdout,"New map received\n");
         map = &self->map;
@@ -185,15 +185,15 @@ static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channe
     }
     staticmsg = ripl_multi_gridmap_t_copy(msg);
 
-    //fprintf(stderr,"=MultiFloor map received: No Floors : %d, Current Floor_ind: %d, No: %d=\n", 
-    //	  staticmsg->no_floors, staticmsg->current_floor_ind, 
+    //fprintf(stderr,"=MultiFloor map received: No Floors : %d, Current Floor_ind: %d, No: %d=\n",
+    //	  staticmsg->no_floors, staticmsg->current_floor_ind,
     //  staticmsg->maps[staticmsg->current_floor_ind].floor_no);
 
     RendererOccupancyMap *self = (RendererOccupancyMap*) user;
     ripl_map_t *map;
 
-    self->current_floor = staticmsg->current_floor_ind;	
-  
+    self->current_floor = staticmsg->current_floor_ind;
+
 
     for(int i=0; i< self->no_floors; i++){
 
@@ -204,12 +204,12 @@ static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channe
             free(self->multi_map[i].complete_map);
         }
     }
-  
+
     if(self->no_floors != staticmsg->no_floors){
         self->no_floors = staticmsg->no_floors;
-        self->multi_map = (ripl_map_t *) realloc(self->multi_map, 
+        self->multi_map = (ripl_map_t *) realloc(self->multi_map,
                                                   self->no_floors * sizeof(ripl_map_t));
-   
+
         // Update the gtk widget to respect the new floors
         if (staticmsg->no_floors > 0)
             bot_gtk_param_widget_clear_enum (self->pw, PARAM_FLOOR_NO);
@@ -221,13 +221,13 @@ static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channe
             bot_gtk_param_widget_modify_enum (self->pw, PARAM_FLOOR_NO, name, staticmsg->maps[i].floor_no);
         }
         bot_gtk_param_widget_set_enum (self->pw, PARAM_FLOOR_NO, staticmsg->current_floor_ind);
-    }  
+    }
     self->floor_map = (int *) realloc( self->floor_map, self->no_floors *sizeof(int));
 
     for(int m=0; m < self->no_floors; m++){
         carmen3d_map_uncompress_lcm_map(&self->multi_map[m], &staticmsg->maps[m].gridmap);
         self->floor_map[m] = staticmsg->maps[m].floor_no;
-    
+
         for (int i = 0; i < self->multi_map[m].config.x_size; i++) {
             //fprintf(stderr,"Inverting\n");
             for (int j = 0; j < self->multi_map[m].config.y_size; j++) {
@@ -238,7 +238,7 @@ static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channe
             }
         }
     }
-  
+
     //add the current floor map to this
     map = &self->map;
     if (map->map != NULL)
@@ -250,7 +250,7 @@ static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channe
     if(self->current_floor >=0){
         carmen3d_map_uncompress_lcm_map(map, &staticmsg->maps[self->current_floor].gridmap);
     }
-    else{//if we do not have the current floor - 
+    else{//if we do not have the current floor -
         //we draw first map
         carmen3d_map_uncompress_lcm_map(map, &staticmsg->maps[0].gridmap);
     }
@@ -299,17 +299,17 @@ static void upload_map_texture(RendererOccupancyMap *self)
             break;
         case MULTI_FLOOR:
             for(int m=0; m< self->no_floors; m++){
-                //fprintf(stderr,"Ind : %d => Floor No : %d\n", m , self->floor_map[m]); 
+                //fprintf(stderr,"Ind : %d => Floor No : %d\n", m , self->floor_map[m]);
                 if(self->floor_map[m] != (self->param_current_floor)){
                     continue;
                 }
-                else{      
+                else{
                     fprintf(stderr,"Drawing Floor : %d Ind : %d\n", self->param_current_floor, m);
-                    //fprintf(stderr,"Drawing Floor : %d\n", m);    
+                    //fprintf(stderr,"Drawing Floor : %d\n", m);
                     self->draw_map = &self->multi_map[m];
                     multi_map_ind = m;
                     //invert
-                    
+
                     break;
                 }
             }
@@ -319,17 +319,17 @@ static void upload_map_texture(RendererOccupancyMap *self)
             //fprintf(stderr,"Multi-Floor Drawing - Target Floor : %d\n", self->param_current_floor);
             //self->draw_map = &self->map;
             for(int m=0; m< self->no_floors; m++){
-                //fprintf(stderr,"Ind : %d => Floor No : %d\n", m , self->floor_map[m]); 
+                //fprintf(stderr,"Ind : %d => Floor No : %d\n", m , self->floor_map[m]);
                 if(self->floor_map[m] != (self->param_current_floor)){
                     continue;
                 }
-                else{      
+                else{
                     fprintf(stderr,"Drawing Floor : %d Ind : %d\n", self->param_current_floor, m);
-                    //fprintf(stderr,"Drawing Floor : %d\n", m);    
+                    //fprintf(stderr,"Drawing Floor : %d\n", m);
                     self->draw_map = &self->multi_map[m];
                     multi_map_ind = m;
                     //invert
-                    
+
                     break;
                 }
             }
@@ -347,7 +347,7 @@ static void upload_map_texture(RendererOccupancyMap *self)
             self->draw_map = &self->nav_cost_map;
             break;
     }
-    
+
     float * draw_complete_map = NULL;
     static CvMat * draw_map_im = NULL;
     if (self->draw_map->map && self->param_draw_gmapper_map) {
@@ -405,39 +405,39 @@ static void upload_map_texture(RendererOccupancyMap *self)
 
             bot_gl_texture_upload(self->map2dtexture, GL_LUMINANCE, GL_FLOAT, y_size * sizeof(float), draw_complete_map);
 
-            //draw places 
-            //for some reaason not being drawn properly 
+            //draw places
+            //for some reaason not being drawn properly
             /*if(self->places !=NULL){
               fprintf(stderr,"Have tagged Nodes\n");
-              if(self->param_map_mode == MULTI_FLOOR){      
+              if(self->param_map_mode == MULTI_FLOOR){
               int i;
               double textpos[3];
               for(i=0;i< self->places->place_count;i++){
               //if(self->places->places[i].floor_index != multi_map_ind)
               //  continue;
-	
+
               double global_pl_x, global_pl_y;
-	
+
               global_pl_x = self->places->places[i].x;// -  self->draw_map->midpt.x + self->draw_map->map_zero.x;
               global_pl_y = self->places->places[i].y;// - self->draw_map->midpt.y + self->draw_map->map_zero.y;
-	
+
 
               draw_place(global_pl_x, global_pl_y,0.2);
               fprintf(stderr,"Drawing (%f,%f)\n", global_pl_x, global_pl_y);
               glColor3f(1, 1, 1);
-	
+
               textpos[0] = global_pl_x + 1.0;
               textpos[1] = global_pl_y + 1.0;
-              textpos[2] = 2;	
+              textpos[2] = 2;
               bot_gl_draw_text(textpos, GLUT_BITMAP_HELVETICA_12, self->places->places[i].label, BOT_GL_DRAW_TEXT_DROP_SHADOW);
               }
               }
               }*/
             //else use the current floor
-  
+
         }
         else{
-            //add textures for all the floors 
+            //add textures for all the floors
             if(self->map2dtexture_all){
                 for(int i=0;i < self->texture_count; i++){
                     if (self->map2dtexture_all[i] != NULL)
@@ -445,10 +445,10 @@ static void upload_map_texture(RendererOccupancyMap *self)
                 }
                 free(self->map2dtexture_all);
             }
-            self->texture_count = self->no_floors; 
+            self->texture_count = self->no_floors;
             self->map2dtexture_all = (BotGlTexture **) calloc(self->texture_count, sizeof(BotGlTexture *));
             for(int i=0;i < self->texture_count; i++){
-                self->map2dtexture_all[i] = NULL; 
+                self->map2dtexture_all[i] = NULL;
             }
 
             for(int m=0; m< self->no_floors; m++){
@@ -456,7 +456,7 @@ static void upload_map_texture(RendererOccupancyMap *self)
                 multi_map_ind = m;
 
                 fprintf(stderr,"Drawing Floor Index : %d\n", m);
-            
+
                 int maxDrawDim = 1024;
                 static int old_x_size = 0;
                 static int old_y_size = 0;
@@ -465,8 +465,8 @@ static void upload_map_texture(RendererOccupancyMap *self)
                 if (0 && self->downsample && (self->draw_map->config.x_size > maxDrawDim || self->draw_map->config.y_size > maxDrawDim)) {
                     //HUGE map... need to downsample
 
-                    //*** this will add a memory leak 
-                    if(draw_complete_map){ //this is also kind of wrong 
+                    //*** this will add a memory leak
+                    if(draw_complete_map){ //this is also kind of wrong
                         free(draw_complete_map);
                     }
 
@@ -500,7 +500,7 @@ static void upload_map_texture(RendererOccupancyMap *self)
                 else {
                     x_size = self->draw_map->config.x_size;
                     y_size = self->draw_map->config.y_size;
-                  
+
                     draw_complete_map = self->draw_map->complete_map;
                 }
 
@@ -514,7 +514,7 @@ static void upload_map_texture(RendererOccupancyMap *self)
                     old_y_size = y_size;
                 }
 
-                bot_gl_texture_upload(self->map2dtexture_all[m], GL_LUMINANCE, GL_FLOAT, y_size * sizeof(float), draw_complete_map);                
+                bot_gl_texture_upload(self->map2dtexture_all[m], GL_LUMINANCE, GL_FLOAT, y_size * sizeof(float), draw_complete_map);
             }
         }
     }
@@ -524,11 +524,11 @@ static void upload_map_texture(RendererOccupancyMap *self)
             self->map2dtexture = NULL;
         }
     }
-    
+
     /*if(draw_complete_map != NULL){
         free(draw_complete_map);
         }*/
-    
+
 }
 
 static void OccupancyMap_draw(BotViewer *viewer, BotRenderer *renderer)
@@ -549,7 +549,7 @@ static void OccupancyMap_draw(BotViewer *viewer, BotRenderer *renderer)
     }
 
     if (self->map2dtexture && self->param_draw_gmapper_map && !draw_all_floors) {
-        glColor4d(1.0, 1.0, 1.0, 
+        glColor4d(1.0, 1.0, 1.0,
                   bot_gtk_param_widget_get_double (self->pw, PARAM_NAME_OPACITY));
 
         double global_tl[3], global_br[3];
@@ -560,10 +560,10 @@ static void OccupancyMap_draw(BotViewer *viewer, BotRenderer *renderer)
         carmen3d_map3d_map_index_to_global_coordinates(&global_br[0], &global_br[1], self->draw_map->midpt,
                                                        self->draw_map->map_zero, self->draw_map->config.resolution, self->draw_map->config.x_size,
                                                        self->draw_map->config.y_size);
-        //bot_gl_texture_draw_coords(self->map2dtexture, 
-        //                           global_tl[0], global_tl[1], 0, 
+        //bot_gl_texture_draw_coords(self->map2dtexture,
+        //                           global_tl[0], global_tl[1], 0,
         //                           global_br[0], global_tl[1], 0,
-        //                           global_br[0], global_br[1], 0, 
+        //                           global_br[0], global_br[1], 0,
         //                           global_tl[0], global_br[1], 0);
 
         double global_bl[] = {global_br[0], global_tl[1], 0};
@@ -576,13 +576,13 @@ static void OccupancyMap_draw(BotViewer *viewer, BotRenderer *renderer)
         bot_frames_transform_vec (self->frames, "global", "local", global_bl, local_bl);
         bot_frames_transform_vec (self->frames, "global", "local", global_tr, local_tr);
         bot_frames_transform_vec (self->frames, "global", "local", global_br, local_br);
- 
+
         // Draw at a negative z to avoid occluding
         double z = -0.01;
-        bot_gl_texture_draw_coords(self->map2dtexture, 
-                                   local_tl[0], local_tl[1], z, 
+        bot_gl_texture_draw_coords(self->map2dtexture,
+                                   local_tl[0], local_tl[1], z,
                                    local_bl[0], local_bl[1], z,
-                                   local_br[0], local_br[1], z, 
+                                   local_br[0], local_br[1], z,
                                    local_tr[0], local_tr[1], z);
     }
 
@@ -590,14 +590,14 @@ static void OccupancyMap_draw(BotViewer *viewer, BotRenderer *renderer)
         //fprintf(stderr,"Drawing All floors\n");
         for(int i=0;i < self->texture_count; i++){
             float depth = (self->floor_map[i] - (self->param_current_floor))* 10.0;
-            
+
             //fprintf(stderr,"Depth : %f [%d] = %d - %d\n", depth, i, self->floor_map[i], self->param_current_floor);
-            
+
             glPushMatrix();
             glTranslated(0, 0, depth);
-            //make the current floor 0 - and the rest + or - based on the floor no 
+            //make the current floor 0 - and the rest + or - based on the floor no
 
-            glColor4d(1.0, 1.0, 1.0, 
+            glColor4d(1.0, 1.0, 1.0,
                       bot_gtk_param_widget_get_double (self->pw, PARAM_NAME_OPACITY));
 
             self->draw_map = &self->multi_map[i];
@@ -610,10 +610,10 @@ static void OccupancyMap_draw(BotViewer *viewer, BotRenderer *renderer)
             carmen3d_map3d_map_index_to_global_coordinates(&global_br[0], &global_br[1], self->draw_map->midpt,
                                                            self->draw_map->map_zero, self->draw_map->config.resolution, self->draw_map->config.x_size,
                                                            self->draw_map->config.y_size);
-            //bot_gl_texture_draw_coords(self->map2dtexture, 
-            //                           global_tl[0], global_tl[1], 0, 
+            //bot_gl_texture_draw_coords(self->map2dtexture,
+            //                           global_tl[0], global_tl[1], 0,
             //                           global_br[0], global_tl[1], 0,
-            //                           global_br[0], global_br[1], 0, 
+            //                           global_br[0], global_br[1], 0,
             //                           global_tl[0], global_br[1], 0);
 
             double global_bl[] = {global_br[0], global_tl[1], 0};
@@ -626,11 +626,11 @@ static void OccupancyMap_draw(BotViewer *viewer, BotRenderer *renderer)
             bot_frames_transform_vec (self->frames, "global", "local", global_bl, local_bl);
             bot_frames_transform_vec (self->frames, "global", "local", global_tr, local_tr);
             bot_frames_transform_vec (self->frames, "global", "local", global_br, local_br);
- 
-            bot_gl_texture_draw_coords(self->map2dtexture_all[i], 
-                                       local_tl[0], local_tl[1], 0, 
+
+            bot_gl_texture_draw_coords(self->map2dtexture_all[i],
+                                       local_tl[0], local_tl[1], 0,
                                        local_bl[0], local_bl[1], 0,
-                                       local_br[0], local_br[1], 0, 
+                                       local_br[0], local_br[1], 0,
                                        local_tr[0], local_tr[1], 0);
 
             glPopMatrix();
@@ -653,17 +653,17 @@ static void upload_map_texture_single(RendererOccupancyMap *self)
         //fprintf(stderr,"Multi-Floor Drawing - Target Floor : %d\n", self->param_current_floor);
         //self->draw_map = &self->map;
         for(int m=0; m< self->no_floors; m++){
-            //fprintf(stderr,"Ind : %d => Floor No : %d\n", m , self->floor_map[m]); 
+            //fprintf(stderr,"Ind : %d => Floor No : %d\n", m , self->floor_map[m]);
             if(self->floor_map[m] != (self->param_current_floor)){
                 continue;
             }
-            else{      
+            else{
                 fprintf(stderr,"Drawing Floor : %d Ind : %d\n", self->param_current_floor, m);
-                //fprintf(stderr,"Drawing Floor : %d\n", m);    
+                //fprintf(stderr,"Drawing Floor : %d\n", m);
                 self->draw_map = &self->multi_map[m];
                 multi_map_ind = m;
                 //invert
-	
+
                 break;
             }
         }
@@ -734,36 +734,36 @@ static void upload_map_texture_single(RendererOccupancyMap *self)
 
         bot_gl_texture_upload(self->map2dtexture, GL_LUMINANCE, GL_FLOAT, y_size * sizeof(float), draw_complete_map);
 
-        //draw places 
-        //for some reaason not being drawn properly 
+        //draw places
+        //for some reaason not being drawn properly
         /*if(self->places !=NULL){
           fprintf(stderr,"Have tagged Nodes\n");
-          if(self->param_map_mode == MULTI_FLOOR){      
+          if(self->param_map_mode == MULTI_FLOOR){
           int i;
           double textpos[3];
           for(i=0;i< self->places->place_count;i++){
           //if(self->places->places[i].floor_index != multi_map_ind)
           //  continue;
-	
+
           double global_pl_x, global_pl_y;
-	
+
           global_pl_x = self->places->places[i].x;// -  self->draw_map->midpt.x + self->draw_map->map_zero.x;
           global_pl_y = self->places->places[i].y;// - self->draw_map->midpt.y + self->draw_map->map_zero.y;
-	
+
 
           draw_place(global_pl_x, global_pl_y,0.2);
           fprintf(stderr,"Drawing (%f,%f)\n", global_pl_x, global_pl_y);
           glColor3f(1, 1, 1);
-	
+
           textpos[0] = global_pl_x + 1.0;
           textpos[1] = global_pl_y + 1.0;
-          textpos[2] = 2;	
+          textpos[2] = 2;
           bot_gl_draw_text(textpos, GLUT_BITMAP_HELVETICA_12, self->places->places[i].label, BOT_GL_DRAW_TEXT_DROP_SHADOW);
           }
           }
           }*/
         //else use the current floor
-  
+
     }
     else {
         if (self->map2dtexture != NULL) {
@@ -771,7 +771,7 @@ static void upload_map_texture_single(RendererOccupancyMap *self)
             self->map2dtexture = NULL;
         }
     }
-  
+
 }
 
 static void OccupancyMap_free(BotRenderer *renderer)
@@ -838,14 +838,14 @@ renderer_occupancy_map_new(BotViewer *viewer, int render_priority, BotParam * _p
     gtk_box_pack_start(GTK_BOX(renderer->widget), GTK_WIDGET(self->pw), TRUE, TRUE, 0);
     bot_gtk_param_widget_add_booleans(self->pw, 0, PARAM_SHOW_GMAPPER_MAP, 1, NULL);
     bot_gtk_param_widget_add_booleans(self->pw, 0, PARAM_DOWNSAMPLE, 1, NULL);
-    bot_gtk_param_widget_add_double (self->pw, PARAM_NAME_OPACITY, 
+    bot_gtk_param_widget_add_double (self->pw, PARAM_NAME_OPACITY,
                                      BOT_GTK_PARAM_WIDGET_SLIDER, 0, 1, 0.05, 0.5);
 
 
     self->param_draw_gmapper_map = bot_gtk_param_widget_get_bool(self->pw, PARAM_SHOW_GMAPPER_MAP);
     bot_gtk_param_widget_add_enum(self->pw, PARAM_MAP_MODE, BOT_GTK_PARAM_WIDGET_MENU, self->param_map_mode, "GMapping",
                                   //GMAPPER_MAP, "Multi Floor", MULTI_FLOOR, "All Floors", ALL_FLOORS, "Navigator Utility", NAVIGATOR_UTILITY, // ALL FLOORS currently leaks memory
-                                  GMAPPER_MAP, "Multi Floor", MULTI_FLOOR, "Navigator Utility", NAVIGATOR_UTILITY, 
+                                  GMAPPER_MAP, "Multi Floor", MULTI_FLOOR, "Navigator Utility", NAVIGATOR_UTILITY,
                                   "Navigator Cost", NAVIGATOR_COST, "Frontier Utility", FRONTIER_UTILITY, "CAM Utility",
                                   CAM_FRONTIER_UTILITY, NULL);
 
@@ -858,8 +858,8 @@ renderer_occupancy_map_new(BotViewer *viewer, int render_priority, BotParam * _p
     /*                               "Fourth", 4,  */
     /*                               "Fifth", 5, NULL); */
 
-    bot_gtk_param_widget_add_enum(self->pw, PARAM_FLOOR_NO, BOT_GTK_PARAM_WIDGET_MENU, 
-                                  self->param_current_floor, 
+    bot_gtk_param_widget_add_enum(self->pw, PARAM_FLOOR_NO, BOT_GTK_PARAM_WIDGET_MENU,
+                                  self->param_current_floor,
                                   "Default",0, NULL);
 
     gtk_widget_show_all(renderer->widget);
@@ -869,8 +869,8 @@ renderer_occupancy_map_new(BotViewer *viewer, int render_priority, BotParam * _p
 
     ripl_gridmap_t_subscribe(self->lcm, GMAPPER_GRIDMAP_CHANNEL, gridmap_handler, self);
     ripl_gridmap_t_subscribe(self->lcm, "MAP_SERVER", gridmap_handler, self);
-    ripl_multi_gridmap_t_subscribe(self->lcm, "MULTI_FLOOR_MAPS", multi_gridmap_handler, self);  
-    ripl_multi_gridmap_t_subscribe(self->lcm, "MMAP_SERVER", multi_gridmap_handler, self);  
+    ripl_multi_gridmap_t_subscribe(self->lcm, "MULTI_FLOOR_MAPS", multi_gridmap_handler, self);
+    ripl_multi_gridmap_t_subscribe(self->lcm, "MMAP_SERVER", multi_gridmap_handler, self);
     ripl_gridmap_t_subscribe(self->lcm, FRONTIER_UTILITY_MAP_CHANNEL, gridmap_handler, self);
     ripl_gridmap_t_subscribe(self->lcm, NAVIGATOR_UTILITY_MAP_CHANNEL, gridmap_handler, self);
     ripl_gridmap_t_subscribe(self->lcm, "NAVIGATOR_COST_MAP", gridmap_handler, self);

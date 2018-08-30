@@ -18,7 +18,7 @@
 #endif
 
 #include "er_renderers.h"
-#include "er_gl_utils.h"
+#include "gl_utils.h"
 #include <bot_core/bot_core.h>
 
 #define PARAM_AZIMUTH "Rotation"
@@ -230,7 +230,7 @@ BotRenderer *renderer_grid_new (BotViewer *viewer)
     return &self->renderer;
 }
 
-void grid_add_renderer_to_viewer(BotViewer *viewer, int render_priority)
+void setup_grid_renderer(BotViewer *viewer, int render_priority)
 {
-  bot_viewer_add_renderer(viewer, renderer_grid_new(viewer), render_priority); 
+  bot_viewer_add_renderer(viewer, renderer_grid_new(viewer), render_priority);
 }

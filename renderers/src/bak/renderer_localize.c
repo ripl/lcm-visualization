@@ -16,7 +16,7 @@
 
 #include <geom_utils/geometry.h>
 #include "er_renderers.h"
-#include "er_gl_utils.h"
+#include "gl_utils.h"
 #include <bot_core/bot_core.h>
 #include <carmen_utils/global.h>
 

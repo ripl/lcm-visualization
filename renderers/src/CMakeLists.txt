@@ -7,27 +7,12 @@ include_directories(
     ${LCMTYPES_INCLUDE_DIRS}
 )
 
+file(GLOB C_FILES *.c)
+file(GLOB H_FILES *.h)
+
+
 # Create a shared library libquad-renderers.so with a single source file
-add_library(hr-renderers SHARED
-    er_gl_utils.c
-    viewer_aux_data.c
-    tile_set.c
-    renderer_waypoint.c
-    renderer_occupancy_map.c
-    renderer_grid.c
-    renderer_localize.c
-    renderer_navigator_plan.c
-    renderer_tracks.c
-    renderer_robot_wavefront_model.c
-    renderer_simobs.c
-    renderer_gridmap.c
-    renderer_person_model.c
-    renderer_host_status.c
-    renderer_sensor_status.c
-    renderer_robot_status.c
-    renderer_manual_calib.c
-    renderer_satellite.c
-    )
+add_library(husky-renderers SHARED ${C_FILES})
 
 set(REQUIRED_LIBRARIES
     lcm
@@ -46,19 +31,19 @@ set(REQUIRED_LIBRARIES
     path-utils
     )
 
-pods_use_pkg_config_packages(hr-renderers ${REQUIRED_LIBRARIES})
+pods_use_pkg_config_packages(husky-renderers ${REQUIRED_LIBRARIES})
 
 # make the header public
 # install it to include/renderers
-pods_install_headers(er_renderers.h er_gl_utils.h viewer_aux_data.h DESTINATION er_renderers)
+pods_install_headers(${H_FILES} DESTINATION husky_renderers)
 
 # make the library public
-pods_install_libraries(hr-renderers)
+pods_install_libraries(husky-renderers)
 
 # create a pkg-config file for the library, to make it easier for other
 # software to use.
-pods_install_pkg_config_file(hr-renderers
+pods_install_pkg_config_file(husky-renderers
     CFLAGS
-    LIBS -lhr-renderers
+    LIBS -lhusky-renderers
     REQUIRES ${REQUIRED_LIBRARIES}
     VERSION 0.0.1)

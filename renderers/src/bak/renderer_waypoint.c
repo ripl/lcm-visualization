@@ -13,7 +13,7 @@
 #include <lcmtypes/hr_lcmtypes.h>
 #include <hr_lcmtypes/lcm_channel_names.h>
 #include "er_renderers.h"
-#include "er_gl_utils.h"
+#include "gl_utils.h"
 
 #define RENDERER_NAME "ER Waypoints"
 

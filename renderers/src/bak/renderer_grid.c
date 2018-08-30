@@ -18,7 +18,7 @@
 #endif
 
 #include "er_renderers.h"
-#include "er_gl_utils.h"
+#include "gl_utils.h"
 #include <bot_core/bot_core.h>
 
 #define PARAM_AZIMUTH "Rotation"

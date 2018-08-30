@@ -20,7 +20,7 @@ pods_use_pkg_config_packages(hr-viewer
     bot2-frames-renderers
     bot2-frames
     opencv
-    hr-renderers
+    husky-renderers
     laser-utils-renderer
     image-utils-renderer
     lcmtypes_hr-lcmtypes

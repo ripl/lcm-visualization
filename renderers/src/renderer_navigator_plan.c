@@ -26,7 +26,7 @@
 #include <geom_utils/geometry.h>
 #include <carmen_utils/global.h>
 #include "er_renderers.h"
-#include "er_gl_utils.h"
+#include "gl_utils.h"
 #include <bot_core/bot_core.h>
 #include <bot_vis/texture.h>
 #include <lcmtypes/hr_lcmtypes.h>
@@ -392,8 +392,8 @@ static void  goal_querry_result_handler(const lcm_recv_buf_t *rbuf __attribute__
     bot_viewer_request_redraw(self->viewer);
 }
 
-static void floor_status_handler(const lcm_recv_buf_t *rbuf, 
-                                 const char *channel, 
+static void floor_status_handler(const lcm_recv_buf_t *rbuf,
+                                 const char *channel,
                                  const ripl_floor_status_msg_t *msg,
                                  void *user)
 {
@@ -403,7 +403,7 @@ static void floor_status_handler(const lcm_recv_buf_t *rbuf,
     self->current_floor_no = msg->floor_no;
 }
 
-static void topology_handler(const lcm_recv_buf_t *rbuf, const char *channel, 
+static void topology_handler(const lcm_recv_buf_t *rbuf, const char *channel,
                              const ripl_topology_t *msg, void *user)
 {
     RendererNavigatorPlan *self = (RendererNavigatorPlan*) user;
@@ -416,9 +416,9 @@ static void topology_handler(const lcm_recv_buf_t *rbuf, const char *channel,
 }
 
 
-static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, 
-                                  const char *channel, 
-                                  const ripl_multi_gridmap_t *msg, 
+static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf,
+                                  const char *channel,
+                                  const ripl_multi_gridmap_t *msg,
                                   void *user)
 {
     RendererNavigatorPlan *self = (RendererNavigatorPlan *) user;
@@ -434,7 +434,7 @@ static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf,
 
             bot_gtk_param_widget_modify_enum (self->pw, PARAM_FLOOR_NO, name, msg->maps[i].floor_no);
         }
-        bot_gtk_param_widget_set_enum (self->pw, PARAM_FLOOR_NO, 
+        bot_gtk_param_widget_set_enum (self->pw, PARAM_FLOOR_NO,
                                        msg->current_floor_ind);
 
         self->num_floors = msg->no_floors;
@@ -651,12 +651,12 @@ static void navigator_plan_renderer_draw(BotViewer *viewer, BotRenderer *super)
 
         for(int i=0; i < self->topology->place_list.place_count; i++){
             ripl_place_node_t *place = &self->topology->place_list.trajectory[i];
-                                       
+
 
             if(place->floor_ind != self->current_floor_ind){
                 continue;
             }
-            
+
             double pos_global[3] = {place->x, place->y, 0};
             double pos_local[3];
 
@@ -868,7 +868,7 @@ static void navigator_plan_renderer_draw(BotViewer *viewer, BotRenderer *super)
 /*     ripl_mission_control_msg_t_publish(lc, MISSION_CONTROL_CHANNEL, &msg); */
 /* } */
 
-static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name, 
+static void on_param_widget_changed(BotGtkParamWidget *pw, const char *name,
                                     void *user)
 {
     RendererNavigatorPlan *self = (RendererNavigatorPlan*) user;
@@ -1204,21 +1204,21 @@ static int mouse_press(BotViewer *viewer, BotEventHandler *ehandler, const doubl
 }
 
 
-static void on_load_preferences(BotViewer *viewer, GKeyFile *keyfile, 
+static void on_load_preferences(BotViewer *viewer, GKeyFile *keyfile,
                                 void *user_data)
 {
     RendererNavigatorPlan *self = user_data;
     bot_gtk_param_widget_load_from_key_file(self->pw, keyfile, RENDERER_NAME);
 }
 
-static void on_save_preferences(BotViewer *viewer, GKeyFile *keyfile, 
+static void on_save_preferences(BotViewer *viewer, GKeyFile *keyfile,
                                 void *user_data)
 {
     RendererNavigatorPlan *self = user_data;
     bot_gtk_param_widget_save_to_key_file(self->pw, keyfile, RENDERER_NAME);
 }
 
-void navigator_plan_renderer_to_viewer(BotViewer *viewer, int render_priority, 
+void setup_renderer_navigator_plan(BotViewer *viewer, int render_priority, 
                                        lcm_t *lcm, BotFrames *frames)
 {
     RendererNavigatorPlan *self = (RendererNavigatorPlan*) calloc(1, sizeof(RendererNavigatorPlan));
@@ -1256,20 +1256,20 @@ void navigator_plan_renderer_to_viewer(BotViewer *viewer, int render_priority,
                                        self);
 
     ripl_goal_feasibility_querry_t_subscribe(self->lc,
-                                              "GOAL_FEASIBILITY_RESULT", 
+                                              "GOAL_FEASIBILITY_RESULT",
                                               goal_querry_result_handler,
                                               self);
 
-    ripl_topology_t_subscribe(self->lc,"MAP_SERVER_TOPOLOGY", 
+    ripl_topology_t_subscribe(self->lc,"MAP_SERVER_TOPOLOGY",
                                topology_handler,
                                self);
 
-    ripl_topology_t_subscribe(self->lc,"TOPOLOGY", 
+    ripl_topology_t_subscribe(self->lc,"TOPOLOGY",
                                topology_handler,
                                self);
 
-    ripl_multi_gridmap_t_subscribe(self->lc, 
-                                    "MULTI_FLOOR_MAPS", 
+    ripl_multi_gridmap_t_subscribe(self->lc,
+                                    "MULTI_FLOOR_MAPS",
                                     multi_gridmap_handler,
                                     self);
 

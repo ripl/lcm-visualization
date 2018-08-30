@@ -1,4 +1,4 @@
-#include "er_gl_utils.h"
+#include "gl_utils.h"
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -9,7 +9,7 @@
 #include <bot_core/bot_core.h>
 #include <bot_vis/bot_vis.h>
 /*
- * er_gl_utils.h
+ * gl_utils.h
  *
  * utility functions for drawing quad specific stuff - from Quad code base
  */

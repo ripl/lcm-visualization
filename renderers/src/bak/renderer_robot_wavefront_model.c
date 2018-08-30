@@ -14,7 +14,7 @@
 #include <bot_core/bot_core.h>
 #include <bot_vis/bot_vis.h>
 #include <bot_frames/bot_frames.h>
-#include "er_gl_utils.h"
+#include "gl_utils.h"
 
 #include <lcmtypes/hr_lcmtypes.h>
 #include <lcmtypes/bot_core_pose_t.h>

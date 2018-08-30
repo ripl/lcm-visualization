@@ -19,14 +19,23 @@
 // Renderers
 #include <bot_frames/bot_frames_renderers.h>
 #include <bot_lcmgl_render/lcmgl_bot_renderer.h>
-#include <er_renderers/er_renderers.h>
-#include <er_renderers/viewer_aux_data.h>
 #include <laser_utils/renderer_laser.h>
 #include <image_utils/renderer_cam_thumb.h>
 #include <velodyne/renderer_velodyne.h>
 #include <occ_map/occ_map_renderers.h>
 #include <rrtstar_renderer/renderer_rrtstar.h>
 #include <obstacle_renderer/renderer_tracks.h>
+
+#include <husky_renderers/renderer_occupancy_map.h>
+#include <husky_renderers/renderer_localize.h>
+#include <husky_renderers/renderer_robot_wavefront_model.h>
+#include <husky_renderers/renderer_robot_status.h>
+#include <husky_renderers/renderer_robot_commands.h>
+#include <husky_renderers/renderer_navigator_plan.h>
+#include <husky_renderers/renderer_gridmap.h>
+
+#include <husky_renderers/viewer_aux_data.h>
+
 
 #include "udp_util.h"
 
@@ -415,18 +424,18 @@ int main(int argc, char *argv[])
 
     bot_lcmgl_add_renderer_to_viewer(viewer, lcm, 1);
     bot_frames_add_renderer_to_viewer(viewer, 1, frames);
-    localize_add_renderer_to_viewer(viewer, 1, lcm);
-    add_husky_model_renderer_to_viewer(viewer, 1, param, frames);
-    navigator_plan_renderer_to_viewer(viewer, 1, lcm, frames);
+
+    setup_renderer_localize(viewer, 1, lcm);
+    setup_renderer_husky_model(viewer, 1, param, frames);
+    setup_renderer_navigator_plan(viewer, 1, lcm, frames);
     setup_renderer_rrtstar(viewer, 1, lcm);
     setup_renderer_tracks(viewer, 1, lcm, param);
-    setup_renderer_simobs(viewer, 1, lcm, param);
     setup_renderer_gridmap(viewer, 1, lcm, param);
     setup_renderer_host_status (viewer, 1);
-    renderer_sensor_status_new (viewer);
     setup_renderer_robot_status (viewer, param, 1);
-    occ_map_pixel_map_add_renderer_to_viewer(viewer, 1, "PIXEL_MAP", "PixelMap Viewer");
+
     add_cam_thumb_renderer_to_viewer(viewer, 1, lcm, param, frames);
+
     setup_renderer_velodyne(viewer, 0, param, lcm);
     BotEventHandler *rs_ehandler = (BotEventHandler*) calloc(1, sizeof(BotEventHandler));
     rs_ehandler->name = "Robot State";

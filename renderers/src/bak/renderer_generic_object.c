@@ -13,7 +13,7 @@
 //#include <bot/viewer/viewer.h>
 //#include <bot/viewer/rwx.h>
 //#include <bot/gl/gl_util.h>
-#include "er_gl_utils.h"
+#include "gl_utils.h"
 
 #include <lcm/lcm.h>
 //#include <common/globals.h>

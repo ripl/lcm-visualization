@@ -13,7 +13,7 @@
 #include <lcmtypes/hr_lcmtypes.h>
 #include <hr_lcmtypes/lcm_channel_names.h>
 #include "er_renderers.h"
-#include "er_gl_utils.h"
+#include "gl_utils.h"
 
 #define RENDERER_NAME "ER Waypoints"
 
@@ -330,11 +330,11 @@ static void send_height_sweep_trajectory(RendererWaypt *self) {
 
 static int key_press(BotViewer *viewer, BotEventHandler *ehandler, const GdkEventKey *event)
 {
-    
+
     double dxy = 0.1;
     double dz = 0.1;
     double dyaw = 0.05;
-    
+
     RendererWaypt *self = (RendererWaypt*) ehandler->user;
     int keyval = event->keyval;
     switch (keyval) {
@@ -360,7 +360,7 @@ static void on_save_preferences(BotViewer *viewer, GKeyFile *keyfile, void *user
     bot_gtk_param_widget_save_to_key_file(self->pw, keyfile, RENDERER_NAME);
 }
 
-void quad_waypoint_add_renderer_to_viewer(BotViewer *viewer, int render_priority, lcm_t * lcm)
+void setup_renderer_waypoint (BotViewer *viewer, int render_priority, lcm_t * lcm)
 {
     RendererWaypt *self = (RendererWaypt*) calloc(1, sizeof(RendererWaypt));
 
