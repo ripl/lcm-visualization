@@ -30,6 +30,7 @@
 #include <husky_renderers/renderer_localize.h>
 #include <husky_renderers/renderer_robot_wavefront_model.h>
 #include <husky_renderers/renderer_robot_status.h>
+#include <husky_renderers/renderer_host_status.h>
 #include <husky_renderers/renderer_navigator_plan.h>
 #include <husky_renderers/renderer_gridmap.h>
 
