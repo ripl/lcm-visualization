@@ -27,7 +27,6 @@ pods_use_pkg_config_packages(hr-viewer
     map3d_interface
     occ-map-renderers
     octomap-renderer
-    velodyne-renderer
     rrtstar-renderer
     obstacle-renderer
     )

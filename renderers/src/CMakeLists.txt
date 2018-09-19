@@ -20,7 +20,6 @@ set(REQUIRED_LIBRARIES
     bot2-core
     bot2-vis
     hr-common
-    check_gridmap
     lcmtypes_bot2-procman
     lcmtypes_hr-lcmtypes
     lcmtypes_rrtstar
