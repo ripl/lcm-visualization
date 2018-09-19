@@ -21,3 +21,4 @@ The code follows the pods build framework (https://sourceforge.net/p/pods/home/H
 * occ-map (https://github.com/ripl-ttic/occ-map)
 * husky-lcmtypes (https://github.com/ripl-ttic/husky-lcmtypes)
 * husky-core (https://github.com/ripl-ttic/husky-core)
+* obstacle-detector (https://github.com/ripl-ttic/obstacle-detector.git)
