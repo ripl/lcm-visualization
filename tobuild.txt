@@ -4,5 +4,6 @@
 obstacle-detector-renderer
 rrtstar-renderer
 velodyne-renderer
+robot-status-renderer
 renderers
 viewer

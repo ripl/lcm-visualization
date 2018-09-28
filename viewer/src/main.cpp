@@ -23,6 +23,7 @@
 #include <occ_map/occ_map_renderers.h>
 #include <rrtstar_renderer/renderer_rrtstar.h>
 #include <obstacle_renderer/renderer_tracks.h>
+#include <robot-status_renderer/renderer_robot-status.h>
 
 #include <husky_renderers/renderer_occupancy_map.h>
 #include <husky_renderers/renderer_localize.h>

@@ -10,3 +10,6 @@
 [submodule "velodyne-renderer"]
 	path = velodyne-renderer
 	url = https://github.com/ripl-ttic/velodyne-renderer
+[submodule "robot-status-renderer"]
+	path = robot-status-renderer
+	url = https://github.com/ripl-ttic/robot-status-renderer
