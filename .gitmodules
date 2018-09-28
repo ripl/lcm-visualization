@@ -7,3 +7,6 @@
 [submodule "obstacle-detector-renderer"]
 	path = obstacle-detector-renderer
 	url = https://github.com/ripl-ttic/obstacle-detector-renderer
+[submodule "velodyne-renderer"]
+	path = velodyne-renderer
+	url = https://github.com/ripl-ttic/velodyne-renderer

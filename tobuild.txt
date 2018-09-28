@@ -3,5 +3,6 @@
 
 obstacle-detector-renderer
 rrtstar-renderer
+velodyne-renderer
 renderers
 viewer
