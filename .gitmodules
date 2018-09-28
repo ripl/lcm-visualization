@@ -1,3 +1,9 @@
 [submodule "path-utils"]
 	path = path-utils
 	url = https://github.com/ripl-ttic/path-utils
+[submodule "rrtstar-renderer"]
+	path = rrtstar-renderer
+	url = https://github.com/ripl-ttic/rrtstar-renderer
+[submodule "obstacle-detector-renderer"]
+	path = obstacle-detector-renderer
+	url = https://github.com/ripl-ttic/obstacle-detector-renderer
