@@ -28,7 +28,7 @@ pods_use_pkg_config_packages(hr-viewer
     occ-map-renderers
     octomap-renderer
     rrtstar-renderer
-    obstacle-detector-renderer
+    obstacle-renderer
     )
 
 pods_install_executables(hr-viewer)
