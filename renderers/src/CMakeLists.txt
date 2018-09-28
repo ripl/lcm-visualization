@@ -19,11 +19,13 @@ set(REQUIRED_LIBRARIES
     lcm
     bot2-core
     bot2-vis
-    hr-common
     lcmtypes_bot2-procman
     lcmtypes_hr-lcmtypes
     lcmtypes_rrtstar
     lcmtypes_obstacle-detector
+    lcmtypes_gridmap
+    common-utils
+    gridmap-utils
     opencv
     jpeg-utils
     bot2-lcmgl-renderer

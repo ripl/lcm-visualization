@@ -19,7 +19,7 @@
 
 #include <lcmtypes/ripl_host_status_t.h>
 #include <lcmtypes/bot_procman_info2_t.h>
-#include <hr_common/clock_skew_estimator.h>
+#include <common_utils/clock_skew_estimator.h>
 
 #define ERR(fmt, ...) do {                                  \
       fprintf(stderr, "["__FILE__":%d Error: ", __LINE__);  \

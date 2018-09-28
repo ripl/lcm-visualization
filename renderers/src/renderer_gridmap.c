@@ -24,7 +24,7 @@
 #include <bot_param/param_client.h>
 #include <bot_frames/bot_frames.h>
 
-#include <hr_common/gridmap.h>
+#include <gridmap_utils/gridmap.h>
 
 #include <lcmtypes/obs_rect_list_t.h>
 #include <lcmtypes/obs_obstacle_list_t.h>

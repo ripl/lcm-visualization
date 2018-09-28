@@ -29,7 +29,7 @@
 #include <husky_renderers/renderer_localize.h>
 #include <husky_renderers/renderer_robot_wavefront_model.h>
 #include <husky_renderers/renderer_host_status.h>
-#include <husky_renderers/renderer_navigator_plan.h>
+//#include <husky_renderers/renderer_navigator_plan.h>
 #include <husky_renderers/renderer_gridmap.h>
 
 #include <husky_renderers/viewer_aux_data.h>
@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
 
     setup_renderer_localize(viewer, 1, lcm);
     setup_renderer_husky_model(viewer, 1, param, frames);
-    setup_renderer_navigator_plan(viewer, 1, lcm, frames);
+    //setup_renderer_navigator_plan(viewer, 1, lcm, frames);
     setup_renderer_rrtstar(viewer, 1, lcm);
     setup_renderer_tracks(viewer, 1, lcm, param);
     setup_renderer_gridmap(viewer, 1, lcm, param);

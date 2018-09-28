@@ -4,7 +4,7 @@
 #include <bot_core/math_util.h>
 
 #include <lcmtypes/ripl_gridmap_tile_t.h>
-#include <hr_common/gridmap.h>
+#include <gridmap_utils/gridmap.h>
 
 
 #include "tile_set.h"
@@ -33,13 +33,13 @@ void tile_texture_destroy(struct tile_texture *tt)
 //    struct tile_texture *tt0 = (struct tile_texture*) data;
 //    struct tile_set *ts = (struct tile_set*) user_data;
 //
-//    if (tt0->tile->generation != ts->receiving_generation && 
+//    if (tt0->tile->generation != ts->receiving_generation &&
 //        tt0->tile->generation != ts->drawing_generation)
 //    {
 //        tile_texture_destroy(tt0);
 //        //g_ptr_array_remove_index_fast(ts->tiles, i);
 //        g_ptr_array_remove_fast(ts->tiles, tt0);
-//    }    
+//    }
 //
 //    return;
 //}
@@ -49,7 +49,7 @@ void tile_texture_destroy(struct tile_texture *tt)
 void tile_set_process_new_tile(struct tile_set *ts, const ripl_gridmap_tile_t *tile)
 {
     struct tile_texture *tt = tile_texture_create(tile);
-    
+
     if (ts->receiving_generation != tt->tile->generation)
     {
         ts->drawing_generation = ts->receiving_generation;
@@ -78,7 +78,7 @@ void tile_set_process_new_tile(struct tile_set *ts, const ripl_gridmap_tile_t *t
 
 // compute an RGBA bitmap for a 8bit paletted image. You must
 // preallocate out as 4*width*height
-static void convert_map_color(int width, int height, const uint8_t *in, 
+static void convert_map_color(int width, int height, const uint8_t *in,
                               const uint32_t *bgra,
                               uint32_t *out)
 {
@@ -109,18 +109,18 @@ void tile_set_draw_tile(struct tile_set *ts, struct tile_texture *tt)
         uint32_t *data32 = (uint32_t*) malloc(4 * tt->tile->width * tt->tile->height);
 
         gridmap_decode_base(data8, tt->tile->width, tt->tile->height, tt->tile->data, tt->tile->datalen);
-        
-        convert_map_color(tt->tile->width, tt->tile->height, data8, 
+
+        convert_map_color(tt->tile->width, tt->tile->height, data8,
                           ts->bgra,
                           data32);
 
         glBindTexture (GL_TEXTURE_2D, tt->texture_id);
-        glTexImage2D (GL_TEXTURE_2D, 
-                      0, 
-                      GL_RGBA8, 
-                      tt->tile->width, tt->tile->height, 
-                      0, 
-                      GL_BGRA, // GL_COLOR_INDEX, 
+        glTexImage2D (GL_TEXTURE_2D,
+                      0,
+                      GL_RGBA8,
+                      tt->tile->width, tt->tile->height,
+                      0,
+                      GL_BGRA, // GL_COLOR_INDEX,
                       GL_UNSIGNED_BYTE, // GL_UNSIGNED_BYTE,
                       data32);
         glBindTexture (GL_TEXTURE_2D, 0);
@@ -134,18 +134,18 @@ void tile_set_draw_tile(struct tile_set *ts, struct tile_texture *tt)
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable (GL_DEPTH_TEST);
     glEnable (GL_TEXTURE_2D);
-    
+
     glBindTexture (GL_TEXTURE_2D, tt->texture_id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                     GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
                     GL_NEAREST);
-    
+
     double x0 = tt->tile->x0;
     double x1 = tt->tile->x0 + tt->tile->width * tt->tile->meters_per_pixel;
     double y0 = tt->tile->y0;
     double y1 = tt->tile->y0 + tt->tile->height * tt->tile->meters_per_pixel;
-    
+
     int d = 1;
     glBegin (GL_QUADS);
     glTexCoord2i (0,0);
@@ -223,4 +223,3 @@ void tile_set_draw(struct tile_set *ts)
     //        tile_set_draw_tile(ts, tt);
     //}
 }
-
