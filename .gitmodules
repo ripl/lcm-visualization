@@ -14,5 +14,5 @@
 	path = robot-status-renderer
 	url = https://github.com/ripl-ttic/robot-status-renderer
 [submodule "visualization/localizer-renderer"]
-	path = visualization/localizer-renderer
+	path = localizer-renderer
 	url = git@github.com:ripl-ttic/localizer-renderer.git
