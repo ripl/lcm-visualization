@@ -31,6 +31,7 @@ pods_use_pkg_config_packages(hr-viewer
     rrtstar-renderer
     obstacle-renderer
     robot-status-renderer
+    localizer-renderer
     )
 
 pods_install_executables(hr-viewer)
