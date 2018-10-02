@@ -18,8 +18,6 @@
 #include <lcmtypes/hr_lcmtypes.h>
 #include <lcmtypes/bot_core_pose_t.h>
 
-#include "gl_utils.h"
-
 #define RENDERER_NAME "Husky"
 
 #define PARAM_BLING "Bling"

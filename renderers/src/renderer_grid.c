@@ -20,8 +20,6 @@
 #include <bot_core/bot_core.h>
 #include <bot_vis/bot_vis.h>
 
-#include "gl_utils.h"
-
 #define PARAM_AZIMUTH "Rotation"
 #define PARAM_BGLIGHT "Light"
 #define PARAM_RENDER_GROUND "Ground"
