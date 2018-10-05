@@ -17,7 +17,6 @@ void navigator_plan_renderer_to_viewer(BotViewer *viewer, int render_priority, l
 void setup_renderer_tracks(BotViewer *viewer, int priority, lcm_t *_lcm, BotParam * param);
 void add_husky_model_renderer_to_viewer(BotViewer *viewer, int render_priority, BotParam * param, BotFrames * frames);
 void setup_renderer_simobs(BotViewer *viewer, int priority, lcm_t *lcm, BotParam *param);
-void setup_renderer_gridmap (BotViewer *viewer, int priority, lcm_t *_lcm, BotParam * param);
 void add_person_model_renderer_to_viewer(BotViewer *viewer, int render_priority, BotParam * param, BotFrames * frames, lcm_t *lcm);
 void setup_renderer_host_status (BotViewer *viewer, int priority);
 void renderer_sensor_status_new (BotViewer *viewer);
