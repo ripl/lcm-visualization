@@ -16,3 +16,6 @@
 [submodule "visualization/localizer-renderer"]
 	path = localizer-renderer
 	url = git@github.com:ripl-ttic/localizer-renderer.git
+[submodule "gridmap-renderer"]
+	path = gridmap-renderer
+	url = https://github.com/ripl-ttic/gridmap-renderer

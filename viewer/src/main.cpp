@@ -22,6 +22,7 @@
 #include <image_utils/renderer_cam_thumb.h>
 #include <occ_map/occ_map_renderers.h>
 #include <rrtstar_renderer/renderer_rrtstar.h>
+#include <gridmap_renderer/renderer_gridmap.h>
 #include <obstacle_renderer/renderer_tracks.h>
 #include <robot-status_renderer/renderer_robot_status.h>
 #include <localizer_renderer/renderer_localizer.h>
