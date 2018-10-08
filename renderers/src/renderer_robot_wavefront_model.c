@@ -14,13 +14,11 @@
 #include <bot_core/bot_core.h>
 #include <bot_vis/bot_vis.h>
 #include <bot_frames/bot_frames.h>
-#include <path_utils/path_util.h>
-#include "er_gl_utils.h"
 
-#include <lcmtypes/hr_lcmtypes.h>
+#include <lcmtypes/general_lcmtypes.h>
 #include <lcmtypes/bot_core_pose_t.h>
 
-#define RENDERER_NAME "Husky"
+#define RENDERER_NAME "Robot"
 
 #define PARAM_BLING "Bling"
 #define PARAM_SHOW_SHADOW "Shadow"
@@ -35,7 +33,7 @@
 #define TO_DEG(x) ((x)*180.0/M_PI)
 
 
-typedef struct _RendererHusky {
+typedef struct _RendererRobot {
     BotRenderer renderer;
     BotEventHandler ehandler;
 
@@ -43,7 +41,7 @@ typedef struct _RendererHusky {
     BotParam * param;
     BotFrames * frames;
 
-    BotWavefrontModel *husky_model;
+    BotWavefrontModel *robot_model;
     BotViewer *viewer;
     BotGtkParamWidget *pw;
 
@@ -57,15 +55,15 @@ typedef struct _RendererHusky {
 
     int display_lists_ready;
     int display_detail;
-    GLuint husky_dl;
-} RendererHusky;
+    GLuint robot_dl;
+} RendererRobot;
 
 
 static void
 on_bot_pose (const lcm_recv_buf_t *buf, const char *channel,
              const bot_core_pose_t *msg, void *user) {
-    
-    RendererHusky *self = (RendererHusky *)user;
+
+    RendererRobot *self = (RendererRobot *)user;
     if (self->bot_pose_last)
         bot_core_pose_t_destroy (self->bot_pose_last);
     self->bot_pose_last = bot_core_pose_t_copy (msg);
@@ -75,7 +73,7 @@ static void
 on_raw_odometry_msg (const lcm_recv_buf_t *buf, const char *channel,
                      const ripl_raw_odometry_msg_t *msg, void *user) {
 
-    RendererHusky *self = (RendererHusky *) user;
+    RendererRobot *self = (RendererRobot *) user;
 
     if (self->raw_odometry_msg_last)
         ripl_raw_odometry_msg_t_destroy (self->raw_odometry_msg_last);
@@ -83,27 +81,27 @@ on_raw_odometry_msg (const lcm_recv_buf_t *buf, const char *channel,
 }
 
 static void
-draw_wavefront_model (RendererHusky * self)
+draw_wavefront_model (RendererRobot * self)
 {
     glEnable (GL_BLEND);
     glEnable (GL_RESCALE_NORMAL);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glShadeModel (GL_SMOOTH);
     glEnable (GL_LIGHTING);
-    glCallList (self->husky_dl);
+    glCallList (self->robot_dl);
 }
 
-static void 
+static void
 frames_update_handler(BotFrames *bot_frames, const char *frame, const char * relative_to, int64_t utime,
                                   void *user)
 {
-    RendererHusky *self = (RendererHusky *) user;
+    RendererRobot *self = (RendererRobot *) user;
     if (strcmp(frame, "body") == 0)
         bot_viewer_request_redraw(self->viewer);
 }
 
-static void 
-on_find_button(GtkWidget *button, RendererHusky *self)
+static void
+on_find_button(GtkWidget *button, RendererRobot *self)
 {
     BotViewHandler *vhandler = self->viewer->view_handler;
 
@@ -125,22 +123,22 @@ on_find_button(GtkWidget *button, RendererHusky *self)
     bot_viewer_request_redraw(self->viewer);
 }
 
-static void 
-husky_free(BotRenderer *super)
+static void
+robot_free(BotRenderer *super)
 {
-    RendererHusky *self = (RendererHusky*) super->user;
+    RendererRobot *self = (RendererRobot*) super->user;
 
-    if (self->husky_model)
-        bot_wavefront_model_destroy(self->husky_model);
+    if (self->robot_model)
+        bot_wavefront_model_destroy(self->robot_model);
     free(self);
 }
 
 static GLuint
-compile_display_list (RendererHusky * self, BotWavefrontModel * model)
+compile_display_list (RendererRobot * self, BotWavefrontModel * model)
 {
     GLuint dl = glGenLists (1);
     glNewList (dl, GL_COMPILE);
-    
+
     const char * prefix = self->model_param_prefix;
     char key[1024];
 
@@ -175,8 +173,8 @@ compile_display_list (RendererHusky * self, BotWavefrontModel * model)
 }
 
 static void
-draw_footprint (RendererHusky *self)
-{ 
+draw_footprint (RendererRobot *self)
+{
     glPushAttrib (GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable (GL_DEPTH_TEST);
     glLineWidth(2);
@@ -202,24 +200,24 @@ draw_footprint (RendererHusky *self)
     glPushMatrix ();
     glTranslatef (self->footprint[0] - fp_length/2,
             self->footprint[1] - fp_width/2, 0);
-    bot_gl_draw_arrow_2d (fp_length, fp_width, fp_length * 0.3, 
+    bot_gl_draw_arrow_2d (fp_length, fp_width, fp_length * 0.3,
             fp_width * 0.5, self->ehandler.hovering);
     glPopMatrix ();
     glPopAttrib ();
 }
 
 
-static void 
-husky_draw(BotViewer *viewer, BotRenderer *super)
+static void
+robot_draw(BotViewer *viewer, BotRenderer *super)
 {
-    RendererHusky *self = (RendererHusky*) super->user;
+    RendererRobot *self = (RendererRobot*) super->user;
 
     if (!bot_frames_have_trans(self->frames, "body", self->draw_frame))
         return;
-    
+
     int bling = bot_gtk_param_widget_get_bool(self->pw, PARAM_BLING);
-    if (bling && self->husky_model && !self->display_lists_ready) {
-        self->husky_dl = compile_display_list(self, self->husky_model);
+    if (bling && self->robot_model && !self->display_lists_ready) {
+        self->robot_dl = compile_display_list(self, self->robot_model);
         self->display_lists_ready = 1;
     }
 
@@ -229,25 +227,25 @@ husky_draw(BotViewer *viewer, BotRenderer *super)
 
     //if (bling && self->display_lists_ready) {
     double body_to_local_m[16], body_to_local_m_opengl[16];
-    
+
     glEnable(GL_DEPTH_TEST);
-    
+
     bot_trans_get_mat_4x4(&body_to_local, body_to_local_m);
-    
+
     // opengl expects column-major matrices
     bot_matrix_transpose_4x4d(body_to_local_m, body_to_local_m_opengl);
     glPushMatrix();
     glMultMatrixd(body_to_local_m_opengl); // rotate and translate the vehicle
-    
+
     if (bling && self->display_lists_ready)
         draw_wavefront_model(self);
     else
         draw_footprint (self);
-   
+
 
     glPopMatrix();
 
-    
+
     if (self->viewer && self->display_detail && self->bot_pose_last) {
         char buf[256];
         switch (self->display_detail) {
@@ -255,7 +253,7 @@ husky_draw(BotViewer *viewer, BotRenderer *super)
             if (self->raw_odometry_msg_last) {
             sprintf(buf, "tv: %.2f m/s\nrv: %.2f deg/s", self->raw_odometry_msg_last->tv,
                     self->raw_odometry_msg_last->rv * 180/M_PI);
-            //sqrt(SQ(self->bot_pose_last->vel[0]) + SQ(self->bot_pose_last->vel[1]) + 
+            //sqrt(SQ(self->bot_pose_last->vel[0]) + SQ(self->bot_pose_last->vel[1]) +
             //            SQ(self->bot_pose_last->vel[2])));
             } else
                 sprintf (buf, "No odom");
@@ -275,7 +273,7 @@ husky_draw(BotViewer *viewer, BotRenderer *super)
 //        bot_gl_draw_text(self->bot_pose_last->pos, GLUT_BITMAP_HELVETICA_12, buf,
 //                         BOT_GL_DRAW_TEXT_DROP_SHADOW);
     }
-            
+
 
 
     if (bot_gtk_param_widget_get_bool(self->pw, PARAM_SHOW_SHADOW)) {
@@ -303,12 +301,12 @@ husky_draw(BotViewer *viewer, BotRenderer *super)
 }
 
 
-static int 
+static int
 mouse_press (BotViewer *viewer, BotEventHandler *ehandler,
-             const double ray_start[3], const double ray_dir[3], 
+             const double ray_start[3], const double ray_dir[3],
              const GdkEventButton *event)
 {
-    RendererHusky *self = (RendererHusky*) ehandler->user;
+    RendererRobot *self = (RendererRobot*) ehandler->user;
 
     if (event->type == GDK_2BUTTON_PRESS) {
         self->display_detail = (self->display_detail + 1) % NUM_DETAILS;
@@ -318,39 +316,39 @@ mouse_press (BotViewer *viewer, BotEventHandler *ehandler,
     return 0;
 }
 
-static void 
+static void
 on_param_widget_changed(BotGtkParamWidget *pw, const char *name, void *user)
 {
-    RendererHusky *self = (RendererHusky*) user;
+    RendererRobot *self = (RendererRobot*) user;
     bot_viewer_request_redraw(self->viewer);
 }
 
-static void 
+static void
 on_load_preferences(BotViewer *viewer, GKeyFile *keyfile, void *user_data)
 {
-    RendererHusky *self = (RendererHusky *) user_data;
+    RendererRobot *self = (RendererRobot *) user_data;
     bot_gtk_param_widget_load_from_key_file(self->pw, keyfile, RENDERER_NAME);
 }
 
-static void 
+static void
 on_save_preferences(BotViewer *viewer, GKeyFile *keyfile, void *user_data)
 {
-    RendererHusky *self = (RendererHusky *) user_data;
+    RendererRobot *self = (RendererRobot *) user_data;
     bot_gtk_param_widget_save_to_key_file(self->pw, keyfile, RENDERER_NAME);
 }
 
-void 
-add_husky_model_renderer_to_viewer(BotViewer *viewer, int render_priority, 
-                                        BotParam * param, BotFrames * frames)
+void
+setup_renderer_robot_model(BotViewer *viewer, int render_priority,
+                           BotParam * param, BotFrames * frames)
 {
-    RendererHusky *self = (RendererHusky*) calloc(1, sizeof(RendererHusky));
+    RendererRobot *self = (RendererRobot*) calloc(1, sizeof(RendererRobot));
 
     self->viewer = viewer;
     BotRenderer *renderer = &self->renderer;
     self->lcm = bot_lcm_get_global (NULL);
 
-    renderer->draw = husky_draw;
-    renderer->destroy = husky_free;
+    renderer->draw = robot_draw;
+    renderer->destroy = robot_free;
 
     renderer->widget = gtk_vbox_new(FALSE, 0);
     renderer->name = (char *) RENDERER_NAME;
@@ -375,21 +373,21 @@ add_husky_model_renderer_to_viewer(BotViewer *viewer, int render_priority,
 
     self->draw_frame = bot_frames_get_root_name(self->frames);
 
-    const char * models_dir = getModelsPath();
+    const char * models_dir = BASE_PATH "/models";
 
     char *model_name;
     char model_full_path[256];
-    self->model_param_prefix = "models.husky";
+    self->model_param_prefix = "models.robot";
     char param_key[1024];
     snprintf(param_key, sizeof(param_key), "%s.wavefront_model", self->model_param_prefix);
-  
+
     int footprint_only = 0;
     if (bot_param_get_str(self->param, param_key, &model_name) == 0) {
         snprintf(model_full_path, sizeof(model_full_path), "%s/%s", models_dir, model_name);
-        self->husky_model = bot_wavefront_model_create(model_full_path);
+        self->robot_model = bot_wavefront_model_create(model_full_path);
         double minv[3];
         double maxv[3];
-        bot_wavefront_model_get_extrema(self->husky_model, minv, maxv);
+        bot_wavefront_model_get_extrema(self->robot_model, minv, maxv);
 
         double span_x = maxv[0] - minv[0];
         double span_y = maxv[1] - minv[1];
@@ -397,17 +395,17 @@ add_husky_model_renderer_to_viewer(BotViewer *viewer, int render_priority,
 
         double span_max = MAX(span_x, MAX(span_y, span_z));
 
-        //printf("WAVEFRONT extrema: [%f, %f, %f] [%f, %f, %f]\n", 
+        //printf("WAVEFRONT extrema: [%f, %f, %f] [%f, %f, %f]\n",
         //       minv[0], minv[1], minv[2],
         //       maxv[0], maxv[1], maxv[2]);
 
     }
     else {
         footprint_only = 1;
-        fprintf(stderr, "Husky model name not found under param %s, drawing footprint only\n", param_key);
+        fprintf(stderr, "Robot model name not found under param %s, drawing footprint only\n", param_key);
     }
 
-    
+
     // Get the vehicle footprint
     double *fp = self->footprint;
     bot_param_get_double_array_or_fail (self->param, "calibration.vehicle_bounds.front_left",
@@ -422,7 +420,7 @@ add_husky_model_renderer_to_viewer(BotViewer *viewer, int render_priority,
     self->pw = BOT_GTK_PARAM_WIDGET(bot_gtk_param_widget_new());
     gtk_box_pack_start(GTK_BOX(renderer->widget), GTK_WIDGET(self->pw), TRUE, TRUE, 0);
 
-    bot_gtk_param_widget_add_booleans(self->pw, BOT_GTK_PARAM_WIDGET_CHECKBOX, 
+    bot_gtk_param_widget_add_booleans(self->pw, BOT_GTK_PARAM_WIDGET_CHECKBOX,
                                       PARAM_BLING, 1, PARAM_SHOW_SHADOW, 0, NULL);
 
 
