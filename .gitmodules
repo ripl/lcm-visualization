@@ -19,3 +19,6 @@
 [submodule "gridmap-renderer"]
 	path = gridmap-renderer
 	url = https://github.com/ripl-ttic/gridmap-renderer
+[submodule "robot-wavefront-renderer"]
+	path = robot-wavefront-renderer
+	url = git@github.com:ripl-ttic/robot-wavefront-renderer.git
