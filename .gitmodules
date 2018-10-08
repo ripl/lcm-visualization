@@ -22,3 +22,6 @@
 [submodule "robot-wavefront-renderer"]
 	path = robot-wavefront-renderer
 	url = git@github.com:ripl-ttic/robot-wavefront-renderer.git
+[submodule "host-status-renderer"]
+	path = host-status-renderer
+	url = git@github.com:ripl-ttic/host-status-renderer.git

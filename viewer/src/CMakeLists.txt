@@ -34,6 +34,7 @@ pods_use_pkg_config_packages(hr-viewer
     robot-status-renderer
     localizer-renderer
     robot-wavefront-renderer
+    host-status-renderer
     )
 
 pods_install_executables(hr-viewer)

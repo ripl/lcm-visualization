@@ -26,13 +26,13 @@
 #include <obstacle_renderer/renderer_tracks.h>
 #include <robot-status_renderer/renderer_robot_status.h>
 #include <localizer_renderer/renderer_localizer.h>
-#include <robot_wavefront_renderer/renderer_robot_wavefront.h>
+#include <robot_wavefront_renderer/renderer_robot_wavefront_model.h>
+#include <gridmap_renderer/renderer_gridmap.h>
+#include <host_status_renderer/renderer_host_status.h>
+
 
 #include <husky_renderers/renderer_occupancy_map.h>
-#include <husky_renderers/renderer_robot_wavefront_model.h>
 #include <husky_renderers/renderer_host_status.h>
-//#include <husky_renderers/renderer_navigator_plan.h>
-#include <husky_renderers/renderer_gridmap.h>
 
 #include <husky_renderers/viewer_aux_data.h>
 
