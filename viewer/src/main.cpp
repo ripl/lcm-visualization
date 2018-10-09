@@ -32,7 +32,6 @@
 
 
 #include <husky_renderers/renderer_occupancy_map.h>
-#include <husky_renderers/renderer_host_status.h>
 
 #include <husky_renderers/viewer_aux_data.h>
 
