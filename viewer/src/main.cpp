@@ -419,7 +419,7 @@ int main(int argc, char *argv[])
     bot_frames_add_renderer_to_viewer(viewer, 1, frames);
 
     setup_renderer_localize(viewer, 1, lcm);
-    setup_renderer_husky_model(viewer, 1, param, frames);
+    setup_renderer_robot_model(viewer, 1, param, frames);
     //setup_renderer_navigator_plan(viewer, 1, lcm, frames);
     setup_renderer_rrtstar(viewer, 1, lcm);
     setup_renderer_tracks(viewer, 1, lcm, param);
