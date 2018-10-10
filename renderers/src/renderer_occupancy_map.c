@@ -94,9 +94,9 @@ void request_occupancy_map(lcm_t *lcm)
     msg.floor_no = -1;
     msg.requesting_prog = "VIEWER";
 
-    maplcm_map_request_msg_t_publish(lcm, "MAP_REQUEST_CHANNEL",&msg);
+    maplcm_map_request_msg_t_publish(lcm, "MAP_REQUEST",&msg);
     //ask also for the multi-floor map
-    maplcm_map_request_msg_t_publish(lcm, "MMAP_REQUEST_CHANNEL",&msg);
+    maplcm_map_request_msg_t_publish(lcm, "MMAP_REQUEST",&msg);
 }
 
 static void map3d_place_handler(const lcm_recv_buf_t *rbuf, const char *channel, const maplcm_tagged_node_list_t *msg, void *user)
@@ -133,18 +133,18 @@ static void gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channel,
     RendererOccupancyMap *self = (RendererOccupancyMap*) user;
     ripl_map_t *map = NULL;
 
-    if ((strcmp(channel, GMAPPER_GRIDMAP_CHANNEL) == 0) ||
+    if ((strcmp(channel, "GMAPPER_GRIDMAP") == 0) ||
         (strcmp(channel, "MAP_SERVER")==0)) {
         fprintf(stdout,"New map received\n");
         map = &self->map;
     }
-    else if (strcmp(channel, FRONTIER_UTILITY_MAP_CHANNEL) == 0) {
+    else if (strcmp(channel, "FRONTIER_UTILITY_MAP") == 0) {
         map = &self->frontier_utility_map;
     }
-    else if (strcmp(channel, CAM_FRONTIER_UTILITY_MAP_CHANNEL) == 0) {
+    else if (strcmp(channel, "CAM_FRONTIER_UTILITY_MAP") == 0) {
         map = &self->cam_frontier_utility_map;
     }
-    else if (strcmp(channel, NAVIGATOR_UTILITY_MAP_CHANNEL) == 0) {
+    else if (strcmp(channel, "NAVIGATOR_UTILITY_MAP") == 0) {
         map = &self->nav_utility_map;
     }
      else if (strcmp(channel, "NAVIGATOR_COST_MAP") == 0) {
