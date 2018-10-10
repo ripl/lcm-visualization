@@ -866,17 +866,6 @@ renderer_occupancy_map_new(BotViewer *viewer, int render_priority, BotParam * _p
     g_signal_connect(G_OBJECT(self->pw), "changed", G_CALLBACK(on_param_widget_changed), self);
     on_param_widget_changed(self->pw, "", self);
 
-
-<<<<<<< HEAD
-    ripl_gridmap_t_subscribe(self->lcm, GMAPPER_GRIDMAP_CHANNEL, gridmap_handler, self);
-    ripl_gridmap_t_subscribe(self->lcm, "MAP_SERVER", gridmap_handler, self);
-    ripl_multi_gridmap_t_subscribe(self->lcm, "MULTI_FLOOR_MAPS", multi_gridmap_handler, self);
-    ripl_multi_gridmap_t_subscribe(self->lcm, "MMAP_SERVER", multi_gridmap_handler, self);
-    ripl_gridmap_t_subscribe(self->lcm, FRONTIER_UTILITY_MAP_CHANNEL, gridmap_handler, self);
-    ripl_gridmap_t_subscribe(self->lcm, NAVIGATOR_UTILITY_MAP_CHANNEL, gridmap_handler, self);
-    ripl_gridmap_t_subscribe(self->lcm, "NAVIGATOR_COST_MAP", gridmap_handler, self);
-    ripl_gridmap_t_subscribe(self->lcm, CAM_FRONTIER_UTILITY_MAP_CHANNEL, gridmap_handler, self);
-=======
     gmlcm_gridmap_t_subscribe(self->lcm, GMAPPER_GRIDMAP_CHANNEL, gridmap_handler, self);
     gmlcm_gridmap_t_subscribe(self->lcm, "MAP_SERVER", gridmap_handler, self);
     gmlcm_multi_gridmap_t_subscribe(self->lcm, "MULTI_FLOOR_MAPS", multi_gridmap_handler, self);
@@ -885,7 +874,6 @@ renderer_occupancy_map_new(BotViewer *viewer, int render_priority, BotParam * _p
     gmlcm_gridmap_t_subscribe(self->lcm, NAVIGATOR_UTILITY_MAP_CHANNEL, gridmap_handler, self);
     gmlcm_gridmap_t_subscribe(self->lcm, "NAVIGATOR_COST_MAP", gridmap_handler, self);
     gmlcm_gridmap_t_subscribe(self->lcm, CAM_FRONTIER_UTILITY_MAP_CHANNEL, gridmap_handler, self);
->>>>>>> 45cc4564726e83b24ba340545b206dbc7a99ee37
     maplcm_tagged_node_list_t_subscribe(self->lcm, "TAGGED_NODES", map3d_place_handler, self);
 
     // Subscribe to the obstacle map for the sake of re-rendering the occupancy map with the most recent global-to-local
