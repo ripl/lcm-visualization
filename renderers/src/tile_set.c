@@ -3,17 +3,17 @@
 #include <bot_core/glib_util.h>
 #include <bot_core/math_util.h>
 
-#include <lcmtypes/ripl_gridmap_tile_t.h>
+#include <lcmtypes/gmlcm_gridmap_tile_t.h>
 #include <gridmap_utils/gridmap.h>
 
 
 #include "tile_set.h"
 
-struct tile_texture *tile_texture_create(const ripl_gridmap_tile_t *tile)
+struct tile_texture *tile_texture_create(const gmlcm_gridmap_tile_t *tile)
 {
     struct tile_texture *tt = (struct tile_texture*) calloc(1, sizeof(struct tile_texture));
 
-    tt->tile = ripl_gridmap_tile_t_copy(tile);
+    tt->tile = gmlcm_gridmap_tile_t_copy(tile);
     tt->texture_valid = 0;
     return tt;
 }
@@ -23,7 +23,7 @@ void tile_texture_destroy(struct tile_texture *tt)
     if (tt->texture_valid)
         glDeleteTextures(1, &tt->texture_id);
 
-    ripl_gridmap_tile_t_destroy(tt->tile);
+    gmlcm_gridmap_tile_t_destroy(tt->tile);
     free(tt);
 }
 
@@ -46,7 +46,7 @@ void tile_texture_destroy(struct tile_texture *tt)
 
 
 
-void tile_set_process_new_tile(struct tile_set *ts, const ripl_gridmap_tile_t *tile)
+void tile_set_process_new_tile(struct tile_set *ts, const gmlcm_gridmap_tile_t *tile)
 {
     struct tile_texture *tt = tile_texture_create(tile);
 

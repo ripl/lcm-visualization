@@ -115,7 +115,7 @@ static void upload_map_texture(RendererOccupancyMap *self);
 
 
 static void on_obstacle_map(const lcm_recv_buf_t *rbuf, const char *channel,
-                            const ripl_gridmap_tile_t *msg, void *user)
+                            const gmlcm_gridmap_tile_t *msg, void *user)
 {
     RendererOccupancyMap *self = (RendererOccupancyMap *) user;
 
@@ -123,14 +123,14 @@ static void on_obstacle_map(const lcm_recv_buf_t *rbuf, const char *channel,
 }
 
 static void gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channel,
-                            const ripl_gridmap_t *msg, void *user)
+                            const gmlcm_gridmap_t *msg, void *user)
 {
-    static ripl_gridmap_t* staticmsg = NULL;
+    static gmlcm_gridmap_t* staticmsg = NULL;
     if (staticmsg != NULL) {
-        ripl_gridmap_t_destroy(staticmsg);
+        gmlcm_gridmap_t_destroy(staticmsg);
     }
 
-    staticmsg = ripl_gridmap_t_copy(msg);
+    staticmsg = gmlcm_gridmap_t_copy(msg);
 
     RendererOccupancyMap *self = (RendererOccupancyMap*) user;
     ripl_map_t *map = NULL;
@@ -177,13 +177,13 @@ static void gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channel,
     bot_viewer_request_redraw(self->viewer);
 }
 
-static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channel, const ripl_multi_gridmap_t *msg, void *user)
+static void multi_gridmap_handler(const lcm_recv_buf_t *rbuf, const char *channel, const gmlcm_multi_gridmap_t *msg, void *user)
 {
-    static ripl_multi_gridmap_t* staticmsg = NULL;
+    static gmlcm_multi_gridmap_t* staticmsg = NULL;
     if (staticmsg != NULL) {
-        ripl_multi_gridmap_t_destroy(staticmsg);
+        gmlcm_multi_gridmap_t_destroy(staticmsg);
     }
-    staticmsg = ripl_multi_gridmap_t_copy(msg);
+    staticmsg = gmlcm_multi_gridmap_t_copy(msg);
 
     //fprintf(stderr,"=MultiFloor map received: No Floors : %d, Current Floor_ind: %d, No: %d=\n",
     //	  staticmsg->no_floors, staticmsg->current_floor_ind,
@@ -867,6 +867,7 @@ renderer_occupancy_map_new(BotViewer *viewer, int render_priority, BotParam * _p
     on_param_widget_changed(self->pw, "", self);
 
 
+<<<<<<< HEAD
     ripl_gridmap_t_subscribe(self->lcm, GMAPPER_GRIDMAP_CHANNEL, gridmap_handler, self);
     ripl_gridmap_t_subscribe(self->lcm, "MAP_SERVER", gridmap_handler, self);
     ripl_multi_gridmap_t_subscribe(self->lcm, "MULTI_FLOOR_MAPS", multi_gridmap_handler, self);
@@ -875,10 +876,20 @@ renderer_occupancy_map_new(BotViewer *viewer, int render_priority, BotParam * _p
     ripl_gridmap_t_subscribe(self->lcm, NAVIGATOR_UTILITY_MAP_CHANNEL, gridmap_handler, self);
     ripl_gridmap_t_subscribe(self->lcm, "NAVIGATOR_COST_MAP", gridmap_handler, self);
     ripl_gridmap_t_subscribe(self->lcm, CAM_FRONTIER_UTILITY_MAP_CHANNEL, gridmap_handler, self);
+=======
+    gmlcm_gridmap_t_subscribe(self->lcm, GMAPPER_GRIDMAP_CHANNEL, gridmap_handler, self);
+    gmlcm_gridmap_t_subscribe(self->lcm, "MAP_SERVER", gridmap_handler, self);
+    gmlcm_multi_gridmap_t_subscribe(self->lcm, "MULTI_FLOOR_MAPS", multi_gridmap_handler, self);
+    gmlcm_multi_gridmap_t_subscribe(self->lcm, "MMAP_SERVER", multi_gridmap_handler, self);
+    gmlcm_gridmap_t_subscribe(self->lcm, FRONTIER_UTILITY_MAP_CHANNEL, gridmap_handler, self);
+    gmlcm_gridmap_t_subscribe(self->lcm, NAVIGATOR_UTILITY_MAP_CHANNEL, gridmap_handler, self);
+    gmlcm_gridmap_t_subscribe(self->lcm, "NAVIGATOR_COST_MAP", gridmap_handler, self);
+    gmlcm_gridmap_t_subscribe(self->lcm, CAM_FRONTIER_UTILITY_MAP_CHANNEL, gridmap_handler, self);
+>>>>>>> 45cc4564726e83b24ba340545b206dbc7a99ee37
     maplcm_tagged_node_list_t_subscribe(self->lcm, "TAGGED_NODES", map3d_place_handler, self);
 
     // Subscribe to the obstacle map for the sake of re-rendering the occupancy map with the most recent global-to-local
-    ripl_gridmap_tile_t_subscribe (self->lcm, "OBSTACLE_MAP", on_obstacle_map, self);
+    gmlcm_gridmap_tile_t_subscribe (self->lcm, "OBSTACLE_MAP", on_obstacle_map, self);
 
     request_occupancy_map(self->lcm);
     return &self->renderer;
