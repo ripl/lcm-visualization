@@ -28,10 +28,8 @@
 
 #include <interfaces/map3d_interface.h>
 
-//#include <lcmtypes/hr_lcmtypes.h>
 #include <lcmtypes/map_lcmtypes.h>
 #include <lcmtypes/gridmap_lcmtypes.h>
-#include <hr_lcmtypes/lcm_channel_names.h>
 
 #define PARAM_SHOW_GMAPPER_MAP "Show Gmapper Map"
 #define PARAM_MAP_MODE "Map Mode"
@@ -96,9 +94,9 @@ void request_occupancy_map(lcm_t *lcm)
     msg.floor_no = -1;
     msg.requesting_prog = "VIEWER";
 
-    maplcm_map_request_msg_t_publish(lcm,"MAP_REQUEST_CHANNEL",&msg);
+    maplcm_map_request_msg_t_publish(lcm, "MAP_REQUEST_CHANNEL",&msg);
     //ask also for the multi-floor map
-    maplcm_map_request_msg_t_publish(lcm,"MMAP_REQUEST_CHANNEL",&msg);
+    maplcm_map_request_msg_t_publish(lcm, "MMAP_REQUEST_CHANNEL",&msg);
 }
 
 static void map3d_place_handler(const lcm_recv_buf_t *rbuf, const char *channel, const maplcm_tagged_node_list_t *msg, void *user)
@@ -866,14 +864,14 @@ renderer_occupancy_map_new(BotViewer *viewer, int render_priority, BotParam * _p
     g_signal_connect(G_OBJECT(self->pw), "changed", G_CALLBACK(on_param_widget_changed), self);
     on_param_widget_changed(self->pw, "", self);
 
-    gmlcm_gridmap_t_subscribe(self->lcm, GMAPPER_GRIDMAP_CHANNEL, gridmap_handler, self);
+    gmlcm_gridmap_t_subscribe(self->lcm, "GRIDMAP", gridmap_handler, self);
     gmlcm_gridmap_t_subscribe(self->lcm, "MAP_SERVER", gridmap_handler, self);
     gmlcm_multi_gridmap_t_subscribe(self->lcm, "MULTI_FLOOR_MAPS", multi_gridmap_handler, self);
     gmlcm_multi_gridmap_t_subscribe(self->lcm, "MMAP_SERVER", multi_gridmap_handler, self);
-    gmlcm_gridmap_t_subscribe(self->lcm, FRONTIER_UTILITY_MAP_CHANNEL, gridmap_handler, self);
-    gmlcm_gridmap_t_subscribe(self->lcm, NAVIGATOR_UTILITY_MAP_CHANNEL, gridmap_handler, self);
+    gmlcm_gridmap_t_subscribe(self->lcm, "FRONTIER_UTILITY_MAP", gridmap_handler, self);
+    gmlcm_gridmap_t_subscribe(self->lcm, "NAVIGATOR_UTILITY_MAP", gridmap_handler, self);
     gmlcm_gridmap_t_subscribe(self->lcm, "NAVIGATOR_COST_MAP", gridmap_handler, self);
-    gmlcm_gridmap_t_subscribe(self->lcm, CAM_FRONTIER_UTILITY_MAP_CHANNEL, gridmap_handler, self);
+    gmlcm_gridmap_t_subscribe(self->lcm, "CAM_FRONTIER_UTILITY_MAP", gridmap_handler, self);
     maplcm_tagged_node_list_t_subscribe(self->lcm, "TAGGED_NODES", map3d_place_handler, self);
 
     // Subscribe to the obstacle map for the sake of re-rendering the occupancy map with the most recent global-to-local

@@ -20,7 +20,7 @@ set(REQUIRED_LIBRARIES
     bot2-core
     bot2-vis
     lcmtypes_bot2-procman
-    lcmtypes_hr-lcmtypes
+    lcmtypes_ripl-general
     lcmtypes_rrtstar
     lcmtypes_obstacle-detector
     lcmtypes_gridmap
