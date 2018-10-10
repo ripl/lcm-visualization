@@ -73,7 +73,7 @@ struct _RendererOccupancyMap {
     BotGlTexture *map2dtexture;
     int texture_count;
     BotGlTexture **map2dtexture_all;
-    ripl_tagged_node_list_t *places;
+    maplcm_tagged_node_list_t *places;
 };
 
 void draw_place(float x,float y,float radius)
@@ -91,23 +91,23 @@ void draw_place(float x,float y,float radius)
 void request_occupancy_map(lcm_t *lcm)
 {
     /* subscripe to map, and wait for it to come in... */
-    ripl_map_request_msg_t msg;
+    maplcm_map_request_msg_t msg;
     msg.utime =  bot_timestamp_now();
     msg.floor_no = -1;
     msg.requesting_prog = "VIEWER";
 
-    ripl_map_request_msg_t_publish(lcm,"MAP_REQUEST_CHANNEL",&msg);
+    maplcm_map_request_msg_t_publish(lcm,"MAP_REQUEST_CHANNEL",&msg);
     //ask also for the multi-floor map
-    ripl_map_request_msg_t_publish(lcm,"MMAP_REQUEST_CHANNEL",&msg);
+    maplcm_map_request_msg_t_publish(lcm,"MMAP_REQUEST_CHANNEL",&msg);
 }
 
-static void map3d_place_handler(const lcm_recv_buf_t *rbuf, const char *channel, const ripl_tagged_node_list_t *msg, void *user)
+static void map3d_place_handler(const lcm_recv_buf_t *rbuf, const char *channel, const maplcm_tagged_node_list_t *msg, void *user)
 {
     RendererOccupancyMap *self = (RendererOccupancyMap*) user;
     if(self->places !=NULL){
-        ripl_tagged_node_list_t_destroy(self->places);
+        maplcm_tagged_node_list_t_destroy(self->places);
     }
-    self->places = ripl_tagged_node_list_t_copy(msg);
+    self->places = maplcm_tagged_node_list_t_copy(msg);
     bot_viewer_request_redraw(self->viewer);
 }
 
@@ -875,7 +875,7 @@ renderer_occupancy_map_new(BotViewer *viewer, int render_priority, BotParam * _p
     ripl_gridmap_t_subscribe(self->lcm, NAVIGATOR_UTILITY_MAP_CHANNEL, gridmap_handler, self);
     ripl_gridmap_t_subscribe(self->lcm, "NAVIGATOR_COST_MAP", gridmap_handler, self);
     ripl_gridmap_t_subscribe(self->lcm, CAM_FRONTIER_UTILITY_MAP_CHANNEL, gridmap_handler, self);
-    ripl_tagged_node_list_t_subscribe(self->lcm, "TAGGED_NODES", map3d_place_handler, self);
+    maplcm_tagged_node_list_t_subscribe(self->lcm, "TAGGED_NODES", map3d_place_handler, self);
 
     // Subscribe to the obstacle map for the sake of re-rendering the occupancy map with the most recent global-to-local
     ripl_gridmap_tile_t_subscribe (self->lcm, "OBSTACLE_MAP", on_obstacle_map, self);
