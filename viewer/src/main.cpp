@@ -26,7 +26,7 @@
 #include <obstacle_renderer/renderer_tracks.h>
 #include <robot-status_renderer/renderer_robot_status.h>
 #include <localizer_renderer/renderer_localizer.h>
-#include <robot_wavefront_renderer/renderer_robot_model.h>
+#include <robot_wavefront_renderer/renderer_robot_wavefront.h>
 #include <gridmap_renderer/renderer_gridmap.h>
 #include <host_status_renderer/renderer_host_status.h>
 
