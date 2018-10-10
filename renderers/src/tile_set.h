@@ -7,7 +7,7 @@
 #include <GL/gl.h>
 #endif
 
-#include <lcmtypes/ripl_gridmap_tile_t.h>
+#include <lcmtypes/gmlcm_gridmap_tile_t.h>
 
 struct tile_set
 {
@@ -24,7 +24,7 @@ struct tile_set
 
 struct tile_texture 
 { 
-    ripl_gridmap_tile_t *tile;
+    gmlcm_gridmap_tile_t *tile;
     GLuint                texture_id;
     int                   texture_valid;
 };
@@ -33,7 +33,7 @@ struct tile_set *tile_set_create();
 struct tile_set *tile_set_create_colormap(const float *r, const float *g,
                                           const float *b, const float *a, int ncolors);
 void tile_set_destroy(struct tile_set *ts);
-void tile_set_process_new_tile(struct tile_set *ts, const ripl_gridmap_tile_t *tile);
+void tile_set_process_new_tile(struct tile_set *ts, const gmlcm_gridmap_tile_t *tile);
 void tile_set_draw(struct tile_set *ts);
 
 #endif
