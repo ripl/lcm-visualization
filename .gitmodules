@@ -1,6 +1,3 @@
-[submodule "path-utils"]
-	path = path-utils
-	url = https://github.com/ripl-ttic/path-utils
 [submodule "rrtstar-renderer"]
 	path = rrtstar-renderer
 	url = https://github.com/ripl-ttic/rrtstar-renderer

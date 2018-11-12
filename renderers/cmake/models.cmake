@@ -40,5 +40,8 @@
 #
 
 function(pods_install_model_directories)
-    install(DIRECTORY ${ARGV} DESTINATION models)
+    if (NOT EXISTS ${BASE_PATH})
+        message(FATAL_ERROR "${BASE_PATH} does not exist")
+    endif()
+    install(DIRECTORY ${ARGV} DESTINATION ${BASE_PATH}/models)
 endfunction(pods_install_model_directories)
