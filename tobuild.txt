@@ -4,6 +4,7 @@
 obstacle-detector-renderer
 rrtstar-renderer
 velodyne-renderer
+localizer-renderer
 robot-status-renderer
 robot-wavefront-renderer
 gridmap-renderer
