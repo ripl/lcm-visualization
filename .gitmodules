@@ -22,3 +22,6 @@
 [submodule "host-status-renderer"]
 	path = host-status-renderer
 	url = git@github.com:ripl-ttic/host-status-renderer.git
+[submodule "viewer-models"]
+	path = viewer-models
+	url = git@github.com:ripl-ttic/viewer-models.git
