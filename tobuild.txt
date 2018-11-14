@@ -2,6 +2,7 @@
 # and lines starting with '#' are ignored
 
 obstacle-detector-renderer
+host-status-renderer
 rrtstar-renderer
 velodyne-renderer
 localizer-renderer
