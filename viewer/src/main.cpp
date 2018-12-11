@@ -31,8 +31,9 @@
 #include <host_status_renderer/renderer_host_status.h>
 
 
-#include <husky_renderers/renderer_occupancy_map.h>
 
+#include <husky_renderers/renderer_occupancy_map.h>
+#include <husky_renderers/renderer_simobs.h>
 #include <husky_renderers/viewer_aux_data.h>
 
 
@@ -425,6 +426,7 @@ int main(int argc, char *argv[])
     setup_renderer_gridmap(viewer, 1, lcm, param);
     setup_renderer_host_status (viewer, 1);
     setup_renderer_robot_status (viewer, param, 1);
+    setup_renderer_simobs (viewer, 1, lcm, param);
 
     add_cam_thumb_renderer_to_viewer(viewer, 1, lcm, param, frames);
 
